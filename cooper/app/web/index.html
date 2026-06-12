@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Cooper</title>
+<style>
+  :root {
+    --bg: #fbf6ef;
+    --surface: #ffffff;
+    --surface-alt: #f6ece1;
+    --text: #2f2620;
+    --text-muted: #7a6c5d;
+    --accent: #b5651d;
+    --accent-strong: #8a4513;
+    --accent-soft: #f1ddc7;
+    --good: #5a8f5a;
+    --warn: #d18a2a;
+    --bad: #c4543b;
+    --border: #e7d8c5;
+    --radius: 14px;
+    --shadow: 0 2px 10px rgba(120, 90, 50, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #201913;
+      --surface: #2c241d;
+      --surface-alt: #362c23;
+      --text: #f3ece3;
+      --text-muted: #bfae9c;
+      --accent: #e0a560;
+      --accent-strong: #f3c08a;
+      --accent-soft: #46362a;
+      --good: #8fc98f;
+      --warn: #e0b35a;
+      --bad: #e08a78;
+      --border: #46392e;
+      --shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    padding-bottom: 80px;
+  }
+
+  a { color: var(--accent-strong); }
+
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: 1rem;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  header.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--accent);
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+  }
+
+  header.topbar .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  header.topbar .brand .dog-age {
+    font-weight: 400;
+    font-size: 0.85rem;
+    opacity: 0.9;
+    display: block;
+  }
+
+  .person-chips {
+    display: flex;
+    gap: 6px;
+  }
+
+  .chip {
+    border: 2px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-weight: 600;
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  .chip.active {
+    background: #fff;
+    color: var(--accent-strong);
+    border-color: #fff;
+  }
+
+  main {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 12px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .card h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.05rem;
+  }
+
+  .card h3 {
+    margin: 0 0 8px 0;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+
+  .tile-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 12px 8px;
+    text-align: center;
+  }
+
+  .tile .tile-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent-strong);
+    display: block;
+  }
+
+  .tile .tile-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .btn:hover { background: var(--accent-strong); }
+
+  .btn.secondary {
+    background: var(--surface-alt);
+    color: var(--accent-strong);
+    border: 1px solid var(--border);
+  }
+
+  .btn.full { width: 100%; }
+
+  .btn.big {
+    font-size: 1.15rem;
+    padding: 16px;
+  }
+
+  .btn.danger {
+    background: var(--bad);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .quick-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 12px 0;
+  }
+
+  .quick-grid .btn {
+    flex-direction: column;
+    padding: 18px 8px;
+    font-size: 1.05rem;
+  }
+
+  .quick-grid .emoji { font-size: 1.6rem; }
+
+  .progress {
+    height: 14px;
+    background: var(--surface-alt);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .progress > div {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s ease;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  .list-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .list-entry:last-child { border-bottom: none; }
+
+  .list-entry .meta {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .list-entry .icons { font-size: 1.1rem; }
+
+  .list-entry .actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .icon-btn {
+    min-width: 36px;
+    min-height: 36px;
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 24px 8px;
+    font-size: 0.95rem;
+  }
+
+  .due-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    background: var(--surface-alt);
+    font-size: 0.92rem;
+  }
+
+  .due-item.overdue {
+    background: #f6dcd5;
+    color: var(--bad);
+    font-weight: 700;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .due-item.overdue { background: #4a2c25; color: var(--bad); }
+  }
+
+  nav.tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+    z-index: 10;
+  }
+
+  nav.tabbar button {
+    flex: 1;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    padding: 10px 4px;
+    min-height: 56px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+  }
+
+  nav.tabbar button .tab-icon { font-size: 1.3rem; }
+
+  nav.tabbar button.active {
+    color: var(--accent-strong);
+  }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  form .field {
+    margin-bottom: 12px;
+  }
+
+  form label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+
+  form input, form select, form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    min-height: 44px;
+  }
+
+  form textarea { min-height: 70px; resize: vertical; }
+
+  .checkbox-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .checkbox-row label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 0;
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  .checkbox-row input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    min-height: auto;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 50;
+  }
+
+  .modal-overlay.hidden { display: none; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 18px 18px 0 0;
+    padding: 18px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .modal h2 {
+    margin-top: 0;
+  }
+
+  .modal-close-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+    gap: 8px;
+  }
+
+  .filter-row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    margin-bottom: 12px;
+    padding-bottom: 4px;
+  }
+
+  .filter-row .chip {
+    border-color: var(--border);
+    background: var(--surface-alt);
+    color: var(--text);
+    white-space: nowrap;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+
+  .filter-row .chip.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .command-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .command-row:last-child { border-bottom: none; }
+
+  .status-pill {
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    border: none;
+    min-height: 36px;
+    cursor: pointer;
+  }
+
+  .status-pill.neu { background: var(--surface-alt); color: var(--text-muted); }
+  .status-pill.in-arbeit { background: #f3dcae; color: #8a5a10; }
+  .status-pill.sitzt { background: #d9ead9; color: var(--good); }
+
+  @media (prefers-color-scheme: dark) {
+    .status-pill.in-arbeit { background: #4a3a1c; color: #f0c878; }
+    .status-pill.sitzt { background: #2e3f2e; color: #9fdb9f; }
+  }
+
+  .command-checkbox-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .command-checkbox-list label {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 0;
+    cursor: pointer;
+  }
+
+  .command-checkbox-list input { width: 18px; height: 18px; min-height: auto; }
+
+  .toast {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-strong);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    box-shadow: var(--shadow);
+    z-index: 60;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .toast.show { opacity: 1; }
+
+  svg.chart text { fill: var(--text-muted); font-size: 10px; }
+  svg.chart .line { fill: none; stroke: var(--accent); stroke-width: 2; }
+  svg.chart .dot { fill: var(--accent-strong); }
+  svg.chart .grid { stroke: var(--border); stroke-width: 1; }
+
+  .section-link {
+    background: none;
+    border: none;
+    color: var(--accent-strong);
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    min-height: 44px;
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span>🐾 <span id="dog-name">Cooper</span></span>
+    <span class="dog-age" id="dog-age"></span>
+  </div>
+  <div class="person-chips" id="person-chips"></div>
+</header>
+
+<main>
+  <!-- Dashboard -->
+  <section class="view active" id="view-dashboard">
+    <div class="card" id="walk-stats-card">
+      <h2>Gassi</h2>
+      <div class="tile-grid">
+        <div class="tile">
+          <span class="tile-value" id="stat-last-walk">–</span>
+          <span class="tile-label">seit letztem Gassi</span>
+        </div>
+        <div class="tile">
+          <span class="tile-value" id="stat-last-pee">–</span>
+          <span class="tile-label">seit letztem Pipi</span>
+        </div>
+        <div class="tile">
+          <span class="tile-value" id="stat-last-poop">–</span>
+          <span class="tile-label">seit letztem Häufchen</span>
+        </div>
+      </div>
+      <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">
+        Heute: <strong id="stat-walks-today">0</strong> Gassi-Runden
+      </div>
+      <button class="btn big full" id="btn-quick-walk">🐕 Gassi jetzt</button>
+    </div>
+
+    <div class="card">
+      <h2>Fütterung heute</h2>
+      <div class="progress"><div id="feeding-progress-bar" style="width:0%"></div></div>
+      <div class="progress-label">
+        <span id="feeding-progress-text">0 g / 0 g</span>
+        <button class="section-link" id="btn-quick-feeding">+ Fütterung</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Demnächst fällig</h2>
+      <div id="upcoming-health-list"><div class="empty-state">Keine anstehenden Termine.</div></div>
+    </div>
+
+    <div class="card" id="weight-card">
+      <h2>Gewicht</h2>
+      <div id="latest-weight-text" class="empty-state">Noch kein Gewicht erfasst.</div>
+      <div id="weight-sparkline"></div>
+    </div>
+
+    <div class="card">
+      <h2>Training</h2>
+      <div class="progress"><div id="commands-progress-bar" style="width:0%"></div></div>
+      <div class="progress-label">
+        <span id="commands-progress-text">0 von 0 Kommandos „sitzt”</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gassi -->
+  <section class="view" id="view-walks">
+    <div class="card">
+      <h2>Gassi erfassen</h2>
+      <div class="quick-grid">
+        <button class="btn quick-log" data-pee="1" data-poop="0"><span class="emoji">💧</span>Pipi</button>
+        <button class="btn quick-log" data-pee="0" data-poop="1"><span class="emoji">💩</span>Häufchen</button>
+        <button class="btn quick-log" data-pee="1" data-poop="1"><span class="emoji">💧💩</span>Beides</button>
+        <button class="btn quick-log" data-pee="0" data-poop="0"><span class="emoji">🚶</span>Nichts</button>
+      </div>
+      <button class="btn secondary full" id="btn-walk-nachtragen">+ Nachträglich erfassen</button>
+    </div>
+    <div class="card">
+      <h2>Letzte Einträge</h2>
+      <div id="walks-list"><div class="empty-state">Noch keine Einträge.</div></div>
+    </div>
+  </section>
+
+  <!-- Fütterung & Gewicht -->
+  <section class="view" id="view-feeding">
+    <div class="card">
+      <h2>Fütterung</h2>
+      <div class="progress"><div id="feeding-progress-bar-2" style="width:0%"></div></div>
+      <div class="progress-label">
+        <span id="feeding-progress-text-2">0 g / 0 g</span>
+      </div>
+      <button class="btn full" id="btn-add-feeding" style="margin-top:10px;">+ Fütterung erfassen</button>
+    </div>
+    <div class="card">
+      <h2>Fütterungs-Verlauf</h2>
+      <div id="feedings-list"><div class="empty-state">Noch keine Einträge.</div></div>
+    </div>
+    <div class="card">
+      <h2>Gewicht</h2>
+      <div id="weight-chart-large"></div>
+      <button class="btn full" id="btn-add-weight" style="margin-top:10px;">+ Gewicht erfassen</button>
+    </div>
+    <div class="card">
+      <h2>Gewichts-Verlauf</h2>
+      <div id="weights-list"><div class="empty-state">Noch keine Einträge.</div></div>
+    </div>
+  </section>
+
+  <!-- Gesundheit -->
+  <section class="view" id="view-health">
+    <div class="card">
+      <h2>Tierarzt / Impfungen / Wurmkur</h2>
+      <button class="btn full" id="btn-add-health">+ Eintrag erfassen</button>
+    </div>
+    <div class="card">
+      <h3>Filter</h3>
+      <div class="filter-row" id="health-filter-row">
+        <button class="chip active" data-type="">Alle</button>
+        <button class="chip" data-type="Impfung">Impfung</button>
+        <button class="chip" data-type="Wurmkur">Wurmkur</button>
+        <button class="chip" data-type="Parasitenschutz">Parasitenschutz</button>
+        <button class="chip" data-type="Tierarzt-Termin">Tierarzt-Termin</button>
+        <button class="chip" data-type="Sonstiges">Sonstiges</button>
+      </div>
+      <div id="health-list"><div class="empty-state">Noch keine Einträge.</div></div>
+    </div>
+  </section>
+
+  <!-- Training -->
+  <section class="view" id="view-training">
+    <div class="card">
+      <h2>Kommandos</h2>
+      <div class="progress"><div id="commands-progress-bar-2" style="width:0%"></div></div>
+      <div class="progress-label">
+        <span id="commands-progress-text-2">0 von 0 Kommandos „sitzt”</span>
+      </div>
+      <div id="commands-list" style="margin-top:10px;"></div>
+      <form id="form-new-command" style="margin-top:10px; display:flex; gap:8px;">
+        <input type="text" id="new-command-name" placeholder="Neues Kommando" />
+        <button class="btn" type="submit">+ Hinzufügen</button>
+      </form>
+    </div>
+    <div class="card">
+      <h2>Trainings-Sessions</h2>
+      <button class="btn full" id="btn-add-session">+ Session erfassen</button>
+      <div id="sessions-list" style="margin-top:10px;"><div class="empty-state">Noch keine Sessions.</div></div>
+    </div>
+  </section>
+</main>
+
+<nav class="tabbar">
+  <button class="active" data-view="dashboard"><span class="tab-icon">🏠</span>Start</button>
+  <button data-view="walks"><span class="tab-icon">🐕</span>Gassi</button>
+  <button data-view="feeding"><span class="tab-icon">🍖</span>Futter</button>
+  <button data-view="health"><span class="tab-icon">💊</span>Gesundheit</button>
+  <button data-view="training"><span class="tab-icon">🎓</span>Training</button>
+</nav>
+
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  const state = {
+    meta: null,
+    dashboard: null,
+    person: localStorage.getItem("cooper_person") || null,
+    headerPerson: null,
+  };
+
+  // -------------------------------------------------------------------
+  // Helpers
+  // -------------------------------------------------------------------
+
+  function api(path, options) {
+    options = options || {};
+    options.headers = Object.assign({ "Content-Type": "application/json" }, options.headers || {});
+    return fetch("api/" + path, options).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () { return {}; }).then(function (body) {
+          throw new Error(body.error || ("Fehler " + res.status));
+        });
+      }
+      if (res.status === 204) return null;
+      return res.json();
+    });
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(function () { toast.classList.remove("show"); }, 2200);
+  }
+
+  function withPerson(body) {
+    body = body || {};
+    if (state.person) body.person = state.person;
+    return body;
+  }
+
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+  function formatRelative(minutes) {
+    if (minutes === null || minutes === undefined) return "–";
+    if (minutes < 1) return "gerade eben";
+    if (minutes < 60) return "vor " + minutes + " Min";
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+    if (hours < 24) {
+      return "vor " + hours + " Std" + (rest > 0 ? " " + rest + " Min" : "");
+    }
+    const days = Math.floor(hours / 24);
+    return "vor " + days + " Tag" + (days === 1 ? "" : "en");
+  }
+
+  function utcToLocalDate(isoUtc) {
+    // isoUtc: "YYYY-MM-DDTHH:MM:SSZ"
+    return new Date(isoUtc);
+  }
+
+  function formatTimeLocal(isoUtc) {
+    const d = utcToLocalDate(isoUtc);
+    return pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+
+  function formatDateLocal(isoUtc) {
+    const d = utcToLocalDate(isoUtc);
+    return pad(d.getDate()) + "." + pad(d.getMonth() + 1) + "." + d.getFullYear();
+  }
+
+  function formatDateOnly(isoDate) {
+    // isoDate: "YYYY-MM-DD"
+    const parts = isoDate.split("-");
+    return parts[2] + "." + parts[1] + "." + parts[0];
+  }
+
+  function localDateTimeToUtcIso(dateStr, timeStr) {
+    // dateStr "YYYY-MM-DD", timeStr "HH:MM" interpreted in browser-local tz
+    const d = new Date(dateStr + "T" + timeStr + ":00");
+    return d.toISOString().replace(/\.\d{3}Z$/, "Z");
+  }
+
+  function nowDateStr() {
+    const d = new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+
+  function nowTimeStr() {
+    const d = new Date();
+    return pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+
+  // -------------------------------------------------------------------
+  // Person handling
+  // -------------------------------------------------------------------
+
+  function renderPersonChips() {
+    const container = document.getElementById("person-chips");
+    container.innerHTML = "";
+    if (!state.meta) return;
+    state.meta.persons.forEach(function (p) {
+      const btn = document.createElement("button");
+      btn.className = "chip" + (p === state.person ? " active" : "");
+      btn.textContent = p;
+      btn.addEventListener("click", function () {
+        state.person = p;
+        localStorage.setItem("cooper_person", p);
+        renderPersonChips();
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  // -------------------------------------------------------------------
+  // View / Tab navigation
+  // -------------------------------------------------------------------
+
+  function showView(name) {
+    document.querySelectorAll(".view").forEach(function (el) {
+      el.classList.toggle("active", el.id === "view-" + name);
+    });
+    document.querySelectorAll("nav.tabbar button").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.view === name);
+    });
+    if (name === "dashboard") loadDashboard();
+    if (name === "walks") loadWalks();
+    if (name === "feeding") { loadFeedings(); loadWeights(); }
+    if (name === "health") loadHealth();
+    if (name === "training") { loadCommands(); loadSessions(); }
+  }
+
+  document.querySelectorAll("nav.tabbar button").forEach(function (btn) {
+    btn.addEventListener("click", function () { showView(btn.dataset.view); });
+  });
+
+  // -------------------------------------------------------------------
+  // Modal helper
+  // -------------------------------------------------------------------
+
+  function openModal(html) {
+    document.getElementById("modal-content").innerHTML = html;
+    document.getElementById("modal-overlay").classList.remove("hidden");
+  }
+
+  function closeModal() {
+    document.getElementById("modal-overlay").classList.add("hidden");
+    document.getElementById("modal-content").innerHTML = "";
+  }
+
+  document.getElementById("modal-overlay").addEventListener("click", function (e) {
+    if (e.target.id === "modal-overlay") closeModal();
+  });
+
+  // -------------------------------------------------------------------
+  // Dashboard
+  // -------------------------------------------------------------------
+
+  function loadDashboard() {
+    api("dashboard").then(function (data) {
+      state.dashboard = data;
+      renderDashboard();
+    }).catch(function (e) { showToast(e.message); });
+  }
+
+  function renderDashboard() {
+    const d = state.dashboard;
+    if (!d) return;
+
+    document.getElementById("dog-name").textContent = d.dog_name;
+    document.getElementById("dog-age").textContent = d.age ? d.age : "";
+
+    document.getElementById("stat-last-walk").textContent = formatRelative(d.walks.minutes_since_last);
+    document.getElementById("stat-last-pee").textContent = formatRelative(d.walks.minutes_since_pee);
+    document.getElementById("stat-last-poop").textContent = formatRelative(d.walks.minutes_since_poop);
+    document.getElementById("stat-walks-today").textContent = d.walks.today_count;
+
+    const feedPct = d.feeding.target_g > 0
+      ? Math.min(100, Math.round((d.feeding.today_g / d.feeding.target_g) * 100))
+      : 0;
+    document.getElementById("feeding-progress-bar").style.width = feedPct + "%";
+    document.getElementById("feeding-progress-text").textContent =
+      d.feeding.today_g + " g / " + d.feeding.target_g + " g";
+
+    const feedPct2 = feedPct;
+    const bar2 = document.getElementById("feeding-progress-bar-2");
+    if (bar2) bar2.style.width = feedPct2 + "%";
+    const text2 = document.getElementById("feeding-progress-text-2");
+    if (text2) text2.textContent = d.feeding.today_g + " g / " + d.feeding.target_g + " g";
+
+    renderUpcomingHealth(d.upcoming_health);
+
+    if (d.weight.latest) {
+      document.getElementById("latest-weight-text").classList.remove("empty-state");
+      document.getElementById("latest-weight-text").innerHTML =
+        "<strong>" + d.weight.latest.weight_kg.toFixed(2) + " kg</strong> " +
+        "<span class=\"meta\">am " + formatDateOnly(d.weight.latest.date) + "</span>";
+    } else {
+      document.getElementById("latest-weight-text").classList.add("empty-state");
+      document.getElementById("latest-weight-text").textContent = "Noch kein Gewicht erfasst.";
+    }
+    document.getElementById("weight-sparkline").innerHTML = renderSparkline(d.weight.history);
+
+    const cmdPct = d.commands.total > 0 ? Math.round((d.commands.done / d.commands.total) * 100) : 0;
+    document.getElementById("commands-progress-bar").style.width = cmdPct + "%";
+    document.getElementById("commands-progress-text").textContent =
+      d.commands.done + " von " + d.commands.total + " Kommandos „sitzt”";
+    const bar3 = document.getElementById("commands-progress-bar-2");
+    if (bar3) bar3.style.width = cmdPct + "%";
+    const text3 = document.getElementById("commands-progress-text-2");
+    if (text3) text3.textContent = d.commands.done + " von " + d.commands.total + " Kommandos „sitzt”";
+  }
+
+  function renderUpcomingHealth(items) {
+    const container = document.getElementById("upcoming-health-list");
+    if (!items || items.length === 0) {
+      container.innerHTML = '<div class="empty-state">Keine anstehenden Termine.</div>';
+      return;
+    }
+    container.innerHTML = items.map(function (item) {
+      const overdueClass = item.overdue ? " overdue" : "";
+      const dueLabel = item.overdue ? "überfällig seit " : "fällig am ";
+      return '<div class="due-item' + overdueClass + '">' +
+        '<span>' + escapeHtml(item.title) + ' <span class="meta">(' + escapeHtml(item.type) + ')</span></span>' +
+        '<span>' + dueLabel + formatDateOnly(item.due_date) + '</span>' +
+        '</div>';
+    }).join("");
+  }
+
+  function renderSparkline(history) {
+    if (!history || history.length < 2) return "";
+    const w = 280, h = 60, pad = 6;
+    const values = history.map(function (h) { return h.weight_kg; });
+    const min = Math.min.apply(null, values);
+    const max = Math.max.apply(null, values);
+    const range = (max - min) || 1;
+    const stepX = (w - pad * 2) / (history.length - 1);
+    const pts = history.map(function (item, i) {
+      const x = pad + i * stepX;
+      const y = (h - pad) - ((item.weight_kg - min) / range) * (h - pad * 2);
+      return x + "," + y;
+    });
+    return '<svg class="chart" viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="60" preserveAspectRatio="none">' +
+      '<polyline class="line" points="' + pts.join(" ") + '" />' +
+      '</svg>';
+  }
+
+  // -------------------------------------------------------------------
+  // Walks (Gassi)
+  // -------------------------------------------------------------------
+
+  function loadWalks() {
+    api("walks?limit=30").then(function (items) {
+      renderWalksList(items);
+    }).catch(function (e) { showToast(e.message); });
+  }
+
+  function renderWalksList(items) {
+    const container = document.getElementById("walks-list");
+    if (!items || items.length === 0) {
+      container.innerHTML = '<div class="empty-state">Noch keine Einträge.</div>';
+      return;
+    }
+    container.innerHTML = items.map(function (w) {
+      const icons = (w.pee ? "💧" : "") + (w.poop ? "💩" : "") + (!w.pee && !w.poop ? "🚶" : "");
+      const durationText = w.duration_min ? (w.duration_min + " Min") : "";
+      const noteText = w.note ? (" · " + escapeHtml(w.note)) : "";
+      return '<div class="list-entry" data-id="' + w.id + '">' +
+        '<div>' +
+          '<div class="icons">' + icons + '</div>' +
+          '<div class="meta">' + formatTimeLocal(w.ts_utc) + ' · ' + formatDateLocal(w.ts_utc) + ' · ' + escapeHtml(w.person) + durationText + noteText + '</div>' +
+        '</div>' +
+        '<div class="actions">' +
+          '<button class="icon-btn" data-action="edit-walk" data-id="' + w.id + '">✏️</button>' +
+          '<button class="icon-btn" data-action="delete-walk" data-id="' + w.id + '">🗑️</button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+  }
+
+  document.getElementById("walks-list").addEventListener("click", function (e) {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (btn.dataset.action === "delete-walk") {
+      if (!confirm("Eintrag löschen?")) return;
+      api("walks/" + id, { method: "DELETE" }).then(function () {
+        loadWalks();
+        loadDashboard();
+        showToast("Eintrag gelöscht");
+      }).catch(function (err) { showToast(err.message); });
+    } else if (btn.dataset.action === "edit-walk") {
+      openEditWalkModal(id);
+    }
+  });
+
+  function quickLogWalk(pee, poop) {
+    api("walks", {
+      method: "POST",
+      body: JSON.stringify(withPerson({ pee: !!pee, poop: !!poop })),
+    }).then(function () {
+      showToast("Gassi erfasst");
+      loadDashboard();
+      if (document.getElementById("view-walks").classList.contains("active")) loadWalks();
+    }).catch(function (err) { showToast(err.message); });
+  }
+
+  document.querySelectorAll(".quick-log").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      quickLogWalk(btn.dataset.pee === "1", btn.dataset.poop === "1");
+    });
+  });
+
+  document.getElementById("btn-quick-walk").addEventListener("click", function () {
+    showView("walks");
+  });
+
+  document.getElementById("btn-walk-nachtragen").addEventListener("click", function () {
+    openWalkFormModal(null);
+  });
+
+  function openWalkFormModal(existing) {
+    const isEdit = !!existing;
+    const date = existing ? formatDateForInput(existing.ts_utc) : nowDateStr();
+    const time = existing ? formatTimeForInput(existing.ts_utc) : nowTimeStr();
+    const pee = existing ? !!existing.pee : false;
+    const poop = existing ? !!existing.poop : false;
+    const duration = existing && existing.duration_min ? existing.duration_min : "";
+    const note = existing && existing.note ? existing.note : "";
+
+    openModal(
+      '<h2>' + (isEdit ? "Gassi bearbeiten" : "Gassi nachträglich erfassen") + '</h2>' +
+      '<form id="walk-form">' +
+        '<div class="field"><label>Datum</label><input type="date" name="date" value="' + date + '" required /></div>' +
+        '<div class="field"><label>Uhrzeit</label><input type="time" name="time" value="' + time + '" required /></div>' +
+        '<div class="field checkbox-row">' +
+          '<label><input type="checkbox" name="pee" ' + (pee ? "checked" : "") + ' /> Pipi 💧</label>' +
+          '<label><input type="checkbox" name="poop" ' + (poop ? "checked" : "") + ' /> Häufchen 💩</label>' +
+        '</div>' +
+        '<div class="field"><label>Dauer (Minuten, optional)</label><input type="number" name="duration_min" min="0" value="' + duration + '" /></div>' +
+        '<div class="field"><label>Notiz (optional)</label><textarea name="note">' + escapeHtml(note) + '</textarea></div>' +
+        '<div class="modal-close-row">' +
+          '<button type="button" class="btn secondary" id="modal-cancel">Abbrechen</button>' +
+          '<button type="submit" class="btn">Speichern</button>' +
+        '</div>' +
+      '</form>'
+    );
+
+    document.getElementById("modal-cancel").addEventListener("click", closeModal);
+    document.getElementById("walk-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const ts_utc = localDateTimeToUtcIso(form.date.value, form.time.value);
+      const body = withPerson({
+        ts_utc: ts_utc,
+        pee: form.pee.checked,
+        poop: form.poop.checked,
+        duration_min: form.duration_min.value ? parseInt(form.duration_min.value, 10) : null,
+        note: form.note.value || null,
+      });
+      const request = isEdit
+        ? api("walks/" + existing.id, { method: "PATCH", body: JSON.stringify(body) })
+        : api("walks", { method: "POST", body: JSON.stringify(body) });
+      request.then(function () {
+        closeModal();
+        showToast("Gespeichert");
+        loadWalks();
+        loadDashboard();
+      }).catch(function (err) { showToast(err.message); });
+    });
+  }
+
+  function openEditWalkModal(id) {
+    api("walks").then(function (items) {
+      const item = items.find(function (w) { return String(w.id) === String(id); });
+      if (item) openWalkFormModal(item);
+    }).catch(function (e) { showToast(e.message); });
+  }
+
+  function formatDateForInput(isoUtc) {
+    const d = utcToLocalDate(isoUtc);
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+
+  function formatTimeForInput(isoUtc) {
+    const d = utcToLocalDate(isoUtc);
+    return pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+
+  // -------------------------------------------------------------------
+  // Feedings
+  // -------------------------------------------------------------------
+
+  let feedingSuggestions = [];
+
+  function loadFeedings() {
+    api("feedings?limit=30").then(function (data) {
+      feedingSuggestions = data.suggestions || [];
+      renderFeedingsList(data.items);
+    }).catch(function (e) { showToast(e.message); });
+  }
+
+  function renderFeedingsList(items) {
+    const container = document.getElementById("feedings-list");
+    if (!items || items.length === 0) {
+      container.innerHTML = '<div class="empty-state">Noch keine Einträge.</div>';
+      return;
+    }
+    container.innerHTML = items.map(function (f) {
+      return '<div class="list-entry" data-id="' + f.id + '">' +
+        '<div>' +
+          '<div><strong>' + escapeHtml(f.food_type) + '</strong> · ' + f.amount_g + ' g</div>' +
+          '<div class="meta">' + formatTimeLocal(f.ts_utc) + ' · ' + formatDateLocal(f.ts_utc) + ' · ' + escapeHtml(f.person) + '</div>' +
+        '</div>' +
+        '<div class="actions">' +
+          '<button class="icon-btn" data-action="delete-feeding" data-id="' + f.id + '">🗑️</button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+  }
+
+  document.getElementById("feedings-list").addEventListener("click", function (e) {
+    const btn = e.target.closest("button[data-action='delete-feeding']");
+    if (!btn) return;
+    if (!confirm("Eintrag löschen?")) return;
+    api("feedings/" + btn.dataset.id, { method: "DELETE" }).then(function () {
+      loadFeedings();
+      loadDashboard();
+      showToast("Eintrag gelöscht");
+    }).catch(function (err) { showToast(err.message); });
+  });
+
+  function openFeedingFormModal() {
+    const date = nowDateStr();
+    const time = nowTimeStr();
+    const suggestionsHtml = feedingSuggestions.map(function (s) {
+      return '<option value="' + escapeHtml(s) + '">';
+    }).join("");
+
+    openModal(
+      '<h2>Fütterung erfassen</h2>' +
+      '<form id="feeding-form">' +
+        '<div class="field"><label>Datum</label><input type="date" name="date" value="' + date + '" required /></div>' +
+        '<div class="field"><label>Uhrzeit</label><input type="time" name="time" value="' + time + '" required /></div>' +
+        '<div class="field"><label>Futterart</label><input type="text" name="food_type" list="food-suggestions" required /><datalist id="food-suggestions">' + suggestionsHtml + '</datalist></div>' +
+        '<div class="field"><label>Menge (g)</label><input type="number" name="amount_g" min="0" required /></div>' +
+        '<div class="modal-close-row">' +
+          '<button type="button" class="btn secondary" id="modal-cancel">Abbrechen</button>' +
+          '<button type="submit" class="btn">Speichern</button>' +
+        '</div>' +
+      '</form>'
+    );
+
+    document.getElementById("modal-cancel").addEventListener("click", closeModal);
+    document.getElementById("feeding-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const ts_utc = localDateTimeToUtcIso(form.date.value, form.time.value);
+      const body = withPerson({
+        ts_utc: ts_utc,
+        food_type: form.food_type.value,
+        amount_g: parseInt(form.amount_g.value, 10),
+      });
+      api("feedings", { method: "POST", body: JSON.stringify(body) }).then(function () {
+        closeModal();
+        showToast("Gespeichert");
+        loadFeedings();
+        loadDashboard();
+      }).catch(function (err) { showToast(err.message); });
+    });
+  }
+
+  document.getElementById("btn-quick-feeding").addEventListener("click", function () {
+    showView("feeding");
+    openFeedingFormModal();
+  });
+  document.getElementById("btn-add-feeding").addEventListener("click", openFeedingFormModal);
+
+  // -------------------------------------------------------------------
+  // Weights
+  // -------------------------------------------------------------------
+
+  function loadWeights() {
+    api("weights").then(function (items) {
+      renderWeightsList(items);
+      renderWeightChart(items);
+    }).catch(function (e) { showToast(e.message); });
+  }
+
+  function renderWeightsList(items) {
+    const container = document.getElementById("weights-list");
+    if (!items || items.length === 0) {
+      container.innerHTML = '<div class="empty-state">Noch keine Einträge.</div>';
+      return;
+    }
+    const sorted = items.slice().reverse();
+    container.innerHTML = sorted.map(function (w) {
+      return '<div class="list-entry" data-id="' + w.id + '">' +
+        '<div>' +
+          '<div><strong>' + w.weight_kg.toFixed(2) + ' kg</strong></div>' +
+          '<div class="meta">' + formatDateOnly(w.date) + (w.age_weeks !== null ? (' · ' + w.age_weeks + ' Wochen alt') : '') + '</div>' +
+        '</div>' +
+        '<div class="actions">' +
+          '<button class="icon-btn" data-action="delete-weight" data-id="' + w.id + '">🗑️</button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+  }
+
+  document.getElementById("weights-list").addEventListener("click", function (e) {
+    const btn = e.target.closest("button[data-action='delete-weight']");
+    if (!btn) return;
+    if (!confirm("Eintrag löschen?")) return;
+    api("weights/" + btn.dataset.id, { method: "DELETE" }).then(function () {
+      loadWeights();
+      loadDashboard();
+      showToast("Eintrag gelöscht");
+    }).catch(function (err) { showToast(err.message); });
+  });
+
+  function renderWeightChart(items) {
+    const container = document.getElementById("weight-chart-large");
+    if (!items || items.length < 2) {
+      container.innerHTML = '<div class="empty-state">Mindestens 2 Einträge für eine Kurve nötig.</div>';
+      return;
+    }
+    const w = 320, h = 160, padL = 36, padB = 24, padT = 10, padR = 10;
+    const values = items.map(function (it) { return it.weight_kg; });
+    const min = Math.min.apply(null, values);
+    const max = Math.max.apply(null, values);
+    const range = (max - min) || 1;
+    const stepX = (w - padL - padR) / (items.length - 1);
+
+    function x(i) { return padL + i * stepX; }
+    function y(v) { return (h - padB) - ((v - min) / range) * (h - padT - padB); }
+
+    const pts = items.map(function (it, i) { return x(i) + "," + y(it.weight_kg); });
+    const dots = items.map(function (it, i) {
+      return '<circle class="dot" cx="' + x(i) + '" cy="' + y(it.weight_kg) + '" r="2.5"></circle>';
+    });
+
+    // x-axis labels: age in weeks/months
+    const labelStep = Math.max(1, Math.ceil(items.length / 5));
+    const xLabels = items.map(function (it, i) {
+      if (i % labelStep !== 0 && i !== items.length - 1) return "";
+      const weeks = it.age_weeks;
+      let label;
+      if (weeks === null || weeks === undefined) {
+        label = formatDateOnly(it.date);
+      } else if (weeks < 8) {
+        label = weeks + "W";
+      } else {
+        label = Math.round(weeks / 4.345) + "M";
+      }
+      return '<text x="' + x(i) + '" y="' + (h - 6) + '" text-anchor="middle">' + label + '</text>';
+    }).join("");
+
+    const yLabels = [min, (min + max) / 2, max].map(function (v) {
+      return '<text x="2" y="' + (y(v) + 3) + '">' + v.toFixed(1) + '</text>';
+    }).join("");
+
+    container.innerHTML =
+      '<svg class="chart" viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="160" preserveAspectRatio="xMidYMid meet">' +
+        '<line class="grid" x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (h - padB) + '" />' +
+        '<line class="grid" x1="' + padL + '" y1="' + (h - padB) + '" x2="' + (w - padR) + '" y2="' + (h - padB) + '" />' +
+        yLabels +
+        '<polyline class="line" points="' + pts.join(" ") + '" />' +
+        dots.join("") +
+        xLabels +
+      '</svg>';
+  }
+
+  function openWeightFormModal() {
+    openModal(
+      '<h2>Gewicht erfassen</h2>' +
+      '<form id="weight-form">' +
+        '<div class="field"><label>Datum</label><input type="date" name="date" value="' + nowDateStr() + '" required /></div>' +
+        '<div class="field"><label>Gewicht (kg)</label><input type="number" name="weight_kg" min="0" step="0.01" required /></div>' +
+        '<div class="modal-close-row">' +
+          '<button type="button" class="btn secondary" id="modal-cancel">Abbrechen</button>' +
+          '<button type="submit" class="btn">Speichern</button>' +
+        '</div>' +
+      '</form>'
+    );
+    document.getElementById("modal-cancel").addEventListener("click", closeModal);
+    document.getElementById("weight-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = withPerson({
+        date: form.date.value,
+        weight_kg: parseFloat(form.weight_kg.value),
+      });
+      api("weights", { method: "POST", body: JSON.stringify(body) }).then(function () {
+        closeModal();
+        showToast("Gespeichert");
+        loadWeights();
+        loadDashboard();
+      }).catch(function (err) { showToast(err.message); });
+    });
+  }
+
+  document.getElementById("btn-add-weight").addEventListener("click", openWeightFormModal);
+
+  // -------------------------------------------------------------------
+  // Health
+  // -------------------------------------------------------------------
+
+  let currentHealthFilter = "";
+
+  function loadHealth() {
+    const qs = currentHealthFilter ? ("?type=" + encodeURIComponent(currentHealthFilter)) : "";
+    api("health" + qs).then(function (items) {
+      renderHealthList(items);
+    }).catch(function (e) { showToast(e.message); });
+  }
+
+  function renderHealthList(items) {
+    const container = document.getElementById("health-list");
+    if (!items || items.length === 0) {
+      container.innerHTML = '<div class="empty-state">Noch keine Einträge.</div>';
+      return;
+    }
+    container.innerHTML = items.map(function (item) {
+      let dueText = "";
+      if (item.due_date) {
+        dueText = item.overdue
+          ? ('<span style="color:var(--bad); font-weight:700;">überfällig seit ' + formatDateOnly(item.due_date) + '</span>')
+          : ('fällig am ' + formatDateOnly(item.due_date));
+      }
+      return '<div class="list-entry" data-id="' + item.id + '">' +
+        '<div>' +
+          '<div><strong>' + escapeHtml(item.title) + '</strong> <span class="meta">(' + escapeHtml(item.type) + ')</span></div>' +
+          '<div class="meta">' + formatDateOnly(item.date) + (item.note ? (' · ' + escapeHtml(item.note)) : '') + '</div>' +
+          (dueText ? ('<div class="meta">' + dueText + '</div>') : '') +
+        '</div>' +
+        '<div class="actions">' +
+          '<button class="icon-btn" data-action="edit-health" data-id="' + item.id + '">✏️</button>' +
+          '<button class="icon-btn" data-action="delete-health" data-id="' + item.id + '">🗑️</button>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+  }
+
+  document.getElementById("health-filter-row").addEventListener("click", function (e) {
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    document.querySelectorAll("#health-filter-row .chip").forEach(function (c) { c.classList.remove("active"); });
+    chip.classList.add("active");
+    currentHealthFilter = chip.dataset.type;
+    loadHealth();
+  });
+
+  document.getElementById("health-list").addEventListener("click", function (e) {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (btn.dataset.action === "delete-health") {
+      if (!confirm("Eintrag löschen?")) return;
+      api("health/" + id, { method: "DELETE" }).then(function () {
+        loadHealth();
+        loadDashboard();
+        showToast("Eintrag gelöscht");
+      }).catch(function (err) { showToast(err.message); });
+    } else if (btn.dataset.action === "edit-health") {
+      api("health").then(function (items) {
+        const item = items.find(function (i) { return String(i.id) === String(id); });
+        if (item) openHealthFormModal(item);
+      });
+    }
+  });
+
+  function openHealthFormModal(existing) {
+    const isEdit = !!existing;
+    const types = ["Impfung", "Wurmkur", "Parasitenschutz", "Tierarzt-Termin", "Sonstiges"];
+    const typeOptions = types.map(function (t) {
+      const selected = existing && existing.type === t ? "selected" : "";
+      return '<option value="' + t + '" ' + selected + '>' + t + '</option>';
+    }).join("");
+
+    openModal(
+      '<h2>' + (isEdit ? "Eintrag bearbeiten" : "Gesundheits-Eintrag erfassen") + '</h2>' +
+      '<form id="health-form">' +
+        '<div class="field"><label>Typ</label><select name="type">' + typeOptions + '</select></div>' +
+        '<div class="field"><label>Titel</label><input type="text" name="title" value="' + (existing ? escapeAttr(existing.title) : "") + '" required /></div>' +
+        '<div class="field"><label>Datum</label><input type="date" name="date" value="' + (existing ? existing.date : nowDateStr()) + '" required /></div>' +
+        '<div class="field"><label>Notiz (optional)</label><textarea name="note">' + (existing && existing.note ? escapeHtml(existing.note) : "") + '</textarea></div>' +
+        '<div class="field"><label>Fälligkeit (Datum, optional)</label><input type="date" name="due_date" value="' + (existing && existing.due_date ? existing.due_date : "") + '" /></div>' +
+        '<div class="field"><label>Intervall für Wiederholung (Wochen, optional)</label><input type="number" name="repeat_weeks" min="0" value="' + (existing && existing.repeat_weeks ? existing.repeat_weeks : "") + '" /></div>' +
+        '<div class="modal-close-row">' +
+          '<button type="button" class="btn secondary" id="modal-cancel">Abbrechen</button>' +
+          '<button type="submit" class="btn">Speichern</button>' +
+        '</div>' +
+      '</form>'
+    );
+
+    document.getElementById("modal-cancel").addEventListener("click", closeModal);
+    document.getElementById("health-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const body = withPerson({
+        type: form.type.value,
+        title: form.title.value,
+        date: form.date.value,
+        note: form.note.value || null,
+        due_date: form.due_date.value || null,
+        repeat_weeks: form.repeat_weeks.value ? parseInt(form.repeat_weeks.value, 10) : null,
+      });
+      const request = isEdit
+        ? api("health/" + existing.id, { method: "PATCH", body: JSON.stringify(body) })
+        : api("health", { method: "POST", body: JSON.stringify(body) });
+      request.then(function () {
+        closeModal();
+        showToast("Gespeichert");
+        loadHealth();
+        loadDashboard();
+      }).catch(function (err) { showToast(err.message); });
+    });
+  }
+
+  document.getElementById("btn-add-health").addEventListener("click", function () { openHealthFormModal(null); });
+
+  // -------------------------------------------------------------------
+  // Training: commands & sessions
+  // -------------------------------------------------------------------
+
+  let allCommands = [];
+
+  function loadCommands() {
+    api("commands").then(function (items) {
+      allCommands = items;
+      renderCommandsList(items);
+    }).catch(function (e) { showToast(e.message); });
+  }
+
+  function statusClass(status) {
+    if (status === "in Arbeit") return "in-arbeit";
+    if (status === "sitzt") return "sitzt";
+    return "neu";
+  }
+
+  function renderCommandsList(items) {
+    const container = document.getElementById("commands-list");
+    if (!items || items.length === 0) {
+      container.innerHTML = '<div class="empty-state">Noch keine Kommandos.</div>';
+      return;
+    }
+    container.innerHTML = items.map(function (c) {
+      return '<div class="command-row" data-id="' + c.id + '">' +
+        '<span>' + escapeHtml(c.name) + '</span>' +
+        '<button class="status-pill ' + statusClass(c.status) + '" data-action="cycle-status" data-id="' + c.id + '">' + escapeHtml(c.status) + '</button>' +
+      '</div>';
+    }).join("");
+
+    const done = items.filter(function (c) { return c.status === "sitzt"; }).length;
+    const pct = items.length > 0 ? Math.round((done / items.length) * 100) : 0;
+    document.getElementById("commands-progress-bar-2").style.width = pct + "%";
+    document.getElementById("commands-progress-text-2").textContent =
+      done + " von " + items.length + " Kommandos „sitzt”";
+  }
+
+  document.getElementById("commands-list").addEventListener("click", function (e) {
+    const btn = e.target.closest("button[data-action='cycle-status']");
+    if (!btn) return;
+    api("commands/" + btn.dataset.id, { method: "PATCH", body: JSON.stringify({}) }).then(function () {
+      loadCommands();
+      loadDashboard();
+    }).catch(function (err) { showToast(err.message); });
+  });
+
+  document.getElementById("form-new-command").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const input = document.getElementById("new-command-name");
+    const name = input.value.trim();
+    if (!name) return;
+    api("commands", { method: "POST", body: JSON.stringify({ name: name }) }).then(function () {
+      input.value = "";
+      loadCommands();
+      loadDashboard();
+    }).catch(function (err) { showToast(err.message); });
+  });
+
+  function loadSessions() {
+    api("sessions?limit=20").then(function (items) {
+      renderSessionsList(items);
+    }).catch(function (e) { showToast(e.message); });
+  }
+
+  function renderSessionsList(items) {
+    const container = document.getElementById("sessions-list");
+    if (!items || items.length === 0) {
+      container.innerHTML = '<div class="empty-state">Noch keine Sessions.</div>';
+      return;
+    }
+    container.innerHTML = items.map(function (s) {
+      const cmdNames = s.commands.map(function (id) {
+        const cmd = allCommands.find(function (c) { return c.id === id; });
+        return cmd ? cmd.name : null;
+      }).filter(Boolean);
+      const durationText = s.duration_min ? (s.duration_min + " Min · ") : "";
+      return '<div class="list-entry">' +
+        '<div>' +
+          '<div><strong>' + formatDateOnly(s.date) + '</strong> · ' + escapeHtml(s.person) + '</div>' +
+          '<div class="meta">' + durationText + (cmdNames.length ? cmdNames.join(", ") : "keine Kommandos") + '</div>' +
+          (s.note ? ('<div class="meta">' + escapeHtml(s.note) + '</div>') : '') +
+        '</div>' +
+      '</div>';
+    }).join("");
+  }
+
+  function openSessionFormModal() {
+    const checkboxes = allCommands.map(function (c) {
+      return '<label><input type="checkbox" name="commands" value="' + c.id + '" /> ' + escapeHtml(c.name) + '</label>';
+    }).join("");
+
+    openModal(
+      '<h2>Trainings-Session erfassen</h2>' +
+      '<form id="session-form">' +
+        '<div class="field"><label>Datum</label><input type="date" name="date" value="' + nowDateStr() + '" required /></div>' +
+        '<div class="field"><label>Dauer (Minuten, optional)</label><input type="number" name="duration_min" min="0" /></div>' +
+        '<div class="field"><label>Geübte Kommandos</label><div class="command-checkbox-list">' + checkboxes + '</div></div>' +
+        '<div class="field"><label>Notiz (optional)</label><textarea name="note"></textarea></div>' +
+        '<div class="modal-close-row">' +
+          '<button type="button" class="btn secondary" id="modal-cancel">Abbrechen</button>' +
+          '<button type="submit" class="btn">Speichern</button>' +
+        '</div>' +
+      '</form>'
+    );
+
+    document.getElementById("modal-cancel").addEventListener("click", closeModal);
+    document.getElementById("session-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const selected = Array.from(form.querySelectorAll("input[name='commands']:checked")).map(function (cb) {
+        return parseInt(cb.value, 10);
+      });
+      const body = withPerson({
+        date: form.date.value,
+        duration_min: form.duration_min.value ? parseInt(form.duration_min.value, 10) : null,
+        note: form.note.value || null,
+        commands: selected,
+      });
+      api("sessions", { method: "POST", body: JSON.stringify(body) }).then(function () {
+        closeModal();
+        showToast("Gespeichert");
+        loadSessions();
+      }).catch(function (err) { showToast(err.message); });
+    });
+  }
+
+  document.getElementById("btn-add-session").addEventListener("click", function () {
+    if (allCommands.length === 0) {
+      loadCommands();
+    }
+    openSessionFormModal();
+  });
+
+  // -------------------------------------------------------------------
+  // Escaping helpers
+  // -------------------------------------------------------------------
+
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function escapeAttr(str) { return escapeHtml(str); }
+
+  // -------------------------------------------------------------------
+  // Init
+  // -------------------------------------------------------------------
+
+  function init() {
+    api("meta").then(function (meta) {
+      state.meta = meta;
+      if (!state.person || meta.persons.indexOf(state.person) === -1) {
+        state.person = meta.persons[0] || null;
+        if (state.person) localStorage.setItem("cooper_person", state.person);
+      }
+      renderPersonChips();
+      document.getElementById("dog-name").textContent = meta.dog_name;
+      document.getElementById("dog-age").textContent = meta.age || "";
+      loadDashboard();
+    }).catch(function (e) { showToast(e.message); });
+  }
+
+  init();
+})();
+</script>
+
+</body>
+</html>
