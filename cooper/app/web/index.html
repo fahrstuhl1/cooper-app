@@ -40,6 +40,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .animal-bar{display:flex;gap:7px;overflow-x:auto;padding:7px 16px 10px;scrollbar-width:none}
 .animal-bar::-webkit-scrollbar{display:none}
 
+/* ── Hamburger button ── */
+.hamburger-btn{width:34px;height:34px;border:none;background:none;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--text);transition:background .12s;font-family:inherit}
+.hamburger-btn:hover{background:var(--border)}
+
 /* ── Chips ── */
 .chip{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;user-select:none;font-family:inherit}
 .chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
@@ -77,11 +81,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .hero-species{font-size:.78rem;color:rgba(255,255,255,.72);margin-top:1px}
 .hero-age{font-size:.82rem;color:rgba(255,255,255,.85);font-weight:600;margin-top:3px}
 .hero-stats{display:flex;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.2)}
-.hero-stat{flex:1;text-align:center;padding:0 8px}
+.hero-stat{flex:1;text-align:center;padding:0 8px;border:none;background:none;cursor:pointer;font-family:inherit;border-radius:8px;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.hero-stat:hover{background:rgba(255,255,255,.1)}
 .hero-stat+.hero-stat{border-left:1px solid rgba(255,255,255,.2)}
 .hero-stat .val{font-size:1.1rem;font-weight:800;color:#fff;line-height:1.2}
 .hero-stat .trend{font-size:.7rem;color:rgba(255,255,255,.75);margin-top:2px;font-weight:600}
 .hero-stat .lbl{font-size:.64rem;color:rgba(255,255,255,.65);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+
+/* ── Animal overview cards (Alle-Modus) ── */
+.aoc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:var(--gap)}
+.animal-overview-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;cursor:pointer;transition:box-shadow .15s,transform .1s;border:1.5px solid var(--border);-webkit-tap-highlight-color:transparent}
+.animal-overview-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.animal-overview-card:active{transform:scale(.97)}
+.aoc-header{font-size:.95rem;font-weight:800;margin-bottom:8px}
+.aoc-stat{font-size:1.05rem;font-weight:800;color:var(--primary);margin-bottom:4px}
+.aoc-info{font-size:.73rem;color:var(--muted);margin-bottom:3px}
 
 /* ── Health events ── */
 .event-list{display:flex;flex-direction:column;gap:8px}
@@ -95,6 +109,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .badge-Parasitenschutz{background:#FCE7F3;color:#9D174D}
 .badge-Tierarzt-Termin{background:#E0E7FF;color:#3730A3}
 .badge-Sonstiges{background:var(--border);color:var(--muted)}
+.animal-mini-badge{font-size:.64rem;font-weight:700;padding:2px 6px;border-radius:999px;background:var(--primary-bg);color:var(--primary);display:inline-block;margin-left:4px;white-space:nowrap}
 .event-body{flex:1;min-width:0}
 .event-title{font-size:.88rem;font-weight:700}
 .event-date{font-size:.73rem;color:var(--muted);margin-top:2px}
@@ -112,9 +127,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .icon-btn:hover{background:var(--border);color:var(--text)}
 .icon-btn.danger:hover{background:#FEE2E2;color:var(--danger)}
 
-/* ── Filter row ── */
-.filter-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;margin-bottom:var(--gap);scrollbar-width:none}
-.filter-row::-webkit-scrollbar{display:none}
+/* ── Filter row – wraps instead of scrolling ── */
+.filter-row{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:3px;margin-bottom:var(--gap)}
 
 /* ── Weight chart ── */
 .weight-chart-wrap{width:100%;background:var(--bg);border-radius:10px;overflow:hidden;margin-bottom:14px}
@@ -157,11 +171,6 @@ textarea{resize:vertical;min-height:58px}
 .btn-sm{padding:7px 13px;font-size:.78rem}
 .btn-full{width:100%}
 
-/* ── Sub-tabs ── */
-.sub-tabs{display:flex;background:var(--bg);border-radius:11px;padding:3px;margin-bottom:var(--gap)}
-.sub-tab{flex:1;padding:8px;border:none;background:none;border-radius:9px;font-size:.8rem;font-weight:700;cursor:pointer;color:var(--muted);transition:all .15s;font-family:inherit}
-.sub-tab.active{background:var(--surface);color:var(--primary);box-shadow:var(--shadow)}
-
 /* ── FAB ── */
 .fab{position:fixed;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px);right:20px;width:52px;height:52px;border-radius:50%;background:var(--primary);color:#fff;border:none;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 16px rgba(91,91,214,.45);display:none;align-items:center;justify-content:center;z-index:80;transition:transform .12s,box-shadow .12s;line-height:1}
 .fab:hover{transform:scale(1.06);box-shadow:0 6px 20px rgba(91,91,214,.55)}
@@ -174,6 +183,11 @@ textarea{resize:vertical;min-height:58px}
 .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .modal-title{font-size:1rem;font-weight:800}
 .modal-close{width:32px;height:32px;border:none;background:var(--bg);border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:inherit}
+
+/* ── Hamburger menu sections ── */
+.menu-section-title{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.menu-section{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.menu-section:last-child{border-bottom:none;margin-bottom:0}
 
 /* ── Toast ── */
 .toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:9px 20px;border-radius:999px;font-size:.82rem;font-weight:600;z-index:500;opacity:0;transition:opacity .18s;pointer-events:none;white-space:nowrap;box-shadow:var(--shadow-md)}
@@ -204,6 +218,9 @@ textarea{resize:vertical;min-height:58px}
 .stock-bar-fill.low{background:var(--warning)}
 .stock-bar-fill.critical{background:var(--danger)}
 .stock-actions{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
+
+/* ── Stocks section divider ── */
+.stocks-section-header{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -214,27 +231,22 @@ textarea{resize:vertical;min-height:58px}
   <div class="header-main">
     <div class="brand">🐾 Cooper</div>
     <div class="header-actions">
-      <button class="icon-btn" title="Benachrichtigung testen" onclick="testNotify()" style="font-size:1.1rem">🔔</button>
+      <button class="hamburger-btn" title="Menü" onclick="openHamburgerMenu()">☰</button>
     </div>
   </div>
   <div id="animal-bar" class="animal-bar"></div>
 </header>
 
 <main class="main-content">
-  <div id="tab-start"   class="tab-pane active"><div id="start-inner"></div></div>
-  <div id="tab-health"  class="tab-pane">
+  <div id="tab-start"  class="tab-pane active"><div id="start-inner"></div></div>
+  <div id="tab-health" class="tab-pane">
     <div id="health-filter" class="filter-row"></div>
     <div id="health-list"></div>
   </div>
-  <div id="tab-feed"    class="tab-pane">
-    <div class="sub-tabs">
-      <button class="sub-tab active" data-sub="weights">⚖️ Gewicht</button>
-      <button class="sub-tab"        data-sub="stocks">📦 Vorräte</button>
-    </div>
+  <div id="tab-feed"   class="tab-pane">
     <div id="feed-weights"><div id="weights-inner"></div></div>
-    <div id="feed-stocks" style="display:none"><div id="stocks-inner"></div></div>
+    <div id="feed-stocks"><div id="stocks-inner"></div></div>
   </div>
-  <div id="tab-animals" class="tab-pane"><div id="animals-inner"></div></div>
 </main>
 
 <nav class="bottom-nav">
@@ -252,11 +264,6 @@ textarea{resize:vertical;min-height:58px}
     <div class="nav-pip"></div>
     <span class="nav-icon">🍖</span>
     <span class="nav-label">Futter</span>
-  </button>
-  <button class="nav-btn" data-tab="animals">
-    <div class="nav-pip"></div>
-    <span class="nav-icon">🐾</span>
-    <span class="nav-label">Tiere</span>
   </button>
 </nav>
 
@@ -278,7 +285,6 @@ const S = {
   meta: null,
   animalId: null,
   tab: 'start',
-  subTab: 'weights',
   healthFilter: null,
   health: [],
   weights: [],
@@ -292,8 +298,13 @@ function persist() {
 }
 
 function restorePersistedState() {
-  const aid = parseInt(localStorage.getItem('coop_animal'));
-  if (!isNaN(aid)) S.animalId = aid;
+  const stored = localStorage.getItem('coop_animal');
+  if (stored === 'all') {
+    S.animalId = 'all';
+  } else {
+    const aid = parseInt(stored);
+    if (!isNaN(aid)) S.animalId = aid;
+  }
   S.tab = localStorage.getItem('coop_tab') || 'start';
 }
 
@@ -322,7 +333,7 @@ async function api(method, path, body) {
 
 function aq(extra) {
   const p = new URLSearchParams();
-  if (S.animalId) p.set('animal_id', S.animalId);
+  if (S.animalId && S.animalId !== 'all') p.set('animal_id', S.animalId);
   if (extra) Object.entries(extra).forEach(([k, v]) => { if (v != null) p.set(k, v); });
   const s = p.toString();
   return s ? '?' + s : '';
@@ -330,7 +341,7 @@ function aq(extra) {
 
 function withAnimal(body) {
   const b = { ...body };
-  if (S.animalId) b.animal_id = S.animalId;
+  if (S.animalId && S.animalId !== 'all') b.animal_id = S.animalId;
   return b;
 }
 
@@ -389,14 +400,15 @@ async function testNotify() {
 function renderAnimalBar() {
   const bar = document.getElementById('animal-bar');
   if (!S.meta || !S.meta.animals.length) { bar.innerHTML = ''; return; }
-  bar.innerHTML = S.meta.animals.map(a =>
+  const allChip = `<button class="animal-chip${S.animalId === 'all' ? ' active' : ''}" onclick="selectAnimal('all')">🐾 Alle</button>`;
+  bar.innerHTML = allChip + S.meta.animals.map(a =>
     `<button class="animal-chip${S.animalId === a.id ? ' active' : ''}" onclick="selectAnimal(${a.id})">` +
     `<span>${a.icon}</span>${esc(a.name)}</button>`
   ).join('');
 }
 
 function selectAnimal(id) {
-  S.animalId = id;
+  S.animalId = id === 'all' ? 'all' : id;
   persist();
   renderAnimalBar();
   refreshTab();
@@ -414,14 +426,6 @@ function switchTab(tab) {
 
 document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
 
-document.querySelectorAll('.sub-tab').forEach(b => b.addEventListener('click', () => {
-  S.subTab = b.dataset.sub;
-  document.querySelectorAll('.sub-tab').forEach(x => x.classList.toggle('active', x === b));
-  document.getElementById('feed-weights').style.display = S.subTab === 'weights' ? '' : 'none';
-  document.getElementById('feed-stocks').style.display  = S.subTab === 'stocks'  ? '' : 'none';
-  if (S.subTab === 'stocks') renderStocksInner();
-}));
-
 function noAnimalHint() {
   return '<div class="no-animal"><div style="font-size:2.8rem;margin-bottom:12px">🐾</div>' +
     '<div style="font-size:.92rem;font-weight:700;margin-bottom:6px">Kein Tier ausgewählt</div>' +
@@ -429,7 +433,7 @@ function noAnimalHint() {
 }
 
 async function refreshTab() {
-  if (!S.animalId && S.tab !== 'animals') {
+  if (!S.animalId) {
     document.getElementById('start-inner').innerHTML = noAnimalHint();
     document.getElementById('health-list').innerHTML = noAnimalHint();
     document.getElementById('health-filter').innerHTML = '';
@@ -437,23 +441,70 @@ async function refreshTab() {
     document.getElementById('stocks-inner').innerHTML  = noAnimalHint();
     return;
   }
-  if      (S.tab === 'start')   await renderStartTab();
-  else if (S.tab === 'health')  await renderHealthTab();
-  else if (S.tab === 'feed')    await renderFeedTab();
-  else if (S.tab === 'animals') renderAnimalsTab();
+  if      (S.tab === 'start')  await renderStartTab();
+  else if (S.tab === 'health') await renderHealthTab();
+  else if (S.tab === 'feed')   await renderFeedTab();
 }
 
 // ─── Start tab ────────────────────────────────────────────────────────────────
 async function renderStartTab() {
   const el = document.getElementById('start-inner');
+
+  // ── Alle-Modus: Grid mit einer Karte pro Tier ──
+  if (S.animalId === 'all') {
+    el.innerHTML = '<div style="padding:36px;text-align:center;color:var(--muted)">Lädt…</div>';
+    try {
+      const animals = (S.meta && S.meta.animals) || [];
+      if (!animals.length) {
+        el.innerHTML = '<div class="card"><div class="empty"><div class="empty-icon">🐾</div><div class="empty-text">Noch keine Tiere – füge eines über ☰ hinzu</div></div></div>';
+        return;
+      }
+      const dashboards = await Promise.all(animals.map(a =>
+        api('GET', '/api/dashboard?animal_id=' + a.id)
+      ));
+      const gridHtml = '<div class="aoc-grid">' + dashboards.map((dash, i) => {
+        const a = dash.animal || animals[i];
+        const hist = (dash.weight && dash.weight.history) || [];
+        const latestW = hist.length > 0 ? hist[hist.length - 1].weight_kg : null;
+        const prevW   = hist.length >= 2 ? hist[hist.length - 2].weight_kg : null;
+        const diff    = (latestW !== null && prevW !== null) ? (latestW - prevW) : null;
+        const trendStr = diff !== null
+          ? (Math.abs(diff) < 0.01 ? '' : diff > 0 ? ' ↑' : ' ↓')
+          : '';
+        const overdue = (dash.upcoming_health || []).filter(e => e.overdue);
+        const future  = (dash.upcoming_health || []).filter(e => !e.overdue);
+        let nextLabel;
+        if (overdue.length > 0) nextLabel = `⚠️ ${overdue.length} überfällig`;
+        else if (future.length > 0) {
+          const d = daysFromNow(future[0].due_date);
+          nextLabel = d === 0 ? '📅 Heute' : d === 1 ? '📅 Morgen' : `📅 In ${d} Tagen`;
+        } else nextLabel = '✅ Alles ok';
+        const reminders = dash.food_reminders || [];
+        const stockLabel = reminders.some(p => p.status === 'critical') ? '📦 ⛔ Leer'
+          : reminders.some(p => p.status === 'low') ? '📦 ⚠️ Bald kaufen'
+          : '📦 Vorrat ok';
+        return `<div class="animal-overview-card" onclick="selectAnimal(${a.id})">
+          <div class="aoc-header">${a.icon || '🐾'} ${esc(a.name)}</div>
+          ${latestW !== null ? `<div class="aoc-stat">${latestW} kg${trendStr}</div>` : ''}
+          <div class="aoc-info">${nextLabel}</div>
+          <div class="aoc-info">${stockLabel}</div>
+        </div>`;
+      }).join('') + '</div>';
+      el.innerHTML = gridHtml;
+    } catch(e) {
+      el.innerHTML = `<div class="card" style="color:var(--danger);font-size:.85rem">${esc(e.message)}</div>`;
+    }
+    return;
+  }
+
+  // ── Einzeltier-Modus ──
   el.innerHTML = '<div style="padding:36px;text-align:center;color:var(--muted)">Lädt…</div>';
   try {
     const dash = await api('GET', '/api/dashboard' + aq());
     S.dashboard = dash;
     const a = dash.animal;
 
-    // Weight trend
-    const hist = dash.weight.history || [];
+    const hist = (dash.weight && dash.weight.history) || [];
     const latestW = hist.length > 0 ? hist[hist.length - 1].weight_kg : null;
     const prevW   = hist.length >= 2 ? hist[hist.length - 2].weight_kg : null;
     const diff    = (latestW !== null && prevW !== null) ? (latestW - prevW) : null;
@@ -461,9 +512,8 @@ async function renderStartTab() {
       ? (Math.abs(diff) < 0.01 ? '→ stabil' : diff > 0 ? `↑ +${diff.toFixed(2)} kg` : `↓ ${diff.toFixed(2)} kg`)
       : null;
 
-    // Next health event
-    const overdue = dash.upcoming_health.filter(e => e.overdue);
-    const future  = dash.upcoming_health.filter(e => !e.overdue);
+    const overdue = (dash.upcoming_health || []).filter(e => e.overdue);
+    const future  = (dash.upcoming_health || []).filter(e => !e.overdue);
     let nextStatVal, nextStatLbl;
     if (overdue.length > 0) {
       nextStatVal = `⚠️ ${overdue.length}`;
@@ -477,7 +527,6 @@ async function renderStartTab() {
       nextStatLbl = 'Alles ok';
     }
 
-    // Hero card
     const heroHtml = a ? `<div class="hero-card">
       <div class="hero-animal">
         <div class="hero-avatar">${a.icon || '🐾'}</div>
@@ -488,22 +537,21 @@ async function renderStartTab() {
         </div>
       </div>
       <div class="hero-stats">
-        <div class="hero-stat">
+        <button class="hero-stat" onclick="switchTab('feed')" title="Zur Gewichtsübersicht">
           <div class="val">${latestW !== null ? latestW + ' kg' : '—'}</div>
           ${trendStr ? `<div class="trend">${esc(trendStr)}</div>` : '<div class="trend"> </div>'}
           <div class="lbl">Gewicht</div>
-        </div>
-        <div class="hero-stat">
+        </button>
+        <button class="hero-stat" onclick="switchTab('health')" title="Zu Gesundheitsterminen">
           <div class="val">${nextStatVal}</div>
           <div class="trend"> </div>
           <div class="lbl">${nextStatLbl}</div>
-        </div>
+        </button>
       </div>
     </div>` : '';
 
-    // Upcoming health
     let upHtml;
-    if (dash.upcoming_health.length) {
+    if (dash.upcoming_health && dash.upcoming_health.length) {
       upHtml = '<div class="event-list">' + dash.upcoming_health.slice(0, 4).map(e => {
         const days = daysFromNow(e.due_date);
         return `<div class="event-item ${e.overdue ? 'overdue' : 'upcoming'}">
@@ -520,7 +568,6 @@ async function renderStartTab() {
       upHtml = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Keine fälligen Termine – alles erledigt!</div></div>';
     }
 
-    // Food reminders
     let stockHtml = '';
     if (dash.food_reminders && dash.food_reminders.length) {
       stockHtml = '<div class="card"><div class="card-title">Vorräte – Bald kaufen!</div>' +
@@ -532,7 +579,7 @@ async function renderStartTab() {
               <div class="stock-name">${esc(p.name)}</div>
               <div class="stock-meta">${p.daily_portion_g} g/Tag · Leer am ${fmtDate(p.run_out_date)}</div>
               <div class="stock-days ${p.status}">${days} Tage</div>
-              <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${pct.toFixed(1)}%"></div></div>
+              <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${Math.min(100,pct).toFixed(1)}%"></div></div>
             </div>
           </div>`;
         }).join('') +
@@ -577,11 +624,17 @@ function renderHealthList() {
     el.innerHTML = '<div class="empty"><div class="empty-icon">💊</div><div class="empty-text">Keine Einträge – füge einen mit + hinzu</div></div>';
     return;
   }
+  const showAnimalBadge = S.animalId === 'all';
+  const animals = (S.meta && S.meta.animals) || [];
   el.innerHTML = '<div class="event-list">' + items.map(e => {
     const days = e.due_date ? daysFromNow(e.due_date) : null;
     const cls  = e.overdue ? 'overdue' : (e.due_date ? 'upcoming' : 'ok');
+    const animalInfo = showAnimalBadge ? animals.find(a => a.id === e.animal_id) : null;
     return `<div class="event-item ${cls}">
-      <div><span class="event-badge badge-${esc(e.type.replace(/ /g,'-'))}">${esc(e.type)}</span></div>
+      <div>
+        <span class="event-badge badge-${esc(e.type.replace(/ /g,'-'))}">${esc(e.type)}</span>
+        ${animalInfo ? `<span class="animal-mini-badge">${animalInfo.icon} ${esc(animalInfo.name)}</span>` : ''}
+      </div>
       <div class="event-body">
         <div class="event-title">${esc(e.title)}</div>
         <div class="event-date">${fmtDate(e.date)}${e.note ? ' · ' + esc(e.note) : ''}</div>
@@ -670,10 +723,18 @@ async function saveHealth(id) {
 
 // ─── Feed tab ─────────────────────────────────────────────────────────────────
 async function renderFeedTab() {
+  if (S.animalId === 'all') {
+    document.getElementById('weights-inner').innerHTML =
+      '<div class="card" id="weight-block"><div class="card-title">Gewicht</div>' +
+      '<div class="empty" style="padding:20px 0"><div class="empty-icon">⚖️</div>' +
+      '<div class="empty-text">Wähle ein Tier für Gewichtsdaten</div></div></div>';
+    await renderStocksInner();
+    return;
+  }
   try {
     S.weights = await api('GET', '/api/weights' + aq());
     renderWeightsInner();
-    if (S.subTab === 'stocks') await renderStocksInner();
+    await renderStocksInner();
   } catch(e) {
     document.getElementById('weights-inner').innerHTML = `<div style="color:var(--danger);font-size:.85rem;padding:12px">${esc(e.message)}</div>`;
   }
@@ -693,7 +754,7 @@ function renderWeightsInner() {
   }
 
   const listHtml = S.weights.length
-    ? S.weights.slice().reverse().map(w =>
+    ? S.weights.slice().reverse().slice(0, 10).map(w =>
         `<div class="weight-item">
           <div>
             <div class="weight-val">${w.weight_kg} kg</div>
@@ -705,7 +766,7 @@ function renderWeightsInner() {
     : '<div class="empty"><div class="empty-icon">⚖️</div><div class="empty-text">Noch keine Messungen eingetragen</div></div>';
 
   document.getElementById('weights-inner').innerHTML =
-    '<div class="card">' +
+    '<div class="card" id="weight-block">' +
     (chart ? '<div class="card-title">Gewichtsverlauf</div><div class="weight-chart-wrap">' + chart + '</div>' : '') +
     '<div style="margin-bottom:14px">' +
     '<div style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Aktuelles Gewicht</div>' +
@@ -717,7 +778,7 @@ function renderWeightsInner() {
     `<div class="form-group"><label>Datum</label><input id="w-date" type="date" value="${todayISO()}"></div>` +
     '</div>' +
     '<button class="btn btn-primary btn-full" onclick="addWeight()">Gewicht eintragen</button></div>' +
-    '<div class="card"><div class="card-title">Alle Messungen</div>' + listHtml + '</div>';
+    '<div class="card"><div class="card-title">Letzte Messungen</div>' + listHtml + '</div>';
 }
 
 function buildWeightChart(weights) {
@@ -774,7 +835,30 @@ async function deleteWeight(id) {
   } catch(e) { toast(e.message, true); }
 }
 
-// ─── Stocks tab ───────────────────────────────────────────────────────────────
+// ─── Stocks ───────────────────────────────────────────────────────────────────
+function stockCardHtml(p) {
+  const days  = Math.max(0, Math.round(p.days_remaining));
+  const pct   = Math.min(100, p.days_remaining > 0 ? (p.days_remaining / (p.buy_ahead_days * 2)) * 100 : 0);
+  const label = p.status === 'critical' ? '⛔ Leer' : p.status === 'low' ? '⚠️ Bald kaufen' : '✅ Vorrat ok';
+  const sharedBadge = (p.animal_id === null || p.animal_id === undefined)
+    ? '<span style="font-size:.65rem;background:#E0E7FF;color:#3730A3;padding:1px 5px;border-radius:999px;margin-left:5px">👥</span>'
+    : '';
+  return `<div class="stock-card ${p.status}">
+    <div class="stock-card-body">
+      <div class="stock-name">${esc(p.name)}${sharedBadge}</div>
+      <div class="stock-meta">${p.package_weight_g} g/Pak · ${p.daily_portion_g} g/Tag${p.note ? ' · ' + esc(p.note) : ''}</div>
+      <div class="stock-days ${p.status}">${days} Tage</div>
+      <div class="stock-until">${label} · Leer am ${fmtDate(p.run_out_date)}</div>
+      <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${pct.toFixed(1)}%"></div></div>
+    </div>
+    <div class="stock-actions">
+      <button class="icon-btn" title="Auffüllen" onclick="openRestockModal(${p.id})">+📦</button>
+      <button class="icon-btn" title="Bearbeiten" onclick="openProductModal(${p.id})">✏️</button>
+      <button class="icon-btn danger" title="Löschen" onclick="deleteProduct(${p.id})">🗑️</button>
+    </div>
+  </div>`;
+}
+
 async function renderStocksInner() {
   const el = document.getElementById('stocks-inner');
   el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted)">Lädt…</div>';
@@ -784,35 +868,71 @@ async function renderStocksInner() {
     el.innerHTML = `<div style="color:var(--danger);padding:12px">${esc(e.message)}</div>`;
     return;
   }
-  if (!S.products.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><div class="empty-text">Noch keine Produkte eingetragen</div></div>' +
-      '<button class="btn btn-primary btn-full" style="margin-top:16px" onclick="openProductModal(null)">+ Produkt hinzufügen</button>';
+
+  // ── Alle-Modus: gruppiert nach Tier ──
+  if (S.animalId === 'all') {
+    const animals = (S.meta && S.meta.animals) || [];
+    const groups = {};
+    const shared = [];
+    S.products.forEach(p => {
+      if (p.animal_id === null || p.animal_id === undefined) {
+        shared.push(p);
+      } else {
+        if (!groups[p.animal_id]) groups[p.animal_id] = [];
+        groups[p.animal_id].push(p);
+      }
+    });
+
+    let html = '<div class="card" id="stocks-section"><div class="card-title">Futtervorräte</div>';
+    let hasAny = false;
+
+    animals.forEach(a => {
+      const prods = groups[a.id] || [];
+      if (prods.length) {
+        hasAny = true;
+        html += `<div class="stocks-section-header">${a.icon} ${esc(a.name)}</div>`;
+        html += prods.map(stockCardHtml).join('');
+      }
+    });
+    if (shared.length) {
+      hasAny = true;
+      html += `<div class="stocks-section-header">👥 Geteilt (alle Tiere)</div>`;
+      html += shared.map(stockCardHtml).join('');
+    }
+    if (!hasAny) {
+      html += '<div class="empty" style="padding:20px 0"><div class="empty-icon">📦</div><div class="empty-text">Noch keine Produkte eingetragen</div></div>';
+    }
+    html += '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="openProductModal(null)">+ Produkt hinzufügen</button></div>';
+    el.innerHTML = html;
     return;
   }
-  el.innerHTML = S.products.map(p => {
-    const days  = Math.max(0, Math.round(p.days_remaining));
-    const pct   = Math.min(100, p.days_remaining > 0 ? (p.days_remaining / (p.buy_ahead_days * 2)) * 100 : 0);
-    const label = p.status === 'critical' ? '⛔ Leer' : p.status === 'low' ? '⚠️ Bald kaufen' : '✅ Vorrat ok';
-    return `<div class="stock-card ${p.status}">
-      <div class="stock-card-body">
-        <div class="stock-name">${esc(p.name)}</div>
-        <div class="stock-meta">${p.package_weight_g} g/Pak · ${p.daily_portion_g} g/Tag${p.note ? ' · ' + esc(p.note) : ''}</div>
-        <div class="stock-days ${p.status}">${days} Tage</div>
-        <div class="stock-until">${label} · Leer am ${fmtDate(p.run_out_date)}</div>
-        <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${pct.toFixed(1)}%"></div></div>
-      </div>
-      <div class="stock-actions">
-        <button class="icon-btn" title="Auffüllen" onclick="openRestockModal(${p.id})">+📦</button>
-        <button class="icon-btn" title="Bearbeiten" onclick="openProductModal(${p.id})">✏️</button>
-        <button class="icon-btn danger" title="Löschen" onclick="deleteProduct(${p.id})">🗑️</button>
-      </div>
-    </div>`;
-  }).join('') +
-    '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="openProductModal(null)">+ Produkt hinzufügen</button>';
+
+  // ── Einzeltier-Modus ──
+  if (!S.products.length) {
+    el.innerHTML =
+      '<div class="card" id="stocks-section"><div class="card-title">Futtervorräte</div>' +
+      '<div class="empty" style="padding:20px 0"><div class="empty-icon">📦</div><div class="empty-text">Noch keine Produkte eingetragen</div></div>' +
+      '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="openProductModal(null)">+ Produkt hinzufügen</button></div>';
+    return;
+  }
+
+  const lowFirst = [...S.products].sort((a, b) => {
+    const order = { critical: 0, low: 1, ok: 2 };
+    return (order[a.status] ?? 2) - (order[b.status] ?? 2);
+  });
+  const allOk = lowFirst.every(p => p.status === 'ok');
+  let html = '<div class="card" id="stocks-section"><div class="card-title">Futtervorräte</div>';
+  if (allOk) {
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0 12px;font-size:.82rem;color:var(--success);font-weight:700">✅ Alle Vorräte im grünen Bereich</div>';
+  }
+  html += lowFirst.map(stockCardHtml).join('');
+  html += '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="openProductModal(null)">+ Produkt hinzufügen</button></div>';
+  el.innerHTML = html;
 }
 
 function openProductModal(id) {
   const p = id ? (S.products || []).find(x => x.id === id) : null;
+  const isShared = p ? (p.animal_id === null || p.animal_id === undefined) : false;
   document.getElementById('modal-title').textContent = p ? 'Produkt bearbeiten' : 'Neues Produkt';
   document.getElementById('modal-body').innerHTML =
     `<div class="form-group"><label>Produktname</label><input id="pm-name" type="text" placeholder="z.B. Cooper Trockenfutter" value="${esc(p ? p.name : '')}"></div>
@@ -823,6 +943,10 @@ function openProductModal(id) {
     (p ? '' : '<div class="form-group"><label>Pakete im Lager (aktuell)</label><input id="pm-initial" type="number" min="0" step="0.5" placeholder="2" value="0"></div>') +
     `<div class="form-group"><label>Kauferinnerung (Tage vor Leerstand)</label><input id="pm-ahead" type="number" min="1" max="90" placeholder="10" value="${p ? p.buy_ahead_days : '10'}"></div>
     <div class="form-group"><label>Notiz (optional)</label><input id="pm-note" type="text" placeholder="z.B. Katze Nassfutter" value="${esc(p ? (p.note || '') : '')}"></div>
+    <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.82rem">
+      <input id="pm-shared" type="checkbox" style="width:auto;height:16px;accent-color:var(--primary)"${isShared ? ' checked' : ''}>
+      👥 Für alle Tiere (geteilt)
+    </label></div>
     <div class="form-row" style="gap:8px;margin-top:6px">
       <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-primary btn-full" onclick="saveProduct(${id || 'null'})">Speichern</button>
@@ -831,13 +955,19 @@ function openProductModal(id) {
 }
 
 async function saveProduct(id) {
-  const body = withAnimal({
-    name:              (document.getElementById('pm-name').value || '').trim(),
-    package_weight_g:  parseInt(document.getElementById('pm-pkg').value),
-    daily_portion_g:   parseInt(document.getElementById('pm-daily').value),
-    buy_ahead_days:    parseInt(document.getElementById('pm-ahead').value) || 10,
-    note:              (document.getElementById('pm-note').value || '').trim() || null,
-  });
+  const isShared = document.getElementById('pm-shared')?.checked || false;
+  const body = {
+    name:             (document.getElementById('pm-name').value || '').trim(),
+    package_weight_g: parseInt(document.getElementById('pm-pkg').value),
+    daily_portion_g:  parseInt(document.getElementById('pm-daily').value),
+    buy_ahead_days:   parseInt(document.getElementById('pm-ahead').value) || 10,
+    note:             (document.getElementById('pm-note').value || '').trim() || null,
+  };
+  if (isShared) {
+    body.shared = true;
+  } else if (S.animalId && S.animalId !== 'all') {
+    body.animal_id = S.animalId;
+  }
   if (!id) {
     const initEl = document.getElementById('pm-initial');
     body.initial_packages = parseFloat(initEl ? initEl.value : 0) || 0;
@@ -895,17 +1025,23 @@ async function saveRestock(id) {
 }
 
 function goToStocks() {
-  S.subTab = 'stocks';
-  document.querySelectorAll('.sub-tab').forEach(x => x.classList.toggle('active', x.dataset.sub === 'stocks'));
-  document.getElementById('feed-weights').style.display = 'none';
-  document.getElementById('feed-stocks').style.display  = '';
   switchTab('feed');
+  setTimeout(() => {
+    const el = document.getElementById('stocks-section');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }, 280);
 }
 
-// ─── Animals tab ──────────────────────────────────────────────────────────────
-function renderAnimalsTab() {
+// ─── Hamburger menu ────────────────────────────────────────────────────────────
+function openHamburgerMenu() {
+  document.getElementById('modal-title').textContent = 'Menü';
+  _renderHamburgerBody();
+  openModal();
+}
+
+function _renderHamburgerBody() {
   const animals = (S.meta && S.meta.animals) || [];
-  const listHtml = animals.length ? animals.map(a =>
+  const animalsHtml = animals.length ? animals.map(a =>
     `<div class="animal-item">
       <div class="animal-icon">${a.icon}</div>
       <div style="flex:1;min-width:0">
@@ -913,17 +1049,27 @@ function renderAnimalsTab() {
         <div class="animal-sub">${SPECIES_LABELS[a.species] || esc(a.species)}${a.age ? ' · ' + esc(a.age) + ' alt' : ''}${a.birthdate ? ' · geb. ' + fmtDate(a.birthdate) : ''}</div>
       </div>
       <div style="display:flex;gap:3px">
-        <button class="icon-btn" onclick="openAnimalModal(${a.id})">✏️</button>
-        <button class="icon-btn danger" onclick="deleteAnimalConfirm(${a.id})">🗑️</button>
+        <button class="icon-btn" onclick="openAnimalInMenu(${a.id})">✏️</button>
+        <button class="icon-btn danger" onclick="deleteAnimalInMenu(${a.id})">🗑️</button>
       </div>
     </div>`
-  ).join('') : '<div class="empty"><div class="empty-icon">🐾</div><div class="empty-text">Noch keine Tiere eingetragen</div></div>';
+  ).join('') : '<div class="empty" style="padding:12px 0"><div class="empty-text">Noch keine Tiere eingetragen</div></div>';
 
-  document.getElementById('animals-inner').innerHTML =
-    listHtml + '<button class="btn btn-primary btn-full" style="margin-top:6px" onclick="openAnimalModal(null)">+ Tier hinzufügen</button>';
+  document.getElementById('modal-body').innerHTML =
+    `<div class="menu-section">
+      <div class="menu-section-title">Tiere</div>
+      ${animalsHtml}
+      <button class="btn btn-primary btn-full" style="margin-top:6px" onclick="openAnimalInMenu(null)">+ Tier hinzufügen</button>
+    </div>
+    <div class="menu-section">
+      <div class="menu-section-title">Benachrichtigungen</div>
+      <div style="font-size:.82rem;color:var(--muted);margin-bottom:12px">Tägliche Erinnerungen für Gesundheitstermine und Futtervorräte</div>
+      <button class="btn btn-ghost btn-full" onclick="testNotify()">🔔 Test-Benachrichtigung senden</button>
+    </div>
+    <div style="text-align:center;font-size:.72rem;color:var(--muted);padding-top:16px">Cooper v2.4.0</div>`;
 }
 
-function openAnimalModal(id) {
+function openAnimalInMenu(id) {
   const a    = id ? (S.meta && S.meta.animals.find(x => x.id === id)) : null;
   const opts = (S.meta && S.meta.species_options) || ['dog','cat','rabbit','bird','reptile','other'];
   document.getElementById('modal-title').textContent = a ? 'Tier bearbeiten' : 'Neues Tier';
@@ -934,13 +1080,12 @@ function openAnimalModal(id) {
     `</select></div>
     <div class="form-group"><label>Geburtsdatum (optional)</label><input id="am-birth" type="date" value="${(a && a.birthdate) || ''}"></div>
     <div class="form-row" style="gap:8px;margin-top:6px">
-      <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
-      <button class="btn btn-primary btn-full" onclick="saveAnimal(${id || 'null'})">Speichern</button>
+      <button class="btn btn-ghost btn-full" onclick="openHamburgerMenu()">← Zurück</button>
+      <button class="btn btn-primary btn-full" onclick="saveAnimalInMenu(${id || 'null'})">Speichern</button>
     </div>`;
-  openModal();
 }
 
-async function saveAnimal(id) {
+async function saveAnimalInMenu(id) {
   const body = {
     name:      document.getElementById('am-name').value.trim(),
     species:   document.getElementById('am-species').value,
@@ -950,14 +1095,14 @@ async function saveAnimal(id) {
     if (id) await api('PATCH', '/api/animals/' + id, body);
     else    await api('POST',  '/api/animals', body);
     toast('Gespeichert ✓');
-    closeModal();
     await reloadMeta();
     renderAnimalBar();
-    renderAnimalsTab();
+    openHamburgerMenu();
+    if (S.tab === 'start') await renderStartTab();
   } catch(e) { toast(e.message, true); }
 }
 
-async function deleteAnimalConfirm(id) {
+async function deleteAnimalInMenu(id) {
   const a = S.meta && S.meta.animals.find(x => x.id === id);
   if (!confirm((a ? a.name : 'Tier') + ' wirklich löschen? Alle Daten gehen verloren.')) return;
   try {
@@ -965,10 +1110,13 @@ async function deleteAnimalConfirm(id) {
     toast('Gelöscht');
     if (S.animalId === id) S.animalId = null;
     await reloadMeta();
-    if (!S.animalId && S.meta.animals.length) S.animalId = S.meta.animals[0].id;
+    if (S.animalId !== 'all' && S.animalId && !S.meta.animals.find(a => a.id === S.animalId)) {
+      S.animalId = S.meta.animals.length ? 'all' : null;
+    }
     persist();
     renderAnimalBar();
-    renderAnimalsTab();
+    openHamburgerMenu();
+    await refreshTab();
   } catch(e) { toast(e.message, true); }
 }
 
@@ -982,8 +1130,10 @@ document.getElementById('modal-backdrop').addEventListener('click', e => {
 // ─── Init ──────────────────────────────────────────────────────────────────────
 async function reloadMeta() {
   S.meta = await api('GET', '/api/meta');
-  if (S.animalId && !S.meta.animals.find(a => a.id === S.animalId)) S.animalId = null;
-  if (!S.animalId && S.meta.animals.length) S.animalId = S.meta.animals[0].id;
+  if (S.animalId !== 'all' && S.animalId && !S.meta.animals.find(a => a.id === S.animalId)) {
+    S.animalId = null;
+  }
+  if (S.animalId == null && S.meta.animals.length) S.animalId = 'all';
   persist();
 }
 
@@ -1003,8 +1153,7 @@ init().catch(e => {
 
 // ─── Touch gestures ────────────────────────────────────────────────────────────
 (function() {
-  const MAIN_TABS = ['start', 'health', 'feed', 'animals'];
-  const SUB_TABS  = ['weights', 'stocks'];
+  const MAIN_TABS = ['start', 'health', 'feed'];
   let tx = 0, ty = 0;
   const el = document.querySelector('.main-content');
 
@@ -1017,20 +1166,11 @@ init().catch(e => {
     const dx = e.changedTouches[0].clientX - tx;
     const dy = e.changedTouches[0].clientY - ty;
     if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
-    if (S.tab === 'feed') {
-      const idx  = SUB_TABS.indexOf(S.subTab);
-      const next = dx < 0 ? Math.min(idx + 1, SUB_TABS.length - 1) : Math.max(idx - 1, 0);
-      if (next !== idx) {
-        const btn = document.querySelector(`.sub-tab[data-sub="${SUB_TABS[next]}"]`);
-        if (btn) btn.click();
-      }
-    } else {
-      const midx  = MAIN_TABS.indexOf(S.tab);
-      const mnext = dx < 0 ? Math.min(midx + 1, MAIN_TABS.length - 1) : Math.max(midx - 1, 0);
-      if (mnext !== midx) {
-        const btn = document.querySelector(`.nav-btn[data-tab="${MAIN_TABS[mnext]}"]`);
-        if (btn) btn.click();
-      }
+    const midx  = MAIN_TABS.indexOf(S.tab);
+    const mnext = dx < 0 ? Math.min(midx + 1, MAIN_TABS.length - 1) : Math.max(midx - 1, 0);
+    if (mnext !== midx) {
+      const btn = document.querySelector(`.nav-btn[data-tab="${MAIN_TABS[mnext]}"]`);
+      if (btn) btn.click();
     }
   }, { passive: true });
 })();

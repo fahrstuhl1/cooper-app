@@ -19,7 +19,6 @@ log = logging.getLogger("cooper.notify")
 
 SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN", "")
 _HA_BASE = "http://supervisor/core/api"
-_LOCAL_TZ = ZoneInfo("Europe/Berlin")
 
 
 def _ha_post(path, payload):
@@ -51,8 +50,10 @@ def send_notification(service, title, message):
     return _ha_post(f"/services/notify/{service}", {"title": title, "message": message})
 
 
-def _build_message(health_reminder_days):
-    today = datetime.datetime.now(_LOCAL_TZ).date()
+def _build_message(health_reminder_days, local_tz=None):
+    if local_tz is None:
+        local_tz = ZoneInfo("Europe/Berlin")
+    today = datetime.datetime.now(local_tz).date()
     horizon = (today + datetime.timedelta(days=health_reminder_days)).isoformat()
 
     animals = {a["id"]: a["name"] for a in db.list_animals()}
@@ -85,7 +86,8 @@ def _build_message(health_reminder_days):
 
 def check_and_notify(config):
     """Einmalige Prüfung und Benachrichtigung – kann auch von außen aufgerufen werden."""
-    msg = _build_message(config.get("health_reminder_days", 30))
+    local_tz = ZoneInfo(config.get("timezone", "Europe/Berlin"))
+    msg = _build_message(config.get("health_reminder_days", 30), local_tz)
     if not msg:
         log.debug("Keine Erinnerungen zu senden")
         return False
@@ -96,11 +98,12 @@ def check_and_notify(config):
 def start_scheduler(config):
     """Startet den Hintergrund-Thread für tägliche Benachrichtigungen."""
     notify_hour = int(config.get("notify_hour", 8))
+    local_tz = ZoneInfo(config.get("timezone", "Europe/Berlin"))
 
     def loop():
         last_sent_date = None
         while True:
-            now = datetime.datetime.now(_LOCAL_TZ)
+            now = datetime.datetime.now(local_tz)
             today = now.date()
             if now.hour >= notify_hour and last_sent_date != today:
                 try:
