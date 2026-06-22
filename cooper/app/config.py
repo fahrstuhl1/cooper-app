@@ -3,8 +3,11 @@ import json
 import os
 
 DEFAULTS = {
-    "dog_name": "Cooper",
-    "birthdate": "2025-09-13",
+    "animals": [
+        {"name": "Cooper", "species": "dog", "birthdate": "2025-09-13"},
+        {"name": "Katze 1", "species": "cat", "birthdate": ""},
+        {"name": "Katze 2", "species": "cat", "birthdate": ""},
+    ],
     "persons": ["Max", "Franzi"],
     "daily_food_target_g": 300,
     "health_reminder_days": 30,
@@ -28,5 +31,8 @@ def load_config():
 
     if not isinstance(config.get("persons"), list) or not config["persons"]:
         config["persons"] = DEFAULTS["persons"]
+
+    if not isinstance(config.get("animals"), list) or not config["animals"]:
+        config["animals"] = DEFAULTS["animals"]
 
     return config
