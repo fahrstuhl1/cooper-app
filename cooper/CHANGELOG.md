@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.5.0 – 2026-06-22
+
+### Neu
+- **Stückbasierte Einheiten**: Futter-Produkte können jetzt in Dosen oder Stück erfasst werden (z.B. Nassfutter); Packungsgröße, Tagesration und Vorrat werden in der gewählten Einheit angezeigt
+- **Gesundheits-Dashboard global**: Nur noch eine Ansicht für alle Tiere; Tier-Badge bei jedem Eintrag; Tier-Auswahl direkt im Erstell-/Bearbeiten-Formular
+- **Futter-Dashboard global**: Vorräte immer für alle Tiere gruppiert angezeigt; Gewichts-Übersicht kompakt (eine Kachel pro Tier) im „Alle"-Modus
+- **Tier-Zuweisung editierbar**: Produkte können nachträglich einem anderen Tier oder auf „Geteilt" umgestellt werden (Dropdown statt Checkbox)
+- **Gewicht aus Alle-Modus**: Neue Kacheln mit „+ Gewicht"-Button pro Tier ermöglichen Gewichtseingabe direkt aus der Gesamtübersicht
+
+### Geändert
+- Futter-Dashboard zeigt immer alle Produkte (global), nicht gefiltert nach ausgewähltem Tier
+- Gesundheits-Dashboard zeigt immer alle Einträge (global), Tier-Filter entfernt
+- Vorrats-Karte zeigt jetzt Tage und Vorrat in einer Zeile
+
+---
+
 ## 2.4.0 – 2026-06-22
 
 ### Neu

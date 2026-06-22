@@ -141,6 +141,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .trend-down{color:var(--success);font-size:.85rem;font-weight:700}
 .trend-flat{color:var(--muted);font-size:.82rem}
 
+/* ── Weight summary grid (Alle-Modus) ── */
+.weight-summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:4px}
+.weight-summary-card{background:var(--bg);border-radius:10px;padding:10px 12px;border:1.5px solid var(--border)}
+.wsc-name{font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:4px}
+.wsc-val{font-size:1.1rem;font-weight:800;color:var(--primary)}
+.wsc-sub{font-size:.7rem;color:var(--muted);margin-top:2px}
+
 /* ── Weight items ── */
 .weight-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
 .weight-item:last-child{border-bottom:none}
@@ -575,10 +582,13 @@ async function renderStartTab() {
         dash.food_reminders.map(p => {
           const days = Math.max(0, Math.round(p.days_remaining));
           const pct  = Math.min(100, p.days_remaining > 0 ? (p.days_remaining / (p.buy_ahead_days * 2)) * 100 : 0);
+          const dailyDisp = p.is_piece_based
+            ? `${(p.display_daily_count || 0).toFixed(1)} ${(p.unit || 'g') + 'n'}/Tag`
+            : `${p.daily_portion_g} g/Tag`;
           return `<div class="stock-card ${p.status}" style="margin-bottom:8px">
             <div class="stock-card-body">
               <div class="stock-name">${esc(p.name)}</div>
-              <div class="stock-meta">${p.daily_portion_g} g/Tag · Leer am ${fmtDate(p.run_out_date)}</div>
+              <div class="stock-meta">${dailyDisp} · Leer am ${fmtDate(p.run_out_date)}</div>
               <div class="stock-days ${p.status}">${days} Tage</div>
               <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${Math.min(100,pct).toFixed(1)}%"></div></div>
             </div>
@@ -611,7 +621,10 @@ function setHealthFilter(t) {
 async function renderHealthTab() {
   renderHealthFilter();
   try {
-    S.health = await api('GET', '/api/health' + aq(S.healthFilter ? { type: S.healthFilter } : {}));
+    const params = new URLSearchParams();
+    if (S.healthFilter) params.set('type', S.healthFilter);
+    const qs = params.toString() ? '?' + params.toString() : '';
+    S.health = await api('GET', 'api/health' + qs);
     renderHealthList();
   } catch(e) {
     document.getElementById('health-list').innerHTML = `<div style="color:var(--danger);font-size:.85rem;padding:12px">${esc(e.message)}</div>`;
@@ -625,12 +638,11 @@ function renderHealthList() {
     el.innerHTML = '<div class="empty"><div class="empty-icon">💊</div><div class="empty-text">Keine Einträge – füge einen mit + hinzu</div></div>';
     return;
   }
-  const showAnimalBadge = S.animalId === 'all';
   const animals = (S.meta && S.meta.animals) || [];
   el.innerHTML = '<div class="event-list">' + items.map(e => {
     const days = e.due_date ? daysFromNow(e.due_date) : null;
     const cls  = e.overdue ? 'overdue' : (e.due_date ? 'upcoming' : 'ok');
-    const animalInfo = showAnimalBadge ? animals.find(a => a.id === e.animal_id) : null;
+    const animalInfo = animals.find(a => a.id === e.animal_id);
     return `<div class="event-item ${cls}">
       <div>
         <span class="event-badge badge-${esc(e.type.replace(/ /g,'-'))}">${esc(e.type)}</span>
@@ -684,9 +696,15 @@ async function deleteHealth(id) {
 
 function openHealthModal(id) {
   const ev = id ? S.health.find(e => e.id === id) : null;
+  const animals = (S.meta && S.meta.animals) || [];
+  const currentAnimalId = ev ? ev.animal_id : (S.animalId !== 'all' ? S.animalId : null);
+  const animalOptions = `<option value="">— Kein Tier —</option>` +
+    animals.map(a => `<option value="${a.id}"${currentAnimalId == a.id ? ' selected' : ''}>${a.icon} ${esc(a.name)}</option>`).join('');
+
   document.getElementById('modal-title').textContent = ev ? 'Eintrag bearbeiten' : 'Neuer Gesundheitseintrag';
   document.getElementById('modal-body').innerHTML =
-    '<div class="form-group"><label>Typ</label><select id="hm-type">' +
+    `<div class="form-group"><label>Tier</label><select id="hm-animal">${animalOptions}</select></div>
+    <div class="form-group"><label>Typ</label><select id="hm-type">` +
     HEALTH_TYPES.map(t => `<option value="${t}"${ev && ev.type === t ? ' selected' : ''}>${t}</option>`).join('') +
     `</select></div>
     <div class="form-group"><label>Titel</label><input id="hm-title" type="text" placeholder="z.B. DHPP-Auffrischung" value="${esc(ev ? ev.title : '')}"></div>
@@ -704,15 +722,18 @@ function openHealthModal(id) {
 }
 
 async function saveHealth(id) {
+  const animalSel = document.getElementById('hm-animal');
+  const animalId = animalSel && animalSel.value ? parseInt(animalSel.value) : null;
   const repeatVal = document.getElementById('hm-repeat').value;
-  const body = withAnimal({
+  const body = {
+    animal_id:    animalId,
     type:         document.getElementById('hm-type').value,
     title:        document.getElementById('hm-title').value.trim(),
     date:         document.getElementById('hm-date').value,
     due_date:     document.getElementById('hm-due').value || null,
     repeat_weeks: repeatVal ? parseInt(repeatVal) : null,
     note:         document.getElementById('hm-note').value.trim() || null,
-  });
+  };
   try {
     if (id) await api('PATCH', '/api/health/' + id, body);
     else    await api('POST',  '/api/health', body);
@@ -725,10 +746,7 @@ async function saveHealth(id) {
 // ─── Feed tab ─────────────────────────────────────────────────────────────────
 async function renderFeedTab() {
   if (S.animalId === 'all') {
-    document.getElementById('weights-inner').innerHTML =
-      '<div class="card" id="weight-block"><div class="card-title">Gewicht</div>' +
-      '<div class="empty" style="padding:20px 0"><div class="empty-icon">⚖️</div>' +
-      '<div class="empty-text">Wähle ein Tier für Gewichtsdaten</div></div></div>';
+    await renderWeightSummaryAll();
     await renderStocksInner();
     return;
   }
@@ -739,6 +757,70 @@ async function renderFeedTab() {
   } catch(e) {
     document.getElementById('weights-inner').innerHTML = `<div style="color:var(--danger);font-size:.85rem;padding:12px">${esc(e.message)}</div>`;
   }
+}
+
+async function renderWeightSummaryAll() {
+  const el = document.getElementById('weights-inner');
+  el.innerHTML = '<div class="card" id="weight-block"><div class="card-title">Gewicht – Übersicht</div><div style="padding:12px;text-align:center;color:var(--muted)">Lädt…</div></div>';
+  try {
+    const animals = (S.meta && S.meta.animals) || [];
+    if (!animals.length) {
+      el.innerHTML = '<div class="card" id="weight-block"><div class="empty"><div class="empty-icon">⚖️</div><div class="empty-text">Noch keine Tiere vorhanden</div></div></div>';
+      return;
+    }
+    const weightLists = await Promise.all(animals.map(a => api('GET', 'api/weights?animal_id=' + a.id)));
+    let gridHtml = '<div class="weight-summary-grid">';
+    animals.forEach((a, i) => {
+      const ws = weightLists[i] || [];
+      const latest = ws.length ? ws[ws.length - 1] : null;
+      const prev   = ws.length >= 2 ? ws[ws.length - 2] : null;
+      const diff   = (latest && prev) ? (latest.weight_kg - prev.weight_kg) : null;
+      let trendStr = '';
+      if (diff !== null) {
+        if (Math.abs(diff) < 0.01) trendStr = '→ stabil';
+        else if (diff > 0) trendStr = `↑ +${diff.toFixed(2)} kg`;
+        else trendStr = `↓ ${diff.toFixed(2)} kg`;
+      }
+      gridHtml += `<div class="weight-summary-card">
+        <div class="wsc-name">${a.icon} ${esc(a.name)}</div>
+        <div class="wsc-val">${latest ? latest.weight_kg + ' kg' : '—'}</div>
+        ${trendStr ? `<div class="wsc-sub">${trendStr}</div>` : ''}
+        ${latest ? `<div class="wsc-sub">${fmtDate(latest.date)}</div>` : ''}
+        <button class="btn btn-ghost btn-sm" style="margin-top:8px;width:100%" onclick="openAddWeightModal(${a.id})">+ Gewicht</button>
+      </div>`;
+    });
+    gridHtml += '</div>';
+    el.innerHTML = `<div class="card" id="weight-block"><div class="card-title">Gewicht – Übersicht</div>${gridHtml}</div>`;
+  } catch(e) {
+    el.innerHTML = `<div class="card" id="weight-block" style="color:var(--danger);font-size:.85rem">${esc(e.message)}</div>`;
+  }
+}
+
+function openAddWeightModal(animalId) {
+  const animal = S.meta && S.meta.animals.find(a => a.id === animalId);
+  document.getElementById('modal-title').textContent = (animal ? animal.name + ' – ' : '') + 'Gewicht eintragen';
+  document.getElementById('modal-body').innerHTML =
+    `<div class="form-row">
+      <div class="form-group"><label>Gewicht (kg)</label><input id="aw-kg" type="number" min="0.1" max="200" step="0.01" placeholder="7.25"></div>
+      <div class="form-group"><label>Datum</label><input id="aw-date" type="date" value="${todayISO()}"></div>
+    </div>
+    <div class="form-row" style="gap:8px;margin-top:6px">
+      <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary btn-full" onclick="saveAddWeight(${animalId})">Speichern</button>
+    </div>`;
+  openModal();
+}
+
+async function saveAddWeight(animalId) {
+  const weight_kg = parseFloat(document.getElementById('aw-kg').value);
+  const date = document.getElementById('aw-date').value;
+  if (!weight_kg || !date) { toast('Gewicht und Datum erforderlich', true); return; }
+  try {
+    await api('POST', '/api/weights', { weight_kg, date, animal_id: animalId });
+    toast('Gewicht gespeichert ✓');
+    closeModal();
+    await renderFeedTab();
+  } catch(e) { toast(e.message, true); }
 }
 
 function renderWeightsInner() {
@@ -844,11 +926,21 @@ function stockCardHtml(p) {
   const sharedBadge = (p.animal_id === null || p.animal_id === undefined)
     ? '<span style="font-size:.65rem;background:#E0E7FF;color:#3730A3;padding:1px 5px;border-radius:999px;margin-left:5px">👥</span>'
     : '';
+  const unit = p.unit || 'g';
+  const isPiece = p.is_piece_based;
+  const unitPl = unit + 'n';
+  const dailyDisp = isPiece
+    ? `${(p.display_daily_count || 0).toFixed(1)} ${unitPl}/Tag`
+    : `${p.daily_portion_g} g/Tag`;
+  const pkgDisp = isPiece ? `${p.package_weight_g} g/${unit}` : `${p.package_weight_g} g/Pak`;
+  const stockDisp = isPiece
+    ? `${(p.display_stock_count || 0).toFixed(1)} ${unitPl}`
+    : `${(p.stock_g || 0).toFixed(0)} g`;
   return `<div class="stock-card ${p.status}">
     <div class="stock-card-body">
       <div class="stock-name">${esc(p.name)}${sharedBadge}</div>
-      <div class="stock-meta">${p.package_weight_g} g/Pak · ${p.daily_portion_g} g/Tag${p.note ? ' · ' + esc(p.note) : ''}</div>
-      <div class="stock-days ${p.status}">${days} Tage</div>
+      <div class="stock-meta">${pkgDisp} · ${dailyDisp}${p.note ? ' · ' + esc(p.note) : ''}</div>
+      <div class="stock-days ${p.status}">${days} Tage · ${stockDisp}</div>
       <div class="stock-until">${label} · Leer am ${fmtDate(p.run_out_date)}</div>
       <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${pct.toFixed(1)}%"></div></div>
     </div>
@@ -864,90 +956,77 @@ async function renderStocksInner() {
   const el = document.getElementById('stocks-inner');
   el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted)">Lädt…</div>';
   try {
-    S.products = await api('GET', '/api/food-products' + aq());
+    S.products = await api('GET', 'api/food-products');
   } catch(e) {
     el.innerHTML = `<div style="color:var(--danger);padding:12px">${esc(e.message)}</div>`;
     return;
   }
 
-  // ── Alle-Modus: gruppiert nach Tier ──
-  if (S.animalId === 'all') {
-    const animals = (S.meta && S.meta.animals) || [];
-    const groups = {};
-    const shared = [];
-    S.products.forEach(p => {
-      if (p.animal_id === null || p.animal_id === undefined) {
-        shared.push(p);
-      } else {
-        if (!groups[p.animal_id]) groups[p.animal_id] = [];
-        groups[p.animal_id].push(p);
-      }
-    });
-
-    let html = '<div class="card" id="stocks-section"><div class="card-title">Futtervorräte</div>';
-    let hasAny = false;
-
-    animals.forEach(a => {
-      const prods = groups[a.id] || [];
-      if (prods.length) {
-        hasAny = true;
-        html += `<div class="stocks-section-header">${a.icon} ${esc(a.name)}</div>`;
-        html += prods.map(stockCardHtml).join('');
-      }
-    });
-    if (shared.length) {
-      hasAny = true;
-      html += `<div class="stocks-section-header">👥 Geteilt (alle Tiere)</div>`;
-      html += shared.map(stockCardHtml).join('');
+  const animals = (S.meta && S.meta.animals) || [];
+  const groups = {};
+  const shared = [];
+  S.products.forEach(p => {
+    if (p.animal_id === null || p.animal_id === undefined) {
+      shared.push(p);
+    } else {
+      if (!groups[p.animal_id]) groups[p.animal_id] = [];
+      groups[p.animal_id].push(p);
     }
-    if (!hasAny) {
-      html += '<div class="empty" style="padding:20px 0"><div class="empty-icon">📦</div><div class="empty-text">Noch keine Produkte eingetragen</div></div>';
-    }
-    html += '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="openProductModal(null)">+ Produkt hinzufügen</button></div>';
-    el.innerHTML = html;
-    return;
-  }
-
-  // ── Einzeltier-Modus ──
-  if (!S.products.length) {
-    el.innerHTML =
-      '<div class="card" id="stocks-section"><div class="card-title">Futtervorräte</div>' +
-      '<div class="empty" style="padding:20px 0"><div class="empty-icon">📦</div><div class="empty-text">Noch keine Produkte eingetragen</div></div>' +
-      '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="openProductModal(null)">+ Produkt hinzufügen</button></div>';
-    return;
-  }
-
-  const lowFirst = [...S.products].sort((a, b) => {
-    const order = { critical: 0, low: 1, ok: 2 };
-    return (order[a.status] ?? 2) - (order[b.status] ?? 2);
   });
-  const allOk = lowFirst.every(p => p.status === 'ok');
+
   let html = '<div class="card" id="stocks-section"><div class="card-title">Futtervorräte</div>';
-  if (allOk) {
-    html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0 12px;font-size:.82rem;color:var(--success);font-weight:700">✅ Alle Vorräte im grünen Bereich</div>';
+  let hasAny = false;
+
+  animals.forEach(a => {
+    const prods = groups[a.id] || [];
+    if (prods.length) {
+      hasAny = true;
+      html += `<div class="stocks-section-header">${a.icon} ${esc(a.name)}</div>`;
+      html += prods.map(stockCardHtml).join('');
+    }
+  });
+  if (shared.length) {
+    hasAny = true;
+    html += `<div class="stocks-section-header">👥 Geteilt (alle Tiere)</div>`;
+    html += shared.map(stockCardHtml).join('');
   }
-  html += lowFirst.map(stockCardHtml).join('');
+  if (!hasAny) {
+    html += '<div class="empty" style="padding:20px 0"><div class="empty-icon">📦</div><div class="empty-text">Noch keine Produkte eingetragen</div></div>';
+  }
   html += '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="openProductModal(null)">+ Produkt hinzufügen</button></div>';
   el.innerHTML = html;
 }
 
 function openProductModal(id) {
   const p = id ? (S.products || []).find(x => x.id === id) : null;
+  const animals = (S.meta && S.meta.animals) || [];
   const isShared = p ? (p.animal_id === null || p.animal_id === undefined) : false;
+  const currentAnimalId = p ? p.animal_id : (S.animalId !== 'all' ? S.animalId : null);
+  const unit = p ? (p.unit || 'g') : 'g';
+  const isPiece = p && p.is_piece_based;
+  const pkgLabel = isPiece ? `Gewicht pro ${unit} (g)` : 'Packungsgröße (g)';
+  const dailyLabel = isPiece ? `Tagesration (${unit}n)` : 'Tagesration (g)';
+  const dailyVal = isPiece && p ? (p.display_daily_count || 0).toFixed(1) : (p ? p.daily_portion_g : '');
+
+  const animalOptions = `<option value="shared"${isShared || (!p && !currentAnimalId) ? ' selected' : ''}>👥 Geteilt (alle Tiere)</option>` +
+    animals.map(a => `<option value="${a.id}"${!isShared && currentAnimalId == a.id ? ' selected' : ''}>${a.icon} ${esc(a.name)}</option>`).join('');
+
   document.getElementById('modal-title').textContent = p ? 'Produkt bearbeiten' : 'Neues Produkt';
   document.getElementById('modal-body').innerHTML =
-    `<div class="form-group"><label>Produktname</label><input id="pm-name" type="text" placeholder="z.B. Cooper Trockenfutter" value="${esc(p ? p.name : '')}"></div>
+    `<div class="form-group"><label>Produktname</label><input id="pm-name" type="text" placeholder="z.B. Nassfutter Thunfisch" value="${esc(p ? p.name : '')}"></div>
+    <div class="form-group"><label>Tier / Zuordnung</label><select id="pm-animal">${animalOptions}</select></div>
+    <div class="form-group"><label>Einheit</label><select id="pm-unit" onchange="updateProductModalUnit()">
+      <option value="g"${unit === 'g' ? ' selected' : ''}>Gramm (g)</option>
+      <option value="Dose"${unit === 'Dose' ? ' selected' : ''}>Dose</option>
+      <option value="Stück"${unit === 'Stück' ? ' selected' : ''}>Stück</option>
+    </select></div>
     <div class="form-row">
-      <div class="form-group"><label>Packungsgröße (g)</label><input id="pm-pkg" type="number" min="1" max="50000" placeholder="3000" value="${p ? p.package_weight_g : ''}"></div>
-      <div class="form-group"><label>Tagesration (g)</label><input id="pm-daily" type="number" min="1" max="5000" placeholder="150" value="${p ? p.daily_portion_g : ''}"></div>
+      <div class="form-group"><label id="pm-pkg-label">${pkgLabel}</label><input id="pm-pkg" type="number" min="1" max="50000" placeholder="200" value="${p ? p.package_weight_g : ''}"></div>
+      <div class="form-group"><label id="pm-daily-label">${dailyLabel}</label><input id="pm-daily" type="number" min="0.1" max="5000" step="0.1" placeholder="2" value="${dailyVal}"></div>
     </div>` +
-    (p ? '' : '<div class="form-group"><label>Pakete im Lager (aktuell)</label><input id="pm-initial" type="number" min="0" step="0.5" placeholder="2" value="0"></div>') +
+    (p ? '' : `<div class="form-group"><label id="pm-initial-label">${isPiece ? unit + 'n im Lager' : 'Pakete im Lager'}</label><input id="pm-initial" type="number" min="0" step="0.5" placeholder="2" value="0"></div>`) +
     `<div class="form-group"><label>Kauferinnerung (Tage vor Leerstand)</label><input id="pm-ahead" type="number" min="1" max="90" placeholder="10" value="${p ? p.buy_ahead_days : '10'}"></div>
     <div class="form-group"><label>Notiz (optional)</label><input id="pm-note" type="text" placeholder="z.B. Katze Nassfutter" value="${esc(p ? (p.note || '') : '')}"></div>
-    <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.82rem">
-      <input id="pm-shared" type="checkbox" style="width:auto;height:16px;accent-color:var(--primary)"${isShared ? ' checked' : ''}>
-      👥 Für alle Tiere (geteilt)
-    </label></div>
     <div class="form-row" style="gap:8px;margin-top:6px">
       <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-primary btn-full" onclick="saveProduct(${id || 'null'})">Speichern</button>
@@ -955,20 +1034,39 @@ function openProductModal(id) {
   openModal();
 }
 
+function updateProductModalUnit() {
+  const unit = document.getElementById('pm-unit').value;
+  const isPiece = unit === 'Dose' || unit === 'Stück';
+  document.getElementById('pm-pkg-label').textContent = isPiece ? `Gewicht pro ${unit} (g)` : 'Packungsgröße (g)';
+  document.getElementById('pm-daily-label').textContent = isPiece ? `Tagesration (${unit}n)` : 'Tagesration (g)';
+  const initLabel = document.getElementById('pm-initial-label');
+  if (initLabel) initLabel.textContent = isPiece ? `${unit}n im Lager` : 'Pakete im Lager';
+}
+
 async function saveProduct(id) {
-  const isShared = document.getElementById('pm-shared')?.checked || false;
+  const unit = document.getElementById('pm-unit').value;
+  const isPiece = unit === 'Dose' || unit === 'Stück';
+  const pkgW = parseInt(document.getElementById('pm-pkg').value);
+  const dailyRaw = parseFloat(document.getElementById('pm-daily').value);
+  const dailyGrams = isPiece ? Math.round(dailyRaw * pkgW) : Math.round(dailyRaw);
+  const animalSel = document.getElementById('pm-animal');
+  const animalSelVal = animalSel ? animalSel.value : 'shared';
+
   const body = {
     name:             (document.getElementById('pm-name').value || '').trim(),
-    package_weight_g: parseInt(document.getElementById('pm-pkg').value),
-    daily_portion_g:  parseInt(document.getElementById('pm-daily').value),
+    package_weight_g: pkgW,
+    daily_portion_g:  dailyGrams,
     buy_ahead_days:   parseInt(document.getElementById('pm-ahead').value) || 10,
     note:             (document.getElementById('pm-note').value || '').trim() || null,
+    unit:             unit,
   };
-  if (isShared) {
+
+  if (animalSelVal === 'shared') {
     body.shared = true;
-  } else if (S.animalId && S.animalId !== 'all') {
-    body.animal_id = S.animalId;
+  } else {
+    body.animal_id = parseInt(animalSelVal);
   }
+
   if (!id) {
     const initEl = document.getElementById('pm-initial');
     body.initial_packages = parseFloat(initEl ? initEl.value : 0) || 0;
@@ -994,10 +1092,18 @@ async function deleteProduct(id) {
 function openRestockModal(id) {
   const p = (S.products || []).find(x => x.id === id);
   if (!p) return;
+  const unit = p.unit || 'g';
+  const isPiece = p.is_piece_based;
+  const unitPl = unit + 'n';
+  const stockDisp = isPiece
+    ? `${(p.display_stock_count || 0).toFixed(1)} ${unitPl}`
+    : `${(p.stock_g || 0).toFixed(0)} g`;
+  const addLabel = isPiece ? `${unitPl} hinzufügen` : 'Pakete hinzufügen';
+
   document.getElementById('modal-title').textContent = p.name + ' auffüllen';
   document.getElementById('modal-body').innerHTML =
-    `<div style="font-size:.85rem;color:var(--muted);margin-bottom:14px">Vorrat jetzt: <strong>${p.stock_g.toFixed(0)} g</strong> (${Math.round(p.days_remaining)} Tage)</div>
-    <div class="form-group"><label>Pakete hinzufügen</label>
+    `<div style="font-size:.85rem;color:var(--muted);margin-bottom:14px">Vorrat jetzt: <strong>${stockDisp}</strong> (${Math.round(p.days_remaining)} Tage)</div>
+    <div class="form-group"><label>${addLabel}</label>
     <input id="rs-packages" type="number" min="0.5" step="0.5" placeholder="z.B. 2">
     <div style="font-size:.75rem;color:var(--muted);margin-top:4px" id="rs-calc"></div></div>
     <div class="form-row" style="gap:8px;margin-top:6px">
@@ -1006,17 +1112,22 @@ function openRestockModal(id) {
     </div>`;
   openModal();
   document.getElementById('rs-packages').addEventListener('input', function() {
-    const pkgs  = parseFloat(this.value) || 0;
-    const added = pkgs * p.package_weight_g;
+    const pkgs    = parseFloat(this.value) || 0;
+    const added_g = pkgs * p.package_weight_g;
+    const newG    = (p.stock_g || 0) + added_g;
+    const newDisp = isPiece
+      ? `${(newG / p.package_weight_g).toFixed(1)} ${unitPl}`
+      : `${newG.toFixed(0)} g`;
+    const addDisp = isPiece ? `${pkgs} ${unitPl}` : `${added_g} g`;
     document.getElementById('rs-calc').textContent = pkgs > 0
-      ? `+ ${added} g → Neuer Vorrat: ${(p.stock_g + added).toFixed(0)} g (${Math.round((p.stock_g + added) / p.daily_portion_g)} Tage)`
+      ? `+ ${addDisp} → Neuer Vorrat: ${newDisp} (${Math.round(newG / p.daily_portion_g)} Tage)`
       : '';
   });
 }
 
 async function saveRestock(id) {
   const packages = parseFloat(document.getElementById('rs-packages').value);
-  if (!packages || packages <= 0) { toast('Anzahl Pakete erforderlich', true); return; }
+  if (!packages || packages <= 0) { toast('Anzahl erforderlich', true); return; }
   try {
     await api('POST', '/api/food-products/' + id + '/restock', { packages });
     toast('Aufgefüllt ✓');
@@ -1067,7 +1178,7 @@ function _renderHamburgerBody() {
       <div style="font-size:.82rem;color:var(--muted);margin-bottom:12px">Tägliche Erinnerungen für Gesundheitstermine und Futtervorräte</div>
       <button class="btn btn-ghost btn-full" onclick="testNotify()">🔔 Test-Benachrichtigung senden</button>
     </div>
-    <div style="text-align:center;font-size:.72rem;color:var(--muted);padding-top:16px">Cooper v2.4.0</div>`;
+    <div style="text-align:center;font-size:.72rem;color:var(--muted);padding-top:16px">Cooper v2.5.0</div>`;
 }
 
 function openAnimalInMenu(id) {

@@ -88,6 +88,10 @@ def init_db():
         cols = [row[1] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()]
         if "animal_id" not in cols:
             conn.execute(f"ALTER TABLE {table} ADD COLUMN animal_id INTEGER REFERENCES animals(id)")
+    # Migration: add unit column to food_products
+    fp_cols = [row[1] for row in conn.execute("PRAGMA table_info(food_products)").fetchall()]
+    if "unit" not in fp_cols:
+        conn.execute("ALTER TABLE food_products ADD COLUMN unit TEXT NOT NULL DEFAULT 'g'")
     conn.commit()
 
 
@@ -251,7 +255,7 @@ def create_health(event_type, title, date, note, due_date, repeat_weeks, person,
 
 def update_health(event_id, **fields):
     conn = get_conn()
-    allowed = {"type", "title", "date", "note", "due_date", "repeat_weeks", "person"}
+    allowed = {"type", "title", "date", "note", "due_date", "repeat_weeks", "person", "animal_id"}
     sets, values = [], []
     for key, value in fields.items():
         if key in allowed:
@@ -312,13 +316,13 @@ def get_food_product(product_id):
     return dict(row) if row else None
 
 
-def create_food_product(animal_id, name, package_weight_g, daily_portion_g, initial_packages, buy_ahead_days, note):
+def create_food_product(animal_id, name, package_weight_g, daily_portion_g, initial_packages, buy_ahead_days, note, unit="g"):
     conn = get_conn()
     stock_g = float(initial_packages) * float(package_weight_g)
     cur = conn.execute(
-        """INSERT INTO food_products (animal_id, name, package_weight_g, daily_portion_g, stock_g, buy_ahead_days, note, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-        (animal_id, name, int(package_weight_g), int(daily_portion_g), stock_g, int(buy_ahead_days), note, utcnow_iso()),
+        """INSERT INTO food_products (animal_id, name, package_weight_g, daily_portion_g, stock_g, buy_ahead_days, note, unit, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (animal_id, name, int(package_weight_g), int(daily_portion_g), stock_g, int(buy_ahead_days), note, unit or "g", utcnow_iso()),
     )
     conn.commit()
     return get_food_product(cur.lastrowid)
@@ -326,7 +330,7 @@ def create_food_product(animal_id, name, package_weight_g, daily_portion_g, init
 
 def update_food_product(product_id, **fields):
     conn = get_conn()
-    allowed = {"name", "package_weight_g", "daily_portion_g", "buy_ahead_days", "note"}
+    allowed = {"name", "package_weight_g", "daily_portion_g", "buy_ahead_days", "note", "unit", "animal_id"}
     sets, values = [], []
     for key, value in fields.items():
         if key in allowed:

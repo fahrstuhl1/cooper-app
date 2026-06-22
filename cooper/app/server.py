@@ -73,6 +73,7 @@ def create_app(config):
         daily = p.get("daily_portion_g") or 1
         stock_g = p.get("stock_g") or 0
         pkg_w = p.get("package_weight_g") or 1
+        unit = p.get("unit") or "g"
         days_remaining = round(stock_g / daily, 1) if daily > 0 else 0
         buy_ahead = p.get("buy_ahead_days") or 10
         p["days_remaining"] = days_remaining
@@ -80,6 +81,11 @@ def create_app(config):
         p["needs_buying"] = days_remaining <= buy_ahead
         p["status"] = "critical" if days_remaining <= 0 else "low" if p["needs_buying"] else "ok"
         p["packages_remaining"] = round(stock_g / pkg_w, 2) if pkg_w else 0
+        is_piece_based = unit in ("Dose", "Stück")
+        p["is_piece_based"] = is_piece_based
+        if is_piece_based and pkg_w:
+            p["display_daily_count"] = round(daily / pkg_w, 2)
+            p["display_stock_count"] = round(stock_g / pkg_w, 2)
         return p
 
     # ------------------------------------------------------------------
@@ -301,7 +307,7 @@ def create_app(config):
             if body["type"] not in VALID_HEALTH_TYPES:
                 return jsonify({"error": "Ungültiger Ereignistyp"}), 400
             fields["type"] = body["type"]
-        for key in ("title", "date", "note", "due_date", "repeat_weeks"):
+        for key in ("title", "date", "note", "due_date", "repeat_weeks", "animal_id"):
             if key in body:
                 fields[key] = body[key]
         return jsonify(db.update_health(event_id, **fields))
@@ -338,8 +344,9 @@ def create_app(config):
         if package_weight_g <= 0 or daily_portion_g <= 0:
             return jsonify({"error": "Packungsgröße und Tagesration müssen > 0 sein"}), 400
         note = body.get("note") or None
+        unit = body.get("unit") or "g"
         animal_id = None if body.get("shared") else body.get("animal_id")
-        product = db.create_food_product(animal_id, name, package_weight_g, daily_portion_g, initial_packages, buy_ahead_days, note)
+        product = db.create_food_product(animal_id, name, package_weight_g, daily_portion_g, initial_packages, buy_ahead_days, note, unit)
         return jsonify(enrich_product(product)), 201
 
     @app.patch("/api/food-products/<int:product_id>")
@@ -361,6 +368,12 @@ def create_app(config):
                     return jsonify({"error": f"Ungültiger Wert für {key}"}), 400
         if "note" in body:
             fields["note"] = body["note"] or None
+        if "unit" in body:
+            fields["unit"] = body["unit"] or "g"
+        if "shared" in body:
+            fields["animal_id"] = None
+        elif "animal_id" in body:
+            fields["animal_id"] = body["animal_id"]
         return jsonify(enrich_product(db.update_food_product(product_id, **fields)))
 
     @app.delete("/api/food-products/<int:product_id>")
