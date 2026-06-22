@@ -13,6 +13,8 @@ UTC = datetime.timezone.utc
 
 log = logging.getLogger("cooper")
 
+SPECIES_ICONS = {"dog": "🐕", "cat": "🐱", "rabbit": "🐇", "bird": "🐦", "reptile": "🦎", "other": "🐾"}
+
 
 def create_app(config):
     app = Flask(__name__, static_folder=None)
@@ -23,7 +25,6 @@ def create_app(config):
     # ------------------------------------------------------------------
 
     def resolve_person():
-        """Ermittelt die aktive Person: Ingress-Header gewinnt über Toggle."""
         header_name = (
             request.headers.get("X-Remote-User-Display-Name")
             or request.headers.get("X-Remote-User-Name")
@@ -32,16 +33,13 @@ def create_app(config):
             for p in persons:
                 if p.lower() == header_name.strip().lower():
                     return p
-
         body = request.get_json(silent=True) or {}
         candidate = body.get("person") or request.args.get("person")
         if candidate in persons:
             return candidate
-
         return None
 
     def parse_ts(value):
-        """Parst einen ISO-Zeitstempel (mit oder ohne Z) zu UTC-ISO-String."""
         if not value:
             return db.utcnow_iso()
         text = value.strip()
@@ -53,8 +51,7 @@ def create_app(config):
             return db.utcnow_iso()
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=LOCAL_TZ)
-        dt_utc = dt.astimezone(UTC)
-        return dt_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+        return dt.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     def local_day_bounds_utc(now_utc=None):
         now_utc = now_utc or datetime.datetime.now(UTC)
@@ -65,14 +62,6 @@ def create_app(config):
         end_utc = end_local.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         return start_utc, end_utc
 
-    def minutes_since(ts_utc, now_utc=None):
-        if not ts_utc:
-            return None
-        now_utc = now_utc or datetime.datetime.now(UTC)
-        dt = datetime.datetime.strptime(ts_utc, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
-        delta = now_utc - dt
-        return max(0, int(delta.total_seconds() // 60))
-
     def add_months(d, months):
         month_index = d.month - 1 + months
         year = d.year + month_index // 12
@@ -81,6 +70,8 @@ def create_app(config):
         return datetime.date(year, month, day)
 
     def age_string(birthdate_str, today):
+        if not birthdate_str:
+            return ""
         try:
             birthdate = datetime.date.fromisoformat(birthdate_str)
         except ValueError:
@@ -93,22 +84,12 @@ def create_app(config):
             total_months -= 1
             anniversary = add_months(birthdate, total_months)
         weeks = (today - anniversary).days // 7
-
         parts = []
         if total_months > 0:
             parts.append(f"{total_months} Monat" + ("e" if total_months != 1 else ""))
         if weeks > 0 or total_months == 0:
             parts.append(f"{weeks} Woche" + ("n" if weeks != 1 else ""))
         return ", ".join(parts)
-
-    def age_weeks(birthdate_str, on_date):
-        try:
-            birthdate = datetime.date.fromisoformat(birthdate_str)
-        except ValueError:
-            return None
-        if on_date < birthdate:
-            return 0
-        return (on_date - birthdate).days // 7
 
     def next_due_date(due_date, repeat_weeks):
         if not due_date or not repeat_weeks:
@@ -119,6 +100,12 @@ def create_app(config):
             due = due + datetime.timedelta(weeks=int(repeat_weeks))
         return due.isoformat()
 
+    def enrich_animal(animal):
+        today = datetime.datetime.now(LOCAL_TZ).date()
+        animal["icon"] = SPECIES_ICONS.get(animal.get("species", "other"), "🐾")
+        animal["age"] = age_string(animal.get("birthdate") or "", today)
+        return animal
+
     # ------------------------------------------------------------------
     # Static frontend
     # ------------------------------------------------------------------
@@ -127,19 +114,66 @@ def create_app(config):
     def index():
         return send_from_directory("web", "index.html")
 
+    # ------------------------------------------------------------------
+    # Meta
+    # ------------------------------------------------------------------
+
     @app.get("/api/meta")
     def meta():
-        today = datetime.datetime.now(LOCAL_TZ).date()
-        return jsonify(
-            {
-                "dog_name": config["dog_name"],
-                "birthdate": config["birthdate"],
-                "persons": persons,
-                "daily_food_target_g": config["daily_food_target_g"],
-                "health_reminder_days": config["health_reminder_days"],
-                "age": age_string(config["birthdate"], today),
-            }
-        )
+        animals = [enrich_animal(a) for a in db.list_animals()]
+        return jsonify({
+            "animals": animals,
+            "persons": persons,
+            "daily_food_target_g": config["daily_food_target_g"],
+            "health_reminder_days": config["health_reminder_days"],
+            "species_options": db.SPECIES_OPTIONS,
+        })
+
+    # ------------------------------------------------------------------
+    # Animals
+    # ------------------------------------------------------------------
+
+    @app.get("/api/animals")
+    def get_animals():
+        return jsonify([enrich_animal(a) for a in db.list_animals()])
+
+    @app.post("/api/animals")
+    def post_animal():
+        body = request.get_json(silent=True) or {}
+        name = (body.get("name") or "").strip()
+        if not name:
+            return jsonify({"error": "Name ist erforderlich"}), 400
+        species = body.get("species", "dog")
+        if species not in db.SPECIES_OPTIONS:
+            return jsonify({"error": "Ungültige Tierart"}), 400
+        animal = db.create_animal(name, species, body.get("birthdate") or None)
+        return jsonify(enrich_animal(animal)), 201
+
+    @app.patch("/api/animals/<int:animal_id>")
+    def patch_animal(animal_id):
+        if not db.get_animal(animal_id):
+            return jsonify({"error": "Tier nicht gefunden"}), 404
+        body = request.get_json(silent=True) or {}
+        fields = {}
+        if "name" in body:
+            name = (body["name"] or "").strip()
+            if not name:
+                return jsonify({"error": "Name ist erforderlich"}), 400
+            fields["name"] = name
+        if "species" in body:
+            if body["species"] not in db.SPECIES_OPTIONS:
+                return jsonify({"error": "Ungültige Tierart"}), 400
+            fields["species"] = body["species"]
+        if "birthdate" in body:
+            fields["birthdate"] = body["birthdate"] or None
+        return jsonify(enrich_animal(db.update_animal(animal_id, **fields)))
+
+    @app.delete("/api/animals/<int:animal_id>")
+    def delete_animal_route(animal_id):
+        if not db.get_animal(animal_id):
+            return jsonify({"error": "Tier nicht gefunden"}), 404
+        db.delete_animal(animal_id)
+        return "", 204
 
     # ------------------------------------------------------------------
     # Dashboard
@@ -150,55 +184,37 @@ def create_app(config):
         now_utc = datetime.datetime.now(UTC)
         today = now_utc.astimezone(LOCAL_TZ).date()
         day_start, day_end = local_day_bounds_utc(now_utc)
+        animal_id = request.args.get("animal_id", type=int)
 
-        last_walk = db.last_walk_of_kind()
-        last_pee = db.last_walk_of_kind("pee")
-        last_poop = db.last_walk_of_kind("poop")
-
-        walks_today = db.count_walks_today(day_start, day_end)
-        food_today = db.food_total_today(day_start, day_end)
+        food_today = db.food_total_today(day_start, day_end, animal_id)
 
         horizon = (today + datetime.timedelta(days=config["health_reminder_days"])).isoformat()
-        upcoming = db.upcoming_health(today.isoformat(), horizon)
+        upcoming = db.upcoming_health(today.isoformat(), horizon, animal_id)
         for item in upcoming:
             item["due_date"] = next_due_date(item["due_date"], item["repeat_weeks"])
             item["overdue"] = item["due_date"] < today.isoformat()
 
-        weights = db.list_weights()
-        weight_history = [
-            {"date": w["date"], "weight_kg": w["weight_kg"]} for w in weights[-20:]
-        ]
-        latest = db.latest_weight()
+        weights = db.list_weights(animal_id)
+        weight_history = [{"date": w["date"], "weight_kg": w["weight_kg"]} for w in weights[-20:]]
+        latest = db.latest_weight(animal_id)
 
-        commands = db.list_commands()
-        commands_done = sum(1 for c in commands if c["status"] == "sitzt")
+        animal = db.get_animal(animal_id) if animal_id else None
+        if animal:
+            enrich_animal(animal)
 
-        return jsonify(
-            {
-                "dog_name": config["dog_name"],
-                "age": age_string(config["birthdate"], today),
-                "persons": persons,
-                "walks": {
-                    "minutes_since_last": minutes_since(last_walk["ts_utc"], now_utc) if last_walk else None,
-                    "minutes_since_pee": minutes_since(last_pee["ts_utc"], now_utc) if last_pee else None,
-                    "minutes_since_poop": minutes_since(last_poop["ts_utc"], now_utc) if last_poop else None,
-                    "today_count": walks_today,
-                },
-                "feeding": {
-                    "today_g": food_today,
-                    "target_g": config["daily_food_target_g"],
-                },
-                "upcoming_health": upcoming,
-                "weight": {
-                    "latest": latest,
-                    "history": weight_history,
-                },
-                "commands": {
-                    "done": commands_done,
-                    "total": len(commands),
-                },
-            }
-        )
+        return jsonify({
+            "animal": animal,
+            "persons": persons,
+            "feeding": {
+                "today_g": food_today,
+                "target_g": config["daily_food_target_g"],
+            },
+            "upcoming_health": upcoming,
+            "weight": {
+                "latest": latest,
+                "history": weight_history,
+            },
+        })
 
     @app.get("/api/ha-sensors")
     def ha_sensors():
@@ -206,87 +222,29 @@ def create_app(config):
         today = now_utc.astimezone(LOCAL_TZ).date()
         day_start, day_end = local_day_bounds_utc(now_utc)
 
-        last_walk = db.last_walk_of_kind()
-        last_pee = db.last_walk_of_kind("pee")
-        food_today = db.food_total_today(day_start, day_end)
+        animals = db.list_animals()
+        primary_id = animals[0]["id"] if animals else None
+
+        food_today = db.food_total_today(day_start, day_end, primary_id)
 
         horizon = (today + datetime.timedelta(days=config["health_reminder_days"])).isoformat()
         upcoming = db.upcoming_health(today.isoformat(), horizon)
         next_due = None
         if upcoming:
-            sorted_upcoming = sorted(
+            sorted_up = sorted(
                 upcoming, key=lambda e: next_due_date(e["due_date"], e["repeat_weeks"]) or "9999"
             )
-            first = sorted_upcoming[0]
+            first = sorted_up[0]
             next_due = {
                 "title": first["title"],
                 "type": first["type"],
                 "due_date": next_due_date(first["due_date"], first["repeat_weeks"]),
             }
 
-        return jsonify(
-            {
-                "minutes_since_last_walk": minutes_since(last_walk["ts_utc"], now_utc) if last_walk else None,
-                "minutes_since_last_pee": minutes_since(last_pee["ts_utc"], now_utc) if last_pee else None,
-                "fed_today_g": food_today,
-                "next_due_health": next_due,
-            }
-        )
-
-    # ------------------------------------------------------------------
-    # Walks
-    # ------------------------------------------------------------------
-
-    @app.get("/api/walks")
-    def get_walks():
-        limit = request.args.get("limit", type=int)
-        return jsonify(db.list_walks(limit=limit))
-
-    @app.post("/api/walks")
-    def post_walk():
-        body = request.get_json(silent=True) or {}
-        person = resolve_person()
-        if not person:
-            return jsonify({"error": "Unbekannte oder fehlende Person"}), 400
-
-        ts_utc = parse_ts(body.get("ts_utc"))
-        pee = bool(body.get("pee", False))
-        poop = bool(body.get("poop", False))
-        duration_min = body.get("duration_min")
-        note = body.get("note") or None
-
-        walk = db.create_walk(ts_utc, person, pee, poop, duration_min, note)
-        return jsonify(walk), 201
-
-    @app.patch("/api/walks/<int:walk_id>")
-    def patch_walk(walk_id):
-        if not db.get_walk(walk_id):
-            return jsonify({"error": "Eintrag nicht gefunden"}), 404
-        body = request.get_json(silent=True) or {}
-        fields = {}
-        if "ts_utc" in body:
-            fields["ts_utc"] = parse_ts(body["ts_utc"])
-        if "pee" in body:
-            fields["pee"] = bool(body["pee"])
-        if "poop" in body:
-            fields["poop"] = bool(body["poop"])
-        if "duration_min" in body:
-            fields["duration_min"] = body["duration_min"]
-        if "note" in body:
-            fields["note"] = body["note"]
-        if "person" in body:
-            if body["person"] not in persons:
-                return jsonify({"error": "Unbekannte Person"}), 400
-            fields["person"] = body["person"]
-        walk = db.update_walk(walk_id, **fields)
-        return jsonify(walk)
-
-    @app.delete("/api/walks/<int:walk_id>")
-    def delete_walk(walk_id):
-        if not db.get_walk(walk_id):
-            return jsonify({"error": "Eintrag nicht gefunden"}), 404
-        db.delete_walk(walk_id)
-        return "", 204
+        return jsonify({
+            "fed_today_g": food_today,
+            "next_due_health": next_due,
+        })
 
     # ------------------------------------------------------------------
     # Feedings
@@ -295,12 +253,11 @@ def create_app(config):
     @app.get("/api/feedings")
     def get_feedings():
         limit = request.args.get("limit", type=int)
-        return jsonify(
-            {
-                "items": db.list_feedings(limit=limit),
-                "suggestions": db.recent_food_types(),
-            }
-        )
+        animal_id = request.args.get("animal_id", type=int)
+        return jsonify({
+            "items": db.list_feedings(animal_id=animal_id, limit=limit),
+            "suggestions": db.recent_food_types(animal_id=animal_id),
+        })
 
     @app.post("/api/feedings")
     def post_feeding():
@@ -319,7 +276,7 @@ def create_app(config):
             return jsonify({"error": "Menge muss eine Zahl sein"}), 400
 
         ts_utc = parse_ts(body.get("ts_utc"))
-        feeding = db.create_feeding(ts_utc, person, food_type, amount_g)
+        feeding = db.create_feeding(ts_utc, person, food_type, amount_g, body.get("animal_id"))
         return jsonify(feeding), 201
 
     @app.delete("/api/feedings/<int:feeding_id>")
@@ -335,13 +292,16 @@ def create_app(config):
 
     @app.get("/api/weights")
     def get_weights():
-        today = datetime.datetime.now(LOCAL_TZ).date()
-        items = db.list_weights()
+        animal_id = request.args.get("animal_id", type=int)
+        items = db.list_weights(animal_id=animal_id)
+        animal = db.get_animal(animal_id) if animal_id else None
+        birthdate = (animal or {}).get("birthdate") or ""
         for item in items:
             try:
                 d = datetime.date.fromisoformat(item["date"])
-                item["age_weeks"] = age_weeks(config["birthdate"], d)
-            except ValueError:
+                bd = datetime.date.fromisoformat(birthdate)
+                item["age_weeks"] = (d - bd).days // 7 if d >= bd else None
+            except (ValueError, TypeError):
                 item["age_weeks"] = None
         return jsonify(items)
 
@@ -359,7 +319,7 @@ def create_app(config):
         except (TypeError, ValueError):
             return jsonify({"error": "Gewicht muss eine Zahl sein"}), 400
 
-        weight = db.create_weight(date, weight_kg, person)
+        weight = db.create_weight(date, weight_kg, person, body.get("animal_id"))
         return jsonify(weight), 201
 
     @app.delete("/api/weights/<int:weight_id>")
@@ -377,8 +337,9 @@ def create_app(config):
 
     @app.get("/api/health")
     def get_health_events():
+        animal_id = request.args.get("animal_id", type=int)
         event_type = request.args.get("type")
-        items = db.list_health(event_type=event_type)
+        items = db.list_health(animal_id=animal_id, event_type=event_type)
         today = datetime.datetime.now(LOCAL_TZ).date().isoformat()
         for item in items:
             item["due_date"] = next_due_date(item["due_date"], item["repeat_weeks"])
@@ -409,7 +370,7 @@ def create_app(config):
             except (ValueError, TypeError):
                 due_date = None
 
-        event = db.create_health(event_type, title, date, note, due_date, repeat_weeks, person)
+        event = db.create_health(event_type, title, date, note, due_date, repeat_weeks, person, body.get("animal_id"))
         return jsonify(event), 201
 
     @app.patch("/api/health/<int:event_id>")
@@ -425,8 +386,7 @@ def create_app(config):
         for key in ("title", "date", "note", "due_date", "repeat_weeks"):
             if key in body:
                 fields[key] = body[key]
-        event = db.update_health(event_id, **fields)
-        return jsonify(event)
+        return jsonify(db.update_health(event_id, **fields))
 
     @app.delete("/api/health/<int:event_id>")
     def delete_health(event_id):
@@ -434,72 +394,5 @@ def create_app(config):
             return jsonify({"error": "Eintrag nicht gefunden"}), 404
         db.delete_health(event_id)
         return "", 204
-
-    # ------------------------------------------------------------------
-    # Commands
-    # ------------------------------------------------------------------
-
-    VALID_COMMAND_STATUSES = ["neu", "in Arbeit", "sitzt"]
-
-    @app.get("/api/commands")
-    def get_commands():
-        return jsonify(db.list_commands())
-
-    @app.post("/api/commands")
-    def post_command():
-        body = request.get_json(silent=True) or {}
-        name = (body.get("name") or "").strip()
-        if not name:
-            return jsonify({"error": "Name ist erforderlich"}), 400
-        command = db.create_command(name)
-        return jsonify(command), 201
-
-    @app.patch("/api/commands/<int:command_id>")
-    def patch_command(command_id):
-        if not db.get_command(command_id):
-            return jsonify({"error": "Kommando nicht gefunden"}), 404
-        body = request.get_json(silent=True) or {}
-        status = body.get("status")
-        if status is None:
-            current = db.get_command(command_id)
-            idx = VALID_COMMAND_STATUSES.index(current["status"])
-            status = VALID_COMMAND_STATUSES[(idx + 1) % len(VALID_COMMAND_STATUSES)]
-        if status not in VALID_COMMAND_STATUSES:
-            return jsonify({"error": "Ungültiger Status"}), 400
-        command = db.update_command_status(command_id, status)
-        return jsonify(command)
-
-    @app.delete("/api/commands/<int:command_id>")
-    def delete_command(command_id):
-        if not db.get_command(command_id):
-            return jsonify({"error": "Kommando nicht gefunden"}), 404
-        db.delete_command(command_id)
-        return "", 204
-
-    # ------------------------------------------------------------------
-    # Training sessions
-    # ------------------------------------------------------------------
-
-    @app.get("/api/sessions")
-    def get_sessions():
-        limit = request.args.get("limit", type=int)
-        return jsonify(db.list_sessions(limit=limit))
-
-    @app.post("/api/sessions")
-    def post_session():
-        body = request.get_json(silent=True) or {}
-        person = resolve_person()
-        if not person:
-            return jsonify({"error": "Unbekannte oder fehlende Person"}), 400
-
-        date = body.get("date") or datetime.datetime.now(LOCAL_TZ).date().isoformat()
-        duration_min = body.get("duration_min")
-        note = body.get("note") or None
-        commands = body.get("commands") or []
-        if not isinstance(commands, list):
-            return jsonify({"error": "commands muss eine Liste sein"}), 400
-
-        session = db.create_session(date, person, duration_min, note, commands)
-        return jsonify(session), 201
 
     return app

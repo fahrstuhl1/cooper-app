@@ -22,9 +22,11 @@ def main():
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     log = logging.getLogger("cooper")
-    log.info("Starte Cooper für %s (geb. %s)", config["dog_name"], config["birthdate"])
+    animals = config["animals"]
+    log.info("Starte Cooper mit %d Tier(en): %s", len(animals), ", ".join(a["name"] for a in animals))
 
     db.init_db()
+    db.seed_animals(config["animals"])
 
     app = create_app(config)
     serve(app, host="0.0.0.0", port=8099)
