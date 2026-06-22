@@ -17,8 +17,6 @@ läuft komplett über Ingress – keine externe Datenbank nötig.
 | Option | Typ | Beschreibung | Standard |
 | --- | --- | --- | --- |
 | `animals` | `list` | Liste der Tiere (Name, Tierart, Geburtsdatum) | Cooper + 2 Katzen |
-| `persons` | `list(str)` | Erfassende Personen | `["Max", "Franzi"]` |
-| `daily_food_target_g` | `int` (50–2000) | Tagesziel Futtermenge in Gramm | `300` |
 | `health_reminder_days` | `int` (1–180) | Vorlaufzeit für „Demnächst fällig" | `30` |
 | `log_level` | `debug`/`info`/`warning`/`error` | Log-Level | `info` |
 
@@ -35,10 +33,6 @@ animals:
   - name: "Mochi"
     species: "cat"
     birthdate: ""
-persons:
-  - "Max"
-  - "Franzi"
-daily_food_target_g: 300
 health_reminder_days: 30
 ```
 
@@ -46,22 +40,14 @@ Unterstützte Tierarten: `dog`, `cat`, `rabbit`, `bird`, `reptile`, `other`
 
 ## Module
 
-- **Start-Dashboard**: Tier-Steckbrief (Alter, Gewicht, heutige Futtermenge),
-  Fortschrittsbalken, fällige Gesundheitstermine auf einen Blick
+- **Start-Dashboard**: Tier-Steckbrief (Alter, Gewicht), fällige Gesundheitstermine,
+  Vorrats-Erinnerungen auf einen Blick
 - **Gesundheit**: Impfungen, Wurmkur, Parasitenschutz, Tierarzt-Termine –
   mit optionaler Fälligkeit und Wiederholungsintervall (z. B. alle 4 Wochen),
   Filterbar nach Typ, überfällige Einträge werden hervorgehoben
-- **Futter & Gewicht**: Fütterungs-Log mit Mengen-Vorschlägen und Tagesziel,
-  Gewichtsverlauf als SVG-Liniendiagramm
+- **Gewicht & Vorräte**: Gewichtsverlauf als SVG-Liniendiagramm; Futtermittel-Vorräte
+  verwalten mit automatischer Kauf-Erinnerung
 - **Tiere**: Tiere direkt in der App verwalten – anlegen, bearbeiten, löschen
-
-## Personen-Zuordnung
-
-Sendet Home Assistant Ingress die Header `X-Remote-User-Name` bzw.
-`X-Remote-User-Display-Name` und stimmt der Name mit einem Eintrag in
-`persons` überein, wird dieser automatisch verwendet. Andernfalls wählt man
-die aktive Person über die Chips in der UI – die Auswahl wird im Browser
-(`localStorage`) gespeichert.
 
 ## REST-Sensor für Home Assistant (optional)
 
@@ -70,14 +56,12 @@ sensor:
   - platform: rest
     resource: http://homeassistant.local:8123/api/hassio_ingress/<token>/api/ha-sensors
     name: Cooper Status
-    value_template: "{{ value_json.fed_today_g }}"
+    value_template: "{{ value_json.next_due_health.due_date | default('') }}"
     json_attributes:
-      - fed_today_g
       - next_due_health
 ```
 
-Felder: `fed_today_g` (Gramm heute gefüttert),
-`next_due_health` (Objekt mit `title`, `type`, `due_date` oder `null`).
+Felder: `next_due_health` (Objekt mit `title`, `type`, `due_date` oder `null`).
 
 ## Datenhaltung
 

@@ -1,5 +1,44 @@
 # Changelog
 
+## 2.3.0 – 2026-06-22
+
+### Neu
+- **Untere Navigation**: Tab-Leiste nach unten verschoben (mobile-first, mit Safe-Area-Support); aktiver Tab mit Indikator-Strich
+- **Gradients Hero-Karte**: Start-Tab zeigt Tier-Karte mit lila Gradient, Avatar und Gewichts-Trend-Anzeige
+- **Gewichts-Trend**: Differenz zur vorherigen Messung direkt neben aktuellem Gewicht (↑ / ↓ / →)
+- **Gewichtskurve mit Flächenfüllung**: SVG-Chart mit Gradient-Fläche unter der Linie und Datumsbeschriftungen
+- **„Erledigt"-Button**: Gesundheitseinträge mit Fälligkeitsdatum können direkt als erledigt markiert werden; bei Wiederholungen wird der nächste Termin automatisch berechnet
+- **Tage-Countdown auf Gesundheitseinträgen**: Zeigt „Heute fällig", „Morgen fällig", „In X Tagen" oder „X Tage überfällig" statt rohen Datumsangaben
+- **Benachrichtigungs-Test**: 🔔-Button in der Kopfzeile sendet sofort eine Test-Benachrichtigung
+- **Deutsche Tierartnamen**: Hund / Katze / Kaninchen / Vogel / Reptil / Sonstiges statt englischer Bezeichnungen
+- **Tab-Einblend-Animation**: Tabs blenden beim Wechsel sanft ein
+
+---
+
+## 2.2.0 – 2026-06-22
+
+### Neu
+- **HA-Benachrichtigungen**: Tägliche Push-Notifications über den Home Assistant Benachrichtigungs-Dienst (konfigurierbar: Service-Name und Uhrzeit)
+- **Test-Button**: Benachrichtigung direkt aus dem Start-Tab testen (Button „🔔 Benachrichtigung testen")
+- **Touch-Gesten**: Wischen nach links/rechts wechselt zwischen den Haupt-Tabs (Start → Gesundheit → Futter → Tiere) sowie zwischen Gewicht- und Vorräte-Sub-Tab im Futter-Bereich
+- **Neue Konfigurations-Optionen**: `notification_service` (HA Notify-Dienst, Standard: `notify`) und `notify_hour` (Stunde der täglichen Erinnerung, Standard: 8)
+
+---
+
+## 2.1.0 – 2026-06-22
+
+### Neu
+- **Futter-Vorräte**: Beliebig viele Futtermittel pro Tier anlegen (Name, Packungsgröße, Tagesration, aktueller Vorrat)
+- **Kauf-Erinnerung**: Automatische Berechnung des Leerstand-Datums; Warnung wenn Vorrat für weniger als X Tage reicht (Standard: 10 Tage)
+- **Vorräte-Tab**: Sub-Tab im Futter-Bereich mit Vorrats-Karten, Fortschrittsbalken und Auffüll-Dialog
+- **Dashboard-Erinnerungen**: Futter-Produkte mit geringem Vorrat werden direkt im Start-Dashboard angezeigt
+
+### Entfernt
+- **Fütterungs-Protokoll**: Einzel-Fütterungen werden nicht mehr geloggt
+- **Benutzer-Auswahl**: Kein Personen-Tracking mehr (Max, Franzi entfernt); `persons`- und `daily_food_target_g`-Optionen entfernt
+
+---
+
 ## 2.0.1 – 2026-06-22
 
 ### Bugfix
