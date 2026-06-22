@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.4.0 – 2026-06-22
+
+### Neu
+- **Hamburger-Menü**: ☰-Button ersetzt 🔔 im Header; Tier-Verwaltung und Benachrichtigungs-Test ins Menü verschoben; Bottom-Nav auf 3 Tabs reduziert (Start | Gesundheit | Futter)
+- **Gesundheits-Filter: Zeilenumbruch**: Filterchips brechen jetzt in neue Zeilen um statt horizontal zu scrollen
+- **Futter-Tab ohne Sub-Tabs**: Gewicht und Vorräte auf einer scrollbaren Seite, kein Tab-Wechsel nötig; Vorräte immer sichtbar
+- **„Alle"-Modus**: Neuer „Alle"-Chip im Tier-Selector; Start-Tab zeigt 2-Spalten-Grid mit Übersichtskarten; Gesundheits-Tab zeigt alle Tiere mit Tier-Badge; Futter-Tab gruppiert Vorräte nach Tier
+- **Klickbare Hero-Statistiken**: Gewichts-Kachel navigiert direkt zum Futter-Tab, Termin-Kachel zum Gesundheits-Tab
+- **Geteiltes Futter**: Produkte können als „Für alle Tiere (geteilt)" markiert werden (animal_id = NULL); 👥-Badge zeigt geteilte Produkte; Abfragen inkludieren automatisch geteilte Produkte
+- **Zeitzone konfigurierbar**: Neue Option `timezone` in config.yaml (Standard: Europe/Berlin); wird in server.py und notifier.py aus der Config gelesen
+
+---
+
 ## 2.3.0 – 2026-06-22
 
 ### Neu

@@ -299,7 +299,7 @@ def list_food_products(animal_id=None):
     conn = get_conn()
     if animal_id:
         return [dict(r) for r in conn.execute(
-            "SELECT * FROM food_products WHERE animal_id = ? ORDER BY name ASC", (animal_id,)
+            "SELECT * FROM food_products WHERE (animal_id = ? OR animal_id IS NULL) ORDER BY name ASC", (animal_id,)
         ).fetchall()]
     return [dict(r) for r in conn.execute(
         "SELECT * FROM food_products ORDER BY name ASC"
@@ -363,9 +363,12 @@ def restock_food_product(product_id, packages):
 def low_stock_products(animal_id=None):
     """Liefert Produkte, bei denen days_remaining <= buy_ahead_days."""
     conn = get_conn()
-    where = "WHERE animal_id = ? AND " if animal_id else "WHERE "
-    where += "daily_portion_g > 0 AND CAST(stock_g AS REAL) / CAST(daily_portion_g AS REAL) <= buy_ahead_days"
-    args = [animal_id] if animal_id else []
+    if animal_id:
+        where = "WHERE (animal_id = ? OR animal_id IS NULL) AND daily_portion_g > 0 AND CAST(stock_g AS REAL) / CAST(daily_portion_g AS REAL) <= buy_ahead_days"
+        args = [animal_id]
+    else:
+        where = "WHERE daily_portion_g > 0 AND CAST(stock_g AS REAL) / CAST(daily_portion_g AS REAL) <= buy_ahead_days"
+        args = []
     rows = conn.execute(
         f"SELECT * FROM food_products {where} ORDER BY CAST(stock_g AS REAL) / CAST(daily_portion_g AS REAL) ASC",
         args,

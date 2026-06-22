@@ -12,6 +12,7 @@ DEFAULTS = {
     "notification_service": "notify",
     "notify_hour": 8,
     "log_level": "info",
+    "timezone": "Europe/Berlin",
 }
 
 OPTIONS_PATH = os.environ.get("COOPER_OPTIONS_PATH", "/data/options.json")

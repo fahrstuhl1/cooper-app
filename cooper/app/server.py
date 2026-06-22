@@ -9,7 +9,6 @@ from flask import Flask, jsonify, request, send_from_directory
 import db
 import notifier
 
-LOCAL_TZ = ZoneInfo("Europe/Berlin")
 UTC = datetime.timezone.utc
 
 log = logging.getLogger("cooper")
@@ -19,6 +18,7 @@ SPECIES_ICONS = {"dog": "🐕", "cat": "🐱", "rabbit": "🐇", "bird": "🐦",
 
 def create_app(config):
     app = Flask(__name__, static_folder=None)
+    LOCAL_TZ = ZoneInfo(config.get("timezone", "Europe/Berlin"))
 
     # ------------------------------------------------------------------
     # Helpers
@@ -338,7 +338,7 @@ def create_app(config):
         if package_weight_g <= 0 or daily_portion_g <= 0:
             return jsonify({"error": "Packungsgröße und Tagesration müssen > 0 sein"}), 400
         note = body.get("note") or None
-        animal_id = body.get("animal_id")
+        animal_id = None if body.get("shared") else body.get("animal_id")
         product = db.create_food_product(animal_id, name, package_weight_g, daily_portion_g, initial_packages, buy_ahead_days, note)
         return jsonify(enrich_product(product)), 201
 
