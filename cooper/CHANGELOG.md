@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1 – 2026-06-22
+
+### Bugfix
+- HA Ingress: API-Pfade sind jetzt relativ (`api/meta` statt `/api/meta`), damit Requests korrekt durch den Ingress-Tunnel gehen und nicht mit 404 scheitern
+
 ## 2.0.0 – 2026-06-22
 
 ### Neu
