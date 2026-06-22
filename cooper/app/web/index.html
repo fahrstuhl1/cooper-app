@@ -267,7 +267,9 @@ async function api(method, path, body) {
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(body);
   }
-  const res = await fetch(path, opts);
+  // Strip leading slash so paths are relative to the HA Ingress base URL
+  const url = path.replace(/^\//, '');
+  const res = await fetch(url, opts);
   if (res.status === 204) return null;
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Fehler ' + res.status);
