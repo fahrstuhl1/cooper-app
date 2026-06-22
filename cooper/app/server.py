@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 from flask import Flask, jsonify, request, send_from_directory
 
 import db
+import notifier
 
 LOCAL_TZ = ZoneInfo("Europe/Berlin")
 UTC = datetime.timezone.utc
@@ -368,6 +369,17 @@ def create_app(config):
             return jsonify({"error": "Produkt nicht gefunden"}), 404
         db.delete_food_product(product_id)
         return "", 204
+
+    # ------------------------------------------------------------------
+    # Notifications
+    # ------------------------------------------------------------------
+
+    @app.post("/api/notify-test")
+    def notify_test():
+        ok = notifier.check_and_notify(config)
+        if ok:
+            return jsonify({"status": "sent"})
+        return jsonify({"status": "skipped", "reason": "Nichts zu senden oder kein SUPERVISOR_TOKEN"})
 
     @app.post("/api/food-products/<int:product_id>/restock")
     def restock_food_product_route(product_id):

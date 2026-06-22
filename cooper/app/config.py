@@ -9,6 +9,8 @@ DEFAULTS = {
         {"name": "Katze 2", "species": "cat", "birthdate": ""},
     ],
     "health_reminder_days": 30,
+    "notification_service": "notify",
+    "notify_hour": 8,
     "log_level": "info",
 }
 

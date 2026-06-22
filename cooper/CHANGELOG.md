@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.2.0 – 2026-06-22
+
+### Neu
+- **HA-Benachrichtigungen**: Tägliche Push-Notifications über den Home Assistant Benachrichtigungs-Dienst (konfigurierbar: Service-Name und Uhrzeit)
+- **Test-Button**: Benachrichtigung direkt aus dem Start-Tab testen (Button „🔔 Benachrichtigung testen")
+- **Touch-Gesten**: Wischen nach links/rechts wechselt zwischen den Haupt-Tabs (Start → Gesundheit → Futter → Tiere) sowie zwischen Gewicht- und Vorräte-Sub-Tab im Futter-Bereich
+- **Neue Konfigurations-Optionen**: `notification_service` (HA Notify-Dienst, Standard: `notify`) und `notify_hour` (Stunde der täglichen Erinnerung, Standard: 8)
+
+---
+
 ## 2.1.0 – 2026-06-22
 
 ### Neu

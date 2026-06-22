@@ -859,6 +859,41 @@ async function init() {
 init().catch(function(e) {
   document.body.innerHTML = '<div style="padding:32px;font-family:sans-serif;color:var(--danger)"><h2>Fehler beim Laden</h2><p style="margin-top:8px;font-size:.9rem">' + String(e.message) + '</p></div>';
 });
+
+// ─── Touch gestures ────────────────────────────────────────────────────────────
+(function() {
+  var MAIN_TABS = ['start', 'health', 'feed', 'animals'];
+  var SUB_TABS = ['weights', 'stocks'];
+  var tx = 0, ty = 0;
+
+  var el = document.querySelector('.main-content');
+
+  el.addEventListener('touchstart', function(e) {
+    tx = e.touches[0].clientX;
+    ty = e.touches[0].clientY;
+  }, { passive: true });
+
+  el.addEventListener('touchend', function(e) {
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+    if (S.tab === 'feed') {
+      var idx = SUB_TABS.indexOf(S.subTab);
+      var next = dx < 0 ? Math.min(idx + 1, SUB_TABS.length - 1) : Math.max(idx - 1, 0);
+      if (next !== idx) {
+        var btn = document.querySelector('.sub-tab[data-sub="' + SUB_TABS[next] + '"]');
+        if (btn) btn.click();
+      }
+    } else {
+      var midx = MAIN_TABS.indexOf(S.tab);
+      var mnext = dx < 0 ? Math.min(midx + 1, MAIN_TABS.length - 1) : Math.max(midx - 1, 0);
+      if (mnext !== midx) {
+        var mbtn = document.querySelector('.tab-btn[data-tab="' + MAIN_TABS[mnext] + '"]');
+        if (mbtn) mbtn.click();
+      }
+    }
+  }, { passive: true });
+})();
 </script>
 </body>
 </html>
