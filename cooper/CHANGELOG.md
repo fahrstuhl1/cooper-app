@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.3.0 – 2026-06-22
+
+### Neu
+- **Untere Navigation**: Tab-Leiste nach unten verschoben (mobile-first, mit Safe-Area-Support); aktiver Tab mit Indikator-Strich
+- **Gradients Hero-Karte**: Start-Tab zeigt Tier-Karte mit lila Gradient, Avatar und Gewichts-Trend-Anzeige
+- **Gewichts-Trend**: Differenz zur vorherigen Messung direkt neben aktuellem Gewicht (↑ / ↓ / →)
+- **Gewichtskurve mit Flächenfüllung**: SVG-Chart mit Gradient-Fläche unter der Linie und Datumsbeschriftungen
+- **„Erledigt"-Button**: Gesundheitseinträge mit Fälligkeitsdatum können direkt als erledigt markiert werden; bei Wiederholungen wird der nächste Termin automatisch berechnet
+- **Tage-Countdown auf Gesundheitseinträgen**: Zeigt „Heute fällig", „Morgen fällig", „In X Tagen" oder „X Tage überfällig" statt rohen Datumsangaben
+- **Benachrichtigungs-Test**: 🔔-Button in der Kopfzeile sendet sofort eine Test-Benachrichtigung
+- **Deutsche Tierartnamen**: Hund / Katze / Kaninchen / Vogel / Reptil / Sonstiges statt englischer Bezeichnungen
+- **Tab-Einblend-Animation**: Tabs blenden beim Wechsel sanft ein
+
+---
+
 ## 2.2.0 – 2026-06-22
 
 ### Neu

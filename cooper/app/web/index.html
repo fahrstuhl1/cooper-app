@@ -6,31 +6,38 @@
 <title>Cooper</title>
 <style>
 :root {
-  --bg: #F0F4FF;
+  --bg: #F4F3FF;
   --surface: #FFFFFF;
-  --primary: #4F46E5;
-  --primary-bg: #EEF2FF;
-  --primary-dark: #4338CA;
-  --text: #111827;
-  --muted: #6B7280;
-  --border: #E5E7EB;
+  --primary: #5B5BD6;
+  --primary-bg: #EEEEFF;
+  --primary-dark: #4A4AC8;
+  --text: #0F0E2A;
+  --muted: #6E6D85;
+  --border: #E4E3F0;
   --danger: #EF4444;
+  --danger-bg: #FFF1F0;
   --success: #10B981;
+  --success-bg: #F0FDF9;
   --warning: #F59E0B;
-  --shadow: 0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
-  --shadow-md: 0 4px 12px rgba(0,0,0,.1);
-  --radius: 14px;
+  --warning-bg: #FFFBEB;
+  --shadow: 0 1px 3px rgba(15,14,42,.07),0 1px 2px rgba(15,14,42,.04);
+  --shadow-md: 0 4px 16px rgba(15,14,42,.09);
+  --shadow-hero: 0 8px 32px rgba(91,91,214,.25);
+  --radius: 16px;
+  --radius-sm: 10px;
   --gap: 12px;
+  --nav-h: 68px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-text-size-adjust:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
 
 /* ── Header ── */
-.app-header{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.header-main{display:flex;align-items:center;padding:10px 16px}
-.brand{font-size:1.05rem;font-weight:800;color:var(--primary);letter-spacing:-.02em}
-.animal-bar{display:flex;gap:7px;overflow-x:auto;padding:7px 16px 9px;scrollbar-width:none;border-bottom:1px solid var(--border)}
+.app-header{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 1px 0 var(--border)}
+.header-main{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+.brand{font-size:1.1rem;font-weight:800;color:var(--primary);letter-spacing:-.02em}
+.header-actions{display:flex;gap:4px}
+.animal-bar{display:flex;gap:7px;overflow-x:auto;padding:7px 16px 10px;scrollbar-width:none}
 .animal-bar::-webkit-scrollbar{display:none}
 
 /* ── Chips ── */
@@ -38,52 +45,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
 .chip:not(.active):hover{border-color:var(--primary);color:var(--primary)}
 .animal-chip{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;user-select:none;font-family:inherit}
-.animal-chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.animal-chip.active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(91,91,214,.3)}
 .animal-chip:not(.active):hover{border-color:var(--primary);color:var(--primary)}
 
-/* ── Tabs ── */
-.tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:87px;z-index:90}
-.tab-btn{flex:1;padding:10px 2px;border:none;background:none;color:var(--muted);font-size:.72rem;font-weight:600;cursor:pointer;border-bottom:2.5px solid transparent;transition:all .15s;font-family:inherit;letter-spacing:.01em}
-.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
+/* ── Bottom Navigation ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--surface);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);box-shadow:0 -2px 14px rgba(15,14,42,.07)}
+.nav-btn{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 8px;border:none;background:none;cursor:pointer;font-family:inherit;transition:transform .1s;-webkit-tap-highlight-color:transparent}
+.nav-btn:active{transform:scale(.9)}
+.nav-pip{position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:2.5px;background:var(--primary);border-radius:0 0 3px 3px;opacity:0;transition:opacity .15s}
+.nav-btn.active .nav-pip{opacity:1}
+.nav-icon{font-size:1.3rem;line-height:1;transition:transform .15s}
+.nav-btn.active .nav-icon{transform:scale(1.1)}
+.nav-label{font-size:.62rem;font-weight:600;color:var(--muted);letter-spacing:.02em;transition:color .15s}
+.nav-btn.active .nav-label{color:var(--primary)}
 
 /* ── Layout ── */
-.main-content{flex:1;padding:var(--gap);max-width:640px;margin:0 auto;width:100%;padding-bottom:80px}
+.main-content{flex:1;padding:var(--gap);max-width:640px;margin:0 auto;width:100%;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 20px)}
 .tab-pane{display:none}
-.tab-pane.active{display:block}
+.tab-pane.active{display:block;animation:tabIn .18s ease}
+@keyframes tabIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── Cards ── */
 .card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:var(--gap)}
 .card-title{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
 
-/* ── Animal hero ── */
-.animal-hero{display:flex;align-items:center;gap:14px}
-.animal-avatar{width:58px;height:58px;border-radius:50%;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:1.9rem;flex-shrink:0}
-.animal-info h2{font-size:1.15rem;font-weight:800}
-.species-label{font-size:.78rem;color:var(--muted);text-transform:capitalize;margin-top:1px}
-.age-label{font-size:.82rem;color:var(--primary);font-weight:600;margin-top:3px}
-.animal-stats{display:flex;gap:0;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
-.stat{flex:1;text-align:center;padding:0 6px}
-.stat+.stat{border-left:1px solid var(--border)}
-.stat .val{font-size:1.15rem;font-weight:800;color:var(--text)}
-.stat .lbl{font-size:.68rem;color:var(--muted);margin-top:3px;font-weight:500}
-
-/* ── Progress ── */
-.progress-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px}
-.p-val{font-size:1.05rem;font-weight:800}
-.p-target{font-size:.78rem;color:var(--muted)}
-.progress-bar{height:9px;background:var(--border);border-radius:999px;overflow:hidden}
-.progress-fill{height:100%;background:var(--primary);border-radius:999px;transition:width .4s ease;min-width:3px}
-.progress-fill.done{background:var(--success)}
-.progress-fill.over{background:var(--warning)}
-.progress-note{font-size:.73rem;color:var(--muted);margin-top:6px}
+/* ── Hero card ── */
+.hero-card{background:linear-gradient(135deg,#5B5BD6 0%,#8B5CF6 100%);border-radius:var(--radius);padding:18px;margin-bottom:var(--gap);box-shadow:var(--shadow-hero)}
+.hero-animal{display:flex;align-items:center;gap:14px}
+.hero-avatar{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;backdrop-filter:blur(4px)}
+.hero-name{font-size:1.2rem;font-weight:800;color:#fff}
+.hero-species{font-size:.78rem;color:rgba(255,255,255,.72);margin-top:1px}
+.hero-age{font-size:.82rem;color:rgba(255,255,255,.85);font-weight:600;margin-top:3px}
+.hero-stats{display:flex;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.2)}
+.hero-stat{flex:1;text-align:center;padding:0 8px}
+.hero-stat+.hero-stat{border-left:1px solid rgba(255,255,255,.2)}
+.hero-stat .val{font-size:1.1rem;font-weight:800;color:#fff;line-height:1.2}
+.hero-stat .trend{font-size:.7rem;color:rgba(255,255,255,.75);margin-top:2px;font-weight:600}
+.hero-stat .lbl{font-size:.64rem;color:rgba(255,255,255,.65);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
 
 /* ── Health events ── */
 .event-list{display:flex;flex-direction:column;gap:8px}
-.event-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;background:var(--bg);border-left:3px solid var(--border)}
-.event-item.overdue{border-left-color:var(--danger);background:#FFF5F5}
-.event-item.upcoming{border-left-color:var(--warning);background:#FFFBEB}
-.event-item.ok{border-left-color:var(--success);background:#F0FDF4}
-.event-badge{font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap;display:inline-block;margin-bottom:5px}
+.event-item{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;border-radius:12px;border-left:3px solid var(--border);background:var(--bg)}
+.event-item.overdue{border-left-color:var(--danger);background:var(--danger-bg)}
+.event-item.upcoming{border-left-color:var(--warning);background:var(--warning-bg)}
+.event-item.ok{border-left-color:var(--success);background:var(--success-bg)}
+.event-badge{font-size:.64rem;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap;display:inline-block;margin-bottom:4px}
 .badge-Impfung{background:#DBEAFE;color:#1D4ED8}
 .badge-Wurmkur{background:#FEF3C7;color:#92400E}
 .badge-Parasitenschutz{background:#FCE7F3;color:#9D174D}
@@ -95,7 +101,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .event-due{font-size:.75rem;font-weight:700;margin-top:4px}
 .event-due.overdue{color:var(--danger)}
 .event-due.upcoming{color:var(--warning)}
-.event-actions{display:flex;gap:3px;flex-shrink:0}
+.event-actions{display:flex;gap:3px;flex-shrink:0;flex-direction:column;align-items:flex-end}
+
+/* ── Done button ── */
+.done-btn{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:999px;border:1.5px solid var(--success);background:transparent;color:var(--success);font-size:.7rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;margin-top:6px}
+.done-btn:hover{background:var(--success);color:#fff}
 
 /* ── Icon buttons ── */
 .icon-btn{width:30px;height:30px;border:none;background:none;cursor:pointer;border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.82rem;transition:background .12s;flex-shrink:0}
@@ -108,7 +118,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 
 /* ── Weight chart ── */
 .weight-chart-wrap{width:100%;background:var(--bg);border-radius:10px;overflow:hidden;margin-bottom:14px}
-.weight-chart-wrap svg{display:block;width:100%;height:88px}
+.weight-chart-wrap svg{display:block;width:100%;height:100px}
+
+/* ── Weight display ── */
+.current-weight-row{display:flex;align-items:baseline;gap:10px;margin-bottom:3px}
+.current-weight-big{font-size:2rem;font-weight:800;color:var(--primary);line-height:1}
+.trend-up{color:var(--danger);font-size:.85rem;font-weight:700}
+.trend-down{color:var(--success);font-size:.85rem;font-weight:700}
+.trend-flat{color:var(--muted);font-size:.82rem}
 
 /* ── Weight items ── */
 .weight-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
@@ -120,7 +137,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .animal-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--bg);margin-bottom:8px}
 .animal-icon{width:46px;height:46px;border-radius:50%;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
 .animal-name{font-size:.92rem;font-weight:800}
-.animal-sub{font-size:.75rem;color:var(--muted);margin-top:2px;text-transform:capitalize}
+.animal-sub{font-size:.75rem;color:var(--muted);margin-top:2px}
 
 /* ── Forms ── */
 .form-group{margin-bottom:12px}
@@ -146,13 +163,13 @@ textarea{resize:vertical;min-height:58px}
 .sub-tab.active{background:var(--surface);color:var(--primary);box-shadow:var(--shadow)}
 
 /* ── FAB ── */
-.fab{position:fixed;bottom:22px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--primary);color:#fff;border:none;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 14px rgba(79,70,229,.4);display:none;align-items:center;justify-content:center;z-index:80;transition:transform .12s,box-shadow .12s;line-height:1}
-.fab:hover{transform:scale(1.06);box-shadow:0 6px 18px rgba(79,70,229,.5)}
+.fab{position:fixed;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px);right:20px;width:52px;height:52px;border-radius:50%;background:var(--primary);color:#fff;border:none;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 16px rgba(91,91,214,.45);display:none;align-items:center;justify-content:center;z-index:80;transition:transform .12s,box-shadow .12s;line-height:1}
+.fab:hover{transform:scale(1.06);box-shadow:0 6px 20px rgba(91,91,214,.55)}
 
 /* ── Modal ── */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;justify-content:center}
 .modal-backdrop.open{display:flex}
-.modal-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:640px;max-height:92dvh;overflow-y:auto;padding:20px 16px 36px;animation:slideUp .2s ease}
+.modal-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:640px;max-height:92dvh;overflow-y:auto;padding:20px 16px calc(36px + env(safe-area-inset-bottom,0));animation:slideUp .2s ease}
 @keyframes slideUp{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
 .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .modal-title{font-size:1rem;font-weight:800}
@@ -163,10 +180,10 @@ textarea{resize:vertical;min-height:58px}
 .toast.show{opacity:1}
 
 /* ── Empty / hint ── */
-.empty{text-align:center;padding:32px 16px;color:var(--muted)}
-.empty-icon{font-size:2.2rem;margin-bottom:8px}
+.empty{text-align:center;padding:36px 16px;color:var(--muted)}
+.empty-icon{font-size:2.5rem;margin-bottom:10px}
 .empty-text{font-size:.88rem}
-.no-animal{text-align:center;padding:48px 24px;color:var(--muted)}
+.no-animal{text-align:center;padding:52px 24px;color:var(--muted)}
 
 /* ── Stock cards ── */
 .stock-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:9px;border-left:4px solid var(--border);display:flex;align-items:flex-start;gap:12px}
@@ -175,16 +192,18 @@ textarea{resize:vertical;min-height:58px}
 .stock-card.critical{border-left-color:var(--danger)}
 .stock-card-body{flex:1;min-width:0}
 .stock-name{font-size:.88rem;font-weight:800;margin-bottom:2px}
-.stock-meta{font-size:.72rem;color:var(--muted);margin-bottom:5px}
-.stock-days{font-size:1.1rem;font-weight:800}
+.stock-meta{font-size:.72rem;color:var(--muted);margin-bottom:6px}
+.stock-days{font-size:1.2rem;font-weight:800}
 .stock-days.ok{color:var(--success)}
 .stock-days.low{color:var(--warning)}
 .stock-days.critical{color:var(--danger)}
-.stock-bar{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:6px}
-.stock-bar-fill{height:100%;border-radius:999px}
+.stock-until{font-size:.72rem;color:var(--muted);margin-top:1px}
+.stock-bar{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:7px}
+.stock-bar-fill{height:100%;border-radius:999px;transition:width .5s ease}
 .stock-bar-fill.ok{background:var(--success)}
 .stock-bar-fill.low{background:var(--warning)}
 .stock-bar-fill.critical{background:var(--danger)}
+.stock-actions{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -194,33 +213,52 @@ textarea{resize:vertical;min-height:58px}
 <header class="app-header">
   <div class="header-main">
     <div class="brand">🐾 Cooper</div>
+    <div class="header-actions">
+      <button class="icon-btn" title="Benachrichtigung testen" onclick="testNotify()" style="font-size:1.1rem">🔔</button>
+    </div>
   </div>
   <div id="animal-bar" class="animal-bar"></div>
 </header>
 
-<nav class="tab-bar">
-  <button class="tab-btn active" data-tab="start">🏠 Start</button>
-  <button class="tab-btn" data-tab="health">💊 Gesundheit</button>
-  <button class="tab-btn" data-tab="feed">🍖 Futter</button>
-  <button class="tab-btn" data-tab="animals">🐾 Tiere</button>
-</nav>
-
 <main class="main-content">
-  <div id="tab-start" class="tab-pane active"><div id="start-inner"></div></div>
-  <div id="tab-health" class="tab-pane">
+  <div id="tab-start"   class="tab-pane active"><div id="start-inner"></div></div>
+  <div id="tab-health"  class="tab-pane">
     <div id="health-filter" class="filter-row"></div>
     <div id="health-list"></div>
   </div>
-  <div id="tab-feed" class="tab-pane">
+  <div id="tab-feed"    class="tab-pane">
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="weights">⚖️ Gewicht</button>
-      <button class="sub-tab" data-sub="stocks">📦 Vorräte</button>
+      <button class="sub-tab"        data-sub="stocks">📦 Vorräte</button>
     </div>
     <div id="feed-weights"><div id="weights-inner"></div></div>
     <div id="feed-stocks" style="display:none"><div id="stocks-inner"></div></div>
   </div>
   <div id="tab-animals" class="tab-pane"><div id="animals-inner"></div></div>
 </main>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-tab="start">
+    <div class="nav-pip"></div>
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Start</span>
+  </button>
+  <button class="nav-btn" data-tab="health">
+    <div class="nav-pip"></div>
+    <span class="nav-icon">💊</span>
+    <span class="nav-label">Gesundheit</span>
+  </button>
+  <button class="nav-btn" data-tab="feed">
+    <div class="nav-pip"></div>
+    <span class="nav-icon">🍖</span>
+    <span class="nav-label">Futter</span>
+  </button>
+  <button class="nav-btn" data-tab="animals">
+    <div class="nav-pip"></div>
+    <span class="nav-icon">🐾</span>
+    <span class="nav-label">Tiere</span>
+  </button>
+</nav>
 
 <button id="fab" class="fab" onclick="openHealthModal(null)">+</button>
 
@@ -259,6 +297,14 @@ function restorePersistedState() {
   S.tab = localStorage.getItem('coop_tab') || 'start';
 }
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+const SPECIES_LABELS = {
+  dog: 'Hund', cat: 'Katze', rabbit: 'Kaninchen',
+  bird: 'Vogel', reptile: 'Reptil', other: 'Sonstiges',
+};
+
+const HEALTH_TYPES = ['Impfung','Wurmkur','Parasitenschutz','Tierarzt-Termin','Sonstiges'];
+
 // ─── API ─────────────────────────────────────────────────────────────────────
 async function api(method, path, body) {
   const opts = { method, headers: {} };
@@ -266,7 +312,6 @@ async function api(method, path, body) {
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(body);
   }
-  // Strip leading slash so paths are relative to the HA Ingress base URL
   const url = path.replace(/^\//, '');
   const res = await fetch(url, opts);
   if (res.status === 204) return null;
@@ -313,16 +358,31 @@ function fmtDate(iso) {
   } catch(e) { return iso; }
 }
 
-function fmtDateTime(iso) {
-  if (!iso) return '—';
-  try {
-    const d = new Date(iso.endsWith('Z') ? iso : iso + 'Z');
-    return d.toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin' });
-  } catch(e) { return iso; }
-}
-
 function todayISO() {
   return new Date().toLocaleDateString('sv');
+}
+
+function daysFromNow(isoDate) {
+  if (!isoDate) return null;
+  const today = new Date(todayISO() + 'T00:00:00');
+  const due   = new Date(isoDate.substring(0,10) + 'T00:00:00');
+  return Math.round((due - today) / 86400000);
+}
+
+function dueLabel(days) {
+  if (days === null) return '';
+  if (days < 0)  return `⚠️ ${Math.abs(days)} Tag${Math.abs(days) !== 1 ? 'e' : ''} überfällig`;
+  if (days === 0) return '📅 Heute fällig';
+  if (days === 1) return '📅 Morgen fällig';
+  return `📅 In ${days} Tagen`;
+}
+
+// ─── Notify test ─────────────────────────────────────────────────────────────
+async function testNotify() {
+  try {
+    const result = await api('POST', '/api/notify-test');
+    toast(result.status === 'sent' ? '🔔 Benachrichtigung gesendet ✓' : 'Nichts zu senden oder kein SUPERVISOR_TOKEN');
+  } catch(e) { toast(e.message, true); }
 }
 
 // ─── Header ──────────────────────────────────────────────────────────────────
@@ -330,8 +390,8 @@ function renderAnimalBar() {
   const bar = document.getElementById('animal-bar');
   if (!S.meta || !S.meta.animals.length) { bar.innerHTML = ''; return; }
   bar.innerHTML = S.meta.animals.map(a =>
-    '<button class="animal-chip' + (S.animalId === a.id ? ' active' : '') + '" onclick="selectAnimal(' + a.id + ')">' +
-    '<span>' + a.icon + '</span>' + esc(a.name) + '</button>'
+    `<button class="animal-chip${S.animalId === a.id ? ' active' : ''}" onclick="selectAnimal(${a.id})">` +
+    `<span>${a.icon}</span>${esc(a.name)}</button>`
   ).join('');
 }
 
@@ -346,24 +406,26 @@ function selectAnimal(id) {
 function switchTab(tab) {
   S.tab = tab;
   persist();
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
   document.getElementById('fab').style.display = tab === 'health' ? 'flex' : 'none';
   refreshTab();
 }
 
-document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
 
 document.querySelectorAll('.sub-tab').forEach(b => b.addEventListener('click', () => {
   S.subTab = b.dataset.sub;
   document.querySelectorAll('.sub-tab').forEach(x => x.classList.toggle('active', x === b));
   document.getElementById('feed-weights').style.display = S.subTab === 'weights' ? '' : 'none';
-  document.getElementById('feed-stocks').style.display = S.subTab === 'stocks' ? '' : 'none';
+  document.getElementById('feed-stocks').style.display  = S.subTab === 'stocks'  ? '' : 'none';
   if (S.subTab === 'stocks') renderStocksInner();
 }));
 
 function noAnimalHint() {
-  return '<div class="no-animal"><div style="font-size:2.5rem;margin-bottom:10px">&#x1F43E;</div><div style="font-size:.9rem;font-weight:500">Bitte zuerst ein Tier auswählen</div></div>';
+  return '<div class="no-animal"><div style="font-size:2.8rem;margin-bottom:12px">🐾</div>' +
+    '<div style="font-size:.92rem;font-weight:700;margin-bottom:6px">Kein Tier ausgewählt</div>' +
+    '<div style="font-size:.82rem">Wähle oben ein Tier aus</div></div>';
 }
 
 async function refreshTab() {
@@ -372,85 +434,124 @@ async function refreshTab() {
     document.getElementById('health-list').innerHTML = noAnimalHint();
     document.getElementById('health-filter').innerHTML = '';
     document.getElementById('weights-inner').innerHTML = noAnimalHint();
-    document.getElementById('stocks-inner').innerHTML = noAnimalHint();
+    document.getElementById('stocks-inner').innerHTML  = noAnimalHint();
     return;
   }
-  if (S.tab === 'start') await renderStartTab();
-  else if (S.tab === 'health') await renderHealthTab();
-  else if (S.tab === 'feed') await renderFeedTab();
+  if      (S.tab === 'start')   await renderStartTab();
+  else if (S.tab === 'health')  await renderHealthTab();
+  else if (S.tab === 'feed')    await renderFeedTab();
   else if (S.tab === 'animals') renderAnimalsTab();
 }
 
 // ─── Start tab ────────────────────────────────────────────────────────────────
 async function renderStartTab() {
   const el = document.getElementById('start-inner');
-  el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted)">Lädt…</div>';
+  el.innerHTML = '<div style="padding:36px;text-align:center;color:var(--muted)">Lädt…</div>';
   try {
     const dash = await api('GET', '/api/dashboard' + aq());
     S.dashboard = dash;
     const a = dash.animal;
-    const latest = dash.weight.latest;
 
-    let upHtml = '';
+    // Weight trend
+    const hist = dash.weight.history || [];
+    const latestW = hist.length > 0 ? hist[hist.length - 1].weight_kg : null;
+    const prevW   = hist.length >= 2 ? hist[hist.length - 2].weight_kg : null;
+    const diff    = (latestW !== null && prevW !== null) ? (latestW - prevW) : null;
+    const trendStr = diff !== null
+      ? (Math.abs(diff) < 0.01 ? '→ stabil' : diff > 0 ? `↑ +${diff.toFixed(2)} kg` : `↓ ${diff.toFixed(2)} kg`)
+      : null;
+
+    // Next health event
+    const overdue = dash.upcoming_health.filter(e => e.overdue);
+    const future  = dash.upcoming_health.filter(e => !e.overdue);
+    let nextStatVal, nextStatLbl;
+    if (overdue.length > 0) {
+      nextStatVal = `⚠️ ${overdue.length}`;
+      nextStatLbl = 'Überfällig';
+    } else if (future.length > 0) {
+      const d = daysFromNow(future[0].due_date);
+      nextStatVal = d === 0 ? 'Heute' : d === 1 ? 'Morgen' : `${d} Tage`;
+      nextStatLbl = 'Nächster Termin';
+    } else {
+      nextStatVal = '✅';
+      nextStatLbl = 'Alles ok';
+    }
+
+    // Hero card
+    const heroHtml = a ? `<div class="hero-card">
+      <div class="hero-animal">
+        <div class="hero-avatar">${a.icon || '🐾'}</div>
+        <div style="flex:1;min-width:0">
+          <div class="hero-name">${esc(a.name)}</div>
+          <div class="hero-species">${SPECIES_LABELS[a.species] || esc(a.species)}</div>
+          ${a.age ? `<div class="hero-age">${esc(a.age)} alt</div>` : ''}
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="val">${latestW !== null ? latestW + ' kg' : '—'}</div>
+          ${trendStr ? `<div class="trend">${esc(trendStr)}</div>` : '<div class="trend"> </div>'}
+          <div class="lbl">Gewicht</div>
+        </div>
+        <div class="hero-stat">
+          <div class="val">${nextStatVal}</div>
+          <div class="trend"> </div>
+          <div class="lbl">${nextStatLbl}</div>
+        </div>
+      </div>
+    </div>` : '';
+
+    // Upcoming health
+    let upHtml;
     if (dash.upcoming_health.length) {
-      upHtml = '<div class="event-list">' + dash.upcoming_health.slice(0, 4).map(function(e) {
-        return '<div class="event-item ' + (e.overdue ? 'overdue' : 'upcoming') + '">' +
-          '<div><span class="event-badge badge-' + esc(e.type.replace(/ /g,'-')) + '">' + esc(e.type) + '</span></div>' +
-          '<div class="event-body">' +
-          '<div class="event-title">' + esc(e.title) + '</div>' +
-          '<div class="event-due ' + (e.overdue ? 'overdue' : 'upcoming') + '">' + (e.overdue ? '⚠️ Überfällig' : '📅') + ' ' + fmtDate(e.due_date) + '</div>' +
-          '</div></div>';
+      upHtml = '<div class="event-list">' + dash.upcoming_health.slice(0, 4).map(e => {
+        const days = daysFromNow(e.due_date);
+        return `<div class="event-item ${e.overdue ? 'overdue' : 'upcoming'}">
+          <div><span class="event-badge badge-${esc(e.type.replace(/ /g,'-'))}">${esc(e.type)}</span></div>
+          <div class="event-body">
+            <div class="event-title">${esc(e.title)}</div>
+            <div class="event-due ${e.overdue ? 'overdue' : 'upcoming'}">${dueLabel(days)}</div>
+          </div>
+        </div>`;
       }).join('') + '</div>';
       if (dash.upcoming_health.length > 4)
         upHtml += '<div style="margin-top:10px;text-align:center"><button class="btn btn-ghost btn-sm" onclick="switchTab(\'health\')">Alle anzeigen →</button></div>';
     } else {
-      upHtml = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Keine fälligen Termine</div></div>';
+      upHtml = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Keine fälligen Termine – alles erledigt!</div></div>';
     }
 
-    let stockRemindersHtml = '';
+    // Food reminders
+    let stockHtml = '';
     if (dash.food_reminders && dash.food_reminders.length) {
-      stockRemindersHtml = '<div class="card"><div class="card-title">Vorräte – Bald kaufen!</div>' +
-        dash.food_reminders.map(function(p) {
-          const pct2 = Math.min(100, p.days_remaining > 0 ? (p.days_remaining / (p.buy_ahead_days * 2)) * 100 : 0);
-          return '<div class="stock-card ' + p.status + '">' +
-            '<div class="stock-card-body">' +
-            '<div class="stock-name">' + esc(p.name) + '</div>' +
-            '<div class="stock-meta">' + p.daily_portion_g + ' g/Tag · Leer am ' + fmtDate(p.run_out_date) + '</div>' +
-            '<div class="stock-days ' + p.status + '">' + (p.days_remaining <= 0 ? '0' : p.days_remaining) + ' Tage</div>' +
-            '<div class="stock-bar"><div class="stock-bar-fill ' + p.status + '" style="width:' + pct2.toFixed(1) + '%"></div></div>' +
-            '</div></div>';
+      stockHtml = '<div class="card"><div class="card-title">Vorräte – Bald kaufen!</div>' +
+        dash.food_reminders.map(p => {
+          const days = Math.max(0, Math.round(p.days_remaining));
+          const pct  = Math.min(100, p.days_remaining > 0 ? (p.days_remaining / (p.buy_ahead_days * 2)) * 100 : 0);
+          return `<div class="stock-card ${p.status}" style="margin-bottom:8px">
+            <div class="stock-card-body">
+              <div class="stock-name">${esc(p.name)}</div>
+              <div class="stock-meta">${p.daily_portion_g} g/Tag · Leer am ${fmtDate(p.run_out_date)}</div>
+              <div class="stock-days ${p.status}">${days} Tage</div>
+              <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${pct.toFixed(1)}%"></div></div>
+            </div>
+          </div>`;
         }).join('') +
-        '<div style="margin-top:10px;text-align:center"><button class="btn btn-ghost btn-sm" onclick="goToStocks()">Vorräte verwalten →</button></div>' +
-        '</div>';
+        '<div style="margin-top:8px;text-align:center"><button class="btn btn-ghost btn-sm" onclick="goToStocks()">Vorräte verwalten →</button></div></div>';
     }
 
-    el.innerHTML =
-      (a ? '<div class="card"><div class="animal-hero">' +
-        '<div class="animal-avatar">' + (a.icon || '🐾') + '</div>' +
-        '<div class="animal-info"><h2>' + esc(a.name) + '</h2>' +
-        '<div class="species-label">' + esc(a.species) + '</div>' +
-        (a.age ? '<div class="age-label">' + esc(a.age) + ' alt</div>' : '') +
-        '</div></div>' +
-        '<div class="animal-stats">' +
-        '<div class="stat"><div class="val">' + (latest ? latest.weight_kg + ' kg' : '—') + '</div><div class="lbl">Gewicht</div></div>' +
-        '<div class="stat"><div class="val">' + dash.upcoming_health.length + '</div><div class="lbl">Fällige Termine</div></div>' +
-        '</div></div>' : '') +
-
+    el.innerHTML = heroHtml +
       '<div class="card"><div class="card-title">Gesundheits-Termine</div>' + upHtml + '</div>' +
-
-      stockRemindersHtml;
+      stockHtml;
   } catch(e) {
-    el.innerHTML = '<div class="card" style="color:var(--danger);font-size:.85rem">' + esc(e.message) + '</div>';
+    el.innerHTML = `<div class="card" style="color:var(--danger);font-size:.85rem">${esc(e.message)}</div>`;
   }
 }
 
 // ─── Health tab ───────────────────────────────────────────────────────────────
-const HEALTH_TYPES = ['Impfung','Wurmkur','Parasitenschutz','Tierarzt-Termin','Sonstiges'];
-
 function renderHealthFilter() {
-  document.getElementById('health-filter').innerHTML = [null].concat(HEALTH_TYPES).map(function(t) {
-    return '<button class="chip' + (S.healthFilter === t ? ' active' : '') + '" onclick="setHealthFilter(' + (t ? '\'' + t + '\'' : 'null') + ')">' + (t || 'Alle') + '</button>';
-  }).join('');
+  document.getElementById('health-filter').innerHTML = [null].concat(HEALTH_TYPES).map(t =>
+    `<button class="chip${S.healthFilter === t ? ' active' : ''}" onclick="setHealthFilter(${t ? '\'' + t + '\'' : 'null'})">${t || 'Alle'}</button>`
+  ).join('');
 }
 
 function setHealthFilter(t) {
@@ -461,35 +562,60 @@ function setHealthFilter(t) {
 
 async function renderHealthTab() {
   renderHealthFilter();
-  const q = aq(S.healthFilter ? { type: S.healthFilter } : {});
   try {
-    S.health = await api('GET', '/api/health' + q);
+    S.health = await api('GET', '/api/health' + aq(S.healthFilter ? { type: S.healthFilter } : {}));
     renderHealthList();
   } catch(e) {
-    document.getElementById('health-list').innerHTML = '<div style="color:var(--danger);font-size:.85rem;padding:12px">' + esc(e.message) + '</div>';
+    document.getElementById('health-list').innerHTML = `<div style="color:var(--danger);font-size:.85rem;padding:12px">${esc(e.message)}</div>`;
   }
 }
 
 function renderHealthList() {
   const el = document.getElementById('health-list');
-  const items = S.healthFilter ? S.health.filter(function(e) { return e.type === S.healthFilter; }) : S.health;
+  const items = S.healthFilter ? S.health.filter(e => e.type === S.healthFilter) : S.health;
   if (!items.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">💊</div><div class="empty-text">Keine Einträge</div></div>';
+    el.innerHTML = '<div class="empty"><div class="empty-icon">💊</div><div class="empty-text">Keine Einträge – füge einen mit + hinzu</div></div>';
     return;
   }
-  el.innerHTML = '<div class="event-list">' + items.map(function(e) {
-    return '<div class="event-item ' + (e.overdue ? 'overdue' : e.due_date ? 'upcoming' : 'ok') + '">' +
-      '<div><span class="event-badge badge-' + esc(e.type.replace(/ /g,'-')) + '">' + esc(e.type) + '</span></div>' +
-      '<div class="event-body">' +
-      '<div class="event-title">' + esc(e.title) + '</div>' +
-      '<div class="event-date">' + fmtDate(e.date) + (e.note ? ' · ' + esc(e.note) : '') + '</div>' +
-      (e.due_date ? '<div class="event-due ' + (e.overdue ? 'overdue' : 'upcoming') + '">' + (e.overdue ? '⚠️ Überfällig' : '📅') + ' Fällig: ' + fmtDate(e.due_date) + (e.repeat_weeks ? ' (alle ' + e.repeat_weeks + ' Wo.)' : '') + '</div>' : '') +
-      '</div>' +
-      '<div class="event-actions">' +
-      '<button class="icon-btn" onclick="openHealthModal(' + e.id + ')" title="Bearbeiten">✏️</button>' +
-      '<button class="icon-btn danger" onclick="deleteHealth(' + e.id + ')" title="Löschen">🗑️</button>' +
-      '</div></div>';
+  el.innerHTML = '<div class="event-list">' + items.map(e => {
+    const days = e.due_date ? daysFromNow(e.due_date) : null;
+    const cls  = e.overdue ? 'overdue' : (e.due_date ? 'upcoming' : 'ok');
+    return `<div class="event-item ${cls}">
+      <div><span class="event-badge badge-${esc(e.type.replace(/ /g,'-'))}">${esc(e.type)}</span></div>
+      <div class="event-body">
+        <div class="event-title">${esc(e.title)}</div>
+        <div class="event-date">${fmtDate(e.date)}${e.note ? ' · ' + esc(e.note) : ''}</div>
+        ${e.due_date ? `<div class="event-due ${cls}">${dueLabel(days)}${e.repeat_weeks ? ' (alle ' + e.repeat_weeks + ' Wo.)' : ''}</div>` : ''}
+        ${e.due_date ? `<button class="done-btn" onclick="markHealthDone(${e.id})">✓ Erledigt</button>` : ''}
+      </div>
+      <div class="event-actions">
+        <button class="icon-btn" onclick="openHealthModal(${e.id})" title="Bearbeiten">✏️</button>
+        <button class="icon-btn danger" onclick="deleteHealth(${e.id})" title="Löschen">🗑️</button>
+      </div>
+    </div>`;
   }).join('') + '</div>';
+}
+
+async function markHealthDone(id) {
+  const ev = S.health.find(e => e.id === id);
+  if (!ev) return;
+  const today = todayISO();
+  const body = { date: today };
+  let msg = '✓ Als erledigt markiert';
+  if (ev.repeat_weeks) {
+    const next = new Date(today + 'T12:00:00');
+    next.setDate(next.getDate() + ev.repeat_weeks * 7);
+    body.due_date = next.toLocaleDateString('sv');
+    msg = `✓ Erledigt – nächste Erinnerung: ${fmtDate(body.due_date)}`;
+  } else {
+    body.due_date = null;
+  }
+  try {
+    await api('PATCH', '/api/health/' + id, body);
+    toast(msg);
+    await renderHealthTab();
+    if (S.tab === 'start') await renderStartTab();
+  } catch(e) { toast(e.message, true); }
 }
 
 async function deleteHealth(id) {
@@ -497,45 +623,45 @@ async function deleteHealth(id) {
   try {
     await api('DELETE', '/api/health/' + id);
     toast('Gelöscht');
-    S.health = S.health.filter(function(e) { return e.id !== id; });
+    S.health = S.health.filter(e => e.id !== id);
     renderHealthList();
   } catch(e) { toast(e.message, true); }
 }
 
 function openHealthModal(id) {
-  const ev = id ? S.health.find(function(e) { return e.id === id; }) : null;
+  const ev = id ? S.health.find(e => e.id === id) : null;
   document.getElementById('modal-title').textContent = ev ? 'Eintrag bearbeiten' : 'Neuer Gesundheitseintrag';
   document.getElementById('modal-body').innerHTML =
     '<div class="form-group"><label>Typ</label><select id="hm-type">' +
-    HEALTH_TYPES.map(function(t) { return '<option value="' + t + '"' + (ev && ev.type === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') +
-    '</select></div>' +
-    '<div class="form-group"><label>Titel</label><input id="hm-title" type="text" placeholder="z.B. DHPP-Auffrischung" value="' + esc(ev ? ev.title : '') + '"></div>' +
-    '<div class="form-row">' +
-    '<div class="form-group"><label>Datum</label><input id="hm-date" type="date" value="' + ((ev && ev.date) || todayISO()) + '"></div>' +
-    '<div class="form-group"><label>Fällig am</label><input id="hm-due" type="date" value="' + ((ev && ev.due_date) || '') + '"></div>' +
-    '</div>' +
-    '<div class="form-group"><label>Wiederholung (Wochen, leer = einmalig)</label><input id="hm-repeat" type="number" min="1" max="104" placeholder="z.B. 52" value="' + ((ev && ev.repeat_weeks) || '') + '"></div>' +
-    '<div class="form-group"><label>Notiz</label><textarea id="hm-note">' + esc((ev && ev.note) || '') + '</textarea></div>' +
-    '<div class="form-row" style="gap:8px;margin-top:6px">' +
-    '<button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>' +
-    '<button class="btn btn-primary btn-full" onclick="saveHealth(' + (id || 'null') + ')">Speichern</button>' +
-    '</div>';
+    HEALTH_TYPES.map(t => `<option value="${t}"${ev && ev.type === t ? ' selected' : ''}>${t}</option>`).join('') +
+    `</select></div>
+    <div class="form-group"><label>Titel</label><input id="hm-title" type="text" placeholder="z.B. DHPP-Auffrischung" value="${esc(ev ? ev.title : '')}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Datum</label><input id="hm-date" type="date" value="${(ev && ev.date) || todayISO()}"></div>
+      <div class="form-group"><label>Fällig am</label><input id="hm-due" type="date" value="${(ev && ev.due_date) || ''}"></div>
+    </div>
+    <div class="form-group"><label>Wiederholung (Wochen, leer = einmalig)</label><input id="hm-repeat" type="number" min="1" max="104" placeholder="z.B. 52" value="${(ev && ev.repeat_weeks) || ''}"></div>
+    <div class="form-group"><label>Notiz</label><textarea id="hm-note">${esc((ev && ev.note) || '')}</textarea></div>
+    <div class="form-row" style="gap:8px;margin-top:6px">
+      <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary btn-full" onclick="saveHealth(${id || 'null'})">Speichern</button>
+    </div>`;
   openModal();
 }
 
 async function saveHealth(id) {
   const repeatVal = document.getElementById('hm-repeat').value;
   const body = withAnimal({
-    type: document.getElementById('hm-type').value,
-    title: document.getElementById('hm-title').value.trim(),
-    date: document.getElementById('hm-date').value,
-    due_date: document.getElementById('hm-due').value || null,
+    type:         document.getElementById('hm-type').value,
+    title:        document.getElementById('hm-title').value.trim(),
+    date:         document.getElementById('hm-date').value,
+    due_date:     document.getElementById('hm-due').value || null,
     repeat_weeks: repeatVal ? parseInt(repeatVal) : null,
-    note: document.getElementById('hm-note').value.trim() || null,
+    note:         document.getElementById('hm-note').value.trim() || null,
   });
   try {
     if (id) await api('PATCH', '/api/health/' + id, body);
-    else await api('POST', '/api/health', body);
+    else    await api('POST',  '/api/health', body);
     toast('Gespeichert ✓');
     closeModal();
     await renderHealthTab();
@@ -545,65 +671,86 @@ async function saveHealth(id) {
 // ─── Feed tab ─────────────────────────────────────────────────────────────────
 async function renderFeedTab() {
   try {
-    const results = await Promise.all([
-      api('GET', '/api/weights' + aq()),
-    ]);
-    S.weights = results[0];
+    S.weights = await api('GET', '/api/weights' + aq());
     renderWeightsInner();
     if (S.subTab === 'stocks') await renderStocksInner();
   } catch(e) {
-    document.getElementById('weights-inner').innerHTML = '<div style="color:var(--danger);font-size:.85rem;padding:12px">' + esc(e.message) + '</div>';
+    document.getElementById('weights-inner').innerHTML = `<div style="color:var(--danger);font-size:.85rem;padding:12px">${esc(e.message)}</div>`;
   }
 }
 
 function renderWeightsInner() {
   const latest = S.weights.length ? S.weights[S.weights.length - 1] : null;
-  const chart = S.weights.length > 1 ? buildWeightChart(S.weights) : '';
+  const prev   = S.weights.length >= 2 ? S.weights[S.weights.length - 2] : null;
+  const diff   = (latest && prev) ? (latest.weight_kg - prev.weight_kg) : null;
+  const chart  = S.weights.length > 1 ? buildWeightChart(S.weights) : '';
 
-  const listHtml = S.weights.length ? S.weights.slice().reverse().map(function(w) {
-    return '<div class="weight-item">' +
-      '<div><div class="weight-val">' + w.weight_kg + ' kg</div>' +
-      '<div class="weight-sub">' + fmtDate(w.date) + '</div></div>' +
-      '<button class="icon-btn danger" onclick="deleteWeight(' + w.id + ')">🗑️</button>' +
-      '</div>';
-  }).join('') : '<div class="empty"><div class="empty-icon">⚖️</div><div class="empty-text">Noch keine Messungen</div></div>';
+  let trendHtml = '';
+  if (diff !== null) {
+    if (Math.abs(diff) < 0.01) trendHtml = '<span class="trend-flat">→ stabil</span>';
+    else if (diff > 0)          trendHtml = `<span class="trend-up">↑ +${diff.toFixed(2)} kg</span>`;
+    else                        trendHtml = `<span class="trend-down">↓ ${diff.toFixed(2)} kg</span>`;
+  }
+
+  const listHtml = S.weights.length
+    ? S.weights.slice().reverse().map(w =>
+        `<div class="weight-item">
+          <div>
+            <div class="weight-val">${w.weight_kg} kg</div>
+            <div class="weight-sub">${fmtDate(w.date)}${w.age_weeks != null ? ' · Woche ' + w.age_weeks : ''}</div>
+          </div>
+          <button class="icon-btn danger" onclick="deleteWeight(${w.id})">🗑️</button>
+        </div>`
+      ).join('')
+    : '<div class="empty"><div class="empty-icon">⚖️</div><div class="empty-text">Noch keine Messungen eingetragen</div></div>';
 
   document.getElementById('weights-inner').innerHTML =
     '<div class="card">' +
-    (chart ? '<div class="card-title">Verlauf</div><div class="weight-chart-wrap">' + chart + '</div>' : '') +
+    (chart ? '<div class="card-title">Gewichtsverlauf</div><div class="weight-chart-wrap">' + chart + '</div>' : '') +
     '<div style="margin-bottom:14px">' +
     '<div style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Aktuelles Gewicht</div>' +
-    '<div style="font-size:1.7rem;font-weight:800;color:var(--primary);line-height:1">' + (latest ? latest.weight_kg + ' kg' : '—') + '</div>' +
-    (latest ? '<div style="font-size:.75rem;color:var(--muted);margin-top:4px">' + fmtDate(latest.date) + '</div>' : '') +
+    `<div class="current-weight-row"><span class="current-weight-big">${latest ? latest.weight_kg + ' kg' : '—'}</span>${trendHtml}</div>` +
+    (latest ? `<div style="font-size:.75rem;color:var(--muted);margin-top:2px">${fmtDate(latest.date)}</div>` : '') +
     '</div>' +
     '<div class="form-row">' +
     '<div class="form-group"><label>Gewicht (kg)</label><input id="w-kg" type="number" min="0.1" max="200" step="0.01" placeholder="7.25"></div>' +
-    '<div class="form-group"><label>Datum</label><input id="w-date" type="date" value="' + todayISO() + '"></div>' +
+    `<div class="form-group"><label>Datum</label><input id="w-date" type="date" value="${todayISO()}"></div>` +
     '</div>' +
     '<button class="btn btn-primary btn-full" onclick="addWeight()">Gewicht eintragen</button></div>' +
-
     '<div class="card"><div class="card-title">Alle Messungen</div>' + listHtml + '</div>';
 }
 
 function buildWeightChart(weights) {
-  const W = 320, H = 88, PX = 14, PY = 12;
-  const vals = weights.map(function(w) { return w.weight_kg; });
-  const minV = Math.min.apply(null, vals), maxV = Math.max.apply(null, vals);
-  const range = maxV - minV || 0.1;
+  const W = 320, H = 100, PX = 16, PY = 14;
+  const vals = weights.map(w => w.weight_kg);
+  const minV = Math.min(...vals), maxV = Math.max(...vals);
+  const range = maxV - minV || 0.5;
   const n = weights.length;
+
   function toX(i) { return PX + (i / (n - 1)) * (W - PX * 2); }
   function toY(v) { return H - PY - ((v - minV) / range) * (H - PY * 2); }
 
-  const pts = weights.map(function(w, i) { return toX(i).toFixed(1) + ',' + toY(w.weight_kg).toFixed(1); }).join(' ');
+  const pts     = weights.map((w, i) => `${toX(i).toFixed(1)},${toY(w.weight_kg).toFixed(1)}`).join(' ');
+  const areaPts = pts + ` ${toX(n-1).toFixed(1)},${H-PY+4} ${toX(0).toFixed(1)},${H-PY+4}`;
   const lx = toX(n - 1), ly = toY(vals[n - 1]);
 
-  return '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">' +
-    '<polyline fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" points="' + pts + '"/>' +
-    '<circle cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="3.5" fill="var(--primary)"/>' +
-    '<text x="' + lx.toFixed(1) + '" y="' + (ly - 7).toFixed(1) + '" text-anchor="middle" font-size="9" fill="var(--primary)" font-family="sans-serif" font-weight="700">' + vals[n-1] + '</text>' +
-    '<text x="' + PX + '" y="' + (H - 3) + '" font-size="8" fill="var(--muted)" font-family="sans-serif">' + minV + '</text>' +
-    '<text x="' + PX + '" y="' + (PY + 2) + '" font-size="8" fill="var(--muted)" font-family="sans-serif">' + maxV + '</text>' +
-    '</svg>';
+  const d0 = weights[0].date.substring(5).replace('-', '.');
+  const dN = weights[n-1].date.substring(5).replace('-', '.');
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="wfill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--primary)" stop-opacity=".22"/>
+        <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <polygon points="${areaPts}" fill="url(#wfill)"/>
+    <polyline fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="${pts}"/>
+    <circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="4" fill="var(--primary)"/>
+    <text x="${lx.toFixed(1)}" y="${(ly - 8).toFixed(1)}" text-anchor="middle" font-size="9.5" fill="var(--primary)" font-family="sans-serif" font-weight="700">${vals[n-1]}</text>
+    <text x="${PX}" y="${H - 2}" font-size="8" fill="var(--muted)" font-family="sans-serif">${d0}</text>
+    <text x="${(W - PX)}" y="${H - 2}" text-anchor="end" font-size="8" fill="var(--muted)" font-family="sans-serif">${dN}</text>
+  </svg>`;
 }
 
 async function addWeight() {
@@ -615,7 +762,6 @@ async function addWeight() {
     toast('Gewicht gespeichert ✓');
     document.getElementById('w-kg').value = '';
     await renderFeedTab();
-    if (S.tab === 'start') await renderStartTab();
   } catch(e) { toast(e.message, true); }
 }
 
@@ -635,63 +781,62 @@ async function renderStocksInner() {
   try {
     S.products = await api('GET', '/api/food-products' + aq());
   } catch(e) {
-    el.innerHTML = '<div style="color:var(--danger);padding:12px">' + esc(e.message) + '</div>';
+    el.innerHTML = `<div style="color:var(--danger);padding:12px">${esc(e.message)}</div>`;
     return;
   }
-  const products = S.products;
-  if (!products.length) {
-    el.innerHTML =
-      '<div class="empty"><div class="empty-icon">📦</div><div class="empty-text">Noch keine Produkte eingetragen</div></div>' +
+  if (!S.products.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><div class="empty-text">Noch keine Produkte eingetragen</div></div>' +
       '<button class="btn btn-primary btn-full" style="margin-top:16px" onclick="openProductModal(null)">+ Produkt hinzufügen</button>';
     return;
   }
-  const listHtml = products.map(function(p) {
-    const pct = Math.min(100, p.days_remaining > 0 ? (p.days_remaining / (p.buy_ahead_days * 2)) * 100 : 0);
-    const statusLabel = p.status === 'critical' ? '⛔ Leer' : p.status === 'low' ? '⚠️ Bald kaufen' : '✅ Gut';
-    return '<div class="stock-card ' + p.status + '">' +
-      '<div class="stock-card-body">' +
-      '<div class="stock-name">' + esc(p.name) + '</div>' +
-      '<div class="stock-meta">' + p.package_weight_g + ' g/Pak · ' + p.daily_portion_g + ' g/Tag' + (p.note ? ' · ' + esc(p.note) : '') + '</div>' +
-      '<div class="stock-days ' + p.status + '">' + (p.days_remaining <= 0 ? '0' : p.days_remaining) + ' Tage</div>' +
-      '<div style="font-size:.72rem;color:var(--muted);margin-top:2px">' + statusLabel + ' · Leer am ' + fmtDate(p.run_out_date) + '</div>' +
-      '<div class="stock-bar"><div class="stock-bar-fill ' + p.status + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
-      '</div>' +
-      '<div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0">' +
-      '<button class="icon-btn" title="Auffüllen" onclick="openRestockModal(' + p.id + ')">+📦</button>' +
-      '<button class="icon-btn" title="Bearbeiten" onclick="openProductModal(' + p.id + ')">✏️</button>' +
-      '<button class="icon-btn danger" title="Löschen" onclick="deleteProduct(' + p.id + ')">🗑️</button>' +
-      '</div></div>';
-  }).join('');
-  el.innerHTML = listHtml +
+  el.innerHTML = S.products.map(p => {
+    const days  = Math.max(0, Math.round(p.days_remaining));
+    const pct   = Math.min(100, p.days_remaining > 0 ? (p.days_remaining / (p.buy_ahead_days * 2)) * 100 : 0);
+    const label = p.status === 'critical' ? '⛔ Leer' : p.status === 'low' ? '⚠️ Bald kaufen' : '✅ Vorrat ok';
+    return `<div class="stock-card ${p.status}">
+      <div class="stock-card-body">
+        <div class="stock-name">${esc(p.name)}</div>
+        <div class="stock-meta">${p.package_weight_g} g/Pak · ${p.daily_portion_g} g/Tag${p.note ? ' · ' + esc(p.note) : ''}</div>
+        <div class="stock-days ${p.status}">${days} Tage</div>
+        <div class="stock-until">${label} · Leer am ${fmtDate(p.run_out_date)}</div>
+        <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${pct.toFixed(1)}%"></div></div>
+      </div>
+      <div class="stock-actions">
+        <button class="icon-btn" title="Auffüllen" onclick="openRestockModal(${p.id})">+📦</button>
+        <button class="icon-btn" title="Bearbeiten" onclick="openProductModal(${p.id})">✏️</button>
+        <button class="icon-btn danger" title="Löschen" onclick="deleteProduct(${p.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('') +
     '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="openProductModal(null)">+ Produkt hinzufügen</button>';
 }
 
 function openProductModal(id) {
-  const p = id ? (S.products || []).find(function(x) { return x.id === id; }) : null;
+  const p = id ? (S.products || []).find(x => x.id === id) : null;
   document.getElementById('modal-title').textContent = p ? 'Produkt bearbeiten' : 'Neues Produkt';
   document.getElementById('modal-body').innerHTML =
-    '<div class="form-group"><label>Produktname</label><input id="pm-name" type="text" placeholder="z.B. Cooper Trockenfutter" value="' + esc(p ? p.name : '') + '"></div>' +
-    '<div class="form-row">' +
-    '<div class="form-group"><label>Packungsgröße (g)</label><input id="pm-pkg" type="number" min="1" max="50000" placeholder="3000" value="' + (p ? p.package_weight_g : '') + '"></div>' +
-    '<div class="form-group"><label>Tagesration (g)</label><input id="pm-daily" type="number" min="1" max="5000" placeholder="150" value="' + (p ? p.daily_portion_g : '') + '"></div>' +
-    '</div>' +
+    `<div class="form-group"><label>Produktname</label><input id="pm-name" type="text" placeholder="z.B. Cooper Trockenfutter" value="${esc(p ? p.name : '')}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Packungsgröße (g)</label><input id="pm-pkg" type="number" min="1" max="50000" placeholder="3000" value="${p ? p.package_weight_g : ''}"></div>
+      <div class="form-group"><label>Tagesration (g)</label><input id="pm-daily" type="number" min="1" max="5000" placeholder="150" value="${p ? p.daily_portion_g : ''}"></div>
+    </div>` +
     (p ? '' : '<div class="form-group"><label>Pakete im Lager (aktuell)</label><input id="pm-initial" type="number" min="0" step="0.5" placeholder="2" value="0"></div>') +
-    '<div class="form-group"><label>Kauferinnerung (Tage vor Leerstand)</label><input id="pm-ahead" type="number" min="1" max="90" placeholder="10" value="' + (p ? p.buy_ahead_days : '10') + '"></div>' +
-    '<div class="form-group"><label>Notiz (optional)</label><input id="pm-note" type="text" placeholder="z.B. Katze Nassfutter" value="' + esc(p ? (p.note || '') : '') + '"></div>' +
-    '<div class="form-row" style="gap:8px;margin-top:6px">' +
-    '<button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>' +
-    '<button class="btn btn-primary btn-full" onclick="saveProduct(' + (id || 'null') + ')">Speichern</button>' +
-    '</div>';
+    `<div class="form-group"><label>Kauferinnerung (Tage vor Leerstand)</label><input id="pm-ahead" type="number" min="1" max="90" placeholder="10" value="${p ? p.buy_ahead_days : '10'}"></div>
+    <div class="form-group"><label>Notiz (optional)</label><input id="pm-note" type="text" placeholder="z.B. Katze Nassfutter" value="${esc(p ? (p.note || '') : '')}"></div>
+    <div class="form-row" style="gap:8px;margin-top:6px">
+      <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary btn-full" onclick="saveProduct(${id || 'null'})">Speichern</button>
+    </div>`;
   openModal();
 }
 
 async function saveProduct(id) {
   const body = withAnimal({
-    name: (document.getElementById('pm-name').value || '').trim(),
-    package_weight_g: parseInt(document.getElementById('pm-pkg').value),
-    daily_portion_g: parseInt(document.getElementById('pm-daily').value),
-    buy_ahead_days: parseInt(document.getElementById('pm-ahead').value) || 10,
-    note: (document.getElementById('pm-note').value || '').trim() || null,
+    name:              (document.getElementById('pm-name').value || '').trim(),
+    package_weight_g:  parseInt(document.getElementById('pm-pkg').value),
+    daily_portion_g:   parseInt(document.getElementById('pm-daily').value),
+    buy_ahead_days:    parseInt(document.getElementById('pm-ahead').value) || 10,
+    note:              (document.getElementById('pm-note').value || '').trim() || null,
   });
   if (!id) {
     const initEl = document.getElementById('pm-initial');
@@ -699,7 +844,7 @@ async function saveProduct(id) {
   }
   try {
     if (id) await api('PATCH', '/api/food-products/' + id, body);
-    else await api('POST', '/api/food-products', body);
+    else    await api('POST',  '/api/food-products', body);
     toast('Gespeichert ✓');
     closeModal();
     await renderStocksInner();
@@ -716,24 +861,24 @@ async function deleteProduct(id) {
 }
 
 function openRestockModal(id) {
-  const p = (S.products || []).find(function(x) { return x.id === id; });
+  const p = (S.products || []).find(x => x.id === id);
   if (!p) return;
   document.getElementById('modal-title').textContent = p.name + ' auffüllen';
   document.getElementById('modal-body').innerHTML =
-    '<div style="font-size:.85rem;color:var(--muted);margin-bottom:14px">Vorrat jetzt: <strong>' + p.stock_g.toFixed(0) + ' g</strong> (' + p.days_remaining + ' Tage)</div>' +
-    '<div class="form-group"><label>Pakete hinzufügen</label>' +
-    '<input id="rs-packages" type="number" min="0.5" step="0.5" placeholder="z.B. 2">' +
-    '<div style="font-size:.75rem;color:var(--muted);margin-top:4px" id="rs-calc"></div></div>' +
-    '<div class="form-row" style="gap:8px;margin-top:6px">' +
-    '<button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>' +
-    '<button class="btn btn-primary btn-full" onclick="saveRestock(' + id + ')">Auffüllen</button>' +
-    '</div>';
+    `<div style="font-size:.85rem;color:var(--muted);margin-bottom:14px">Vorrat jetzt: <strong>${p.stock_g.toFixed(0)} g</strong> (${Math.round(p.days_remaining)} Tage)</div>
+    <div class="form-group"><label>Pakete hinzufügen</label>
+    <input id="rs-packages" type="number" min="0.5" step="0.5" placeholder="z.B. 2">
+    <div style="font-size:.75rem;color:var(--muted);margin-top:4px" id="rs-calc"></div></div>
+    <div class="form-row" style="gap:8px;margin-top:6px">
+      <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary btn-full" onclick="saveRestock(${id})">Auffüllen</button>
+    </div>`;
   openModal();
   document.getElementById('rs-packages').addEventListener('input', function() {
-    const pkgs = parseFloat(this.value) || 0;
+    const pkgs  = parseFloat(this.value) || 0;
     const added = pkgs * p.package_weight_g;
     document.getElementById('rs-calc').textContent = pkgs > 0
-      ? '+ ' + added + ' g → Neuer Vorrat: ' + (p.stock_g + added).toFixed(0) + ' g (' + Math.round((p.stock_g + added) / p.daily_portion_g) + ' Tage)'
+      ? `+ ${added} g → Neuer Vorrat: ${(p.stock_g + added).toFixed(0)} g (${Math.round((p.stock_g + added) / p.daily_portion_g)} Tage)`
       : '';
   });
 }
@@ -753,57 +898,57 @@ function goToStocks() {
   S.subTab = 'stocks';
   document.querySelectorAll('.sub-tab').forEach(x => x.classList.toggle('active', x.dataset.sub === 'stocks'));
   document.getElementById('feed-weights').style.display = 'none';
-  document.getElementById('feed-stocks').style.display = '';
+  document.getElementById('feed-stocks').style.display  = '';
   switchTab('feed');
 }
 
 // ─── Animals tab ──────────────────────────────────────────────────────────────
 function renderAnimalsTab() {
   const animals = (S.meta && S.meta.animals) || [];
-  const listHtml = animals.length ? animals.map(function(a) {
-    return '<div class="animal-item">' +
-      '<div class="animal-icon">' + a.icon + '</div>' +
-      '<div style="flex:1;min-width:0">' +
-      '<div class="animal-name">' + esc(a.name) + '</div>' +
-      '<div class="animal-sub">' + esc(a.species) + (a.age ? ' · ' + esc(a.age) + ' alt' : '') + (a.birthdate ? ' · geb. ' + fmtDate(a.birthdate) : '') + '</div>' +
-      '</div>' +
-      '<div style="display:flex;gap:3px">' +
-      '<button class="icon-btn" onclick="openAnimalModal(' + a.id + ')">✏️</button>' +
-      '<button class="icon-btn danger" onclick="deleteAnimalConfirm(' + a.id + ')">🗑️</button>' +
-      '</div></div>';
-  }).join('') : '<div class="empty"><div class="empty-icon">🐾</div><div class="empty-text">Noch keine Tiere eingetragen</div></div>';
+  const listHtml = animals.length ? animals.map(a =>
+    `<div class="animal-item">
+      <div class="animal-icon">${a.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div class="animal-name">${esc(a.name)}</div>
+        <div class="animal-sub">${SPECIES_LABELS[a.species] || esc(a.species)}${a.age ? ' · ' + esc(a.age) + ' alt' : ''}${a.birthdate ? ' · geb. ' + fmtDate(a.birthdate) : ''}</div>
+      </div>
+      <div style="display:flex;gap:3px">
+        <button class="icon-btn" onclick="openAnimalModal(${a.id})">✏️</button>
+        <button class="icon-btn danger" onclick="deleteAnimalConfirm(${a.id})">🗑️</button>
+      </div>
+    </div>`
+  ).join('') : '<div class="empty"><div class="empty-icon">🐾</div><div class="empty-text">Noch keine Tiere eingetragen</div></div>';
 
   document.getElementById('animals-inner').innerHTML =
-    listHtml +
-    '<button class="btn btn-primary btn-full" style="margin-top:6px" onclick="openAnimalModal(null)">+ Tier hinzufügen</button>';
+    listHtml + '<button class="btn btn-primary btn-full" style="margin-top:6px" onclick="openAnimalModal(null)">+ Tier hinzufügen</button>';
 }
 
 function openAnimalModal(id) {
-  const a = id ? (S.meta && S.meta.animals.find(function(x) { return x.id === id; })) : null;
+  const a    = id ? (S.meta && S.meta.animals.find(x => x.id === id)) : null;
   const opts = (S.meta && S.meta.species_options) || ['dog','cat','rabbit','bird','reptile','other'];
   document.getElementById('modal-title').textContent = a ? 'Tier bearbeiten' : 'Neues Tier';
   document.getElementById('modal-body').innerHTML =
-    '<div class="form-group"><label>Name</label><input id="am-name" type="text" placeholder="Name des Tieres" value="' + esc(a ? a.name : '') + '"></div>' +
-    '<div class="form-group"><label>Tierart</label><select id="am-species">' +
-    opts.map(function(s) { return '<option value="' + s + '"' + (a && a.species === s ? ' selected' : '') + '>' + s + '</option>'; }).join('') +
-    '</select></div>' +
-    '<div class="form-group"><label>Geburtsdatum (optional)</label><input id="am-birth" type="date" value="' + ((a && a.birthdate) || '') + '"></div>' +
-    '<div class="form-row" style="gap:8px;margin-top:6px">' +
-    '<button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>' +
-    '<button class="btn btn-primary btn-full" onclick="saveAnimal(' + (id || 'null') + ')">Speichern</button>' +
-    '</div>';
+    `<div class="form-group"><label>Name</label><input id="am-name" type="text" placeholder="Name des Tieres" value="${esc(a ? a.name : '')}"></div>
+    <div class="form-group"><label>Tierart</label><select id="am-species">` +
+    opts.map(s => `<option value="${s}"${a && a.species === s ? ' selected' : ''}>${SPECIES_LABELS[s] || s}</option>`).join('') +
+    `</select></div>
+    <div class="form-group"><label>Geburtsdatum (optional)</label><input id="am-birth" type="date" value="${(a && a.birthdate) || ''}"></div>
+    <div class="form-row" style="gap:8px;margin-top:6px">
+      <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary btn-full" onclick="saveAnimal(${id || 'null'})">Speichern</button>
+    </div>`;
   openModal();
 }
 
 async function saveAnimal(id) {
   const body = {
-    name: document.getElementById('am-name').value.trim(),
-    species: document.getElementById('am-species').value,
+    name:      document.getElementById('am-name').value.trim(),
+    species:   document.getElementById('am-species').value,
     birthdate: document.getElementById('am-birth').value || null,
   };
   try {
     if (id) await api('PATCH', '/api/animals/' + id, body);
-    else await api('POST', '/api/animals', body);
+    else    await api('POST',  '/api/animals', body);
     toast('Gespeichert ✓');
     closeModal();
     await reloadMeta();
@@ -813,7 +958,7 @@ async function saveAnimal(id) {
 }
 
 async function deleteAnimalConfirm(id) {
-  const a = S.meta && S.meta.animals.find(function(x) { return x.id === id; });
+  const a = S.meta && S.meta.animals.find(x => x.id === id);
   if (!confirm((a ? a.name : 'Tier') + ' wirklich löschen? Alle Daten gehen verloren.')) return;
   try {
     await api('DELETE', '/api/animals/' + id);
@@ -828,20 +973,16 @@ async function deleteAnimalConfirm(id) {
 }
 
 // ─── Modal ─────────────────────────────────────────────────────────────────────
-function openModal() {
-  document.getElementById('modal-backdrop').classList.add('open');
-}
-function closeModal() {
-  document.getElementById('modal-backdrop').classList.remove('open');
-}
-document.getElementById('modal-backdrop').addEventListener('click', function(e) {
+function openModal()  { document.getElementById('modal-backdrop').classList.add('open'); }
+function closeModal() { document.getElementById('modal-backdrop').classList.remove('open'); }
+document.getElementById('modal-backdrop').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-backdrop')) closeModal();
 });
 
 // ─── Init ──────────────────────────────────────────────────────────────────────
 async function reloadMeta() {
   S.meta = await api('GET', '/api/meta');
-  if (S.animalId && !S.meta.animals.find(function(a) { return a.id === S.animalId; })) S.animalId = null;
+  if (S.animalId && !S.meta.animals.find(a => a.id === S.animalId)) S.animalId = null;
   if (!S.animalId && S.meta.animals.length) S.animalId = S.meta.animals[0].id;
   persist();
 }
@@ -850,46 +991,45 @@ async function init() {
   restorePersistedState();
   await reloadMeta();
   renderAnimalBar();
-  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.tab === S.tab); });
-  document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.toggle('active', p.id === 'tab-' + S.tab); });
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === S.tab));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-' + S.tab));
   document.getElementById('fab').style.display = S.tab === 'health' ? 'flex' : 'none';
   await refreshTab();
 }
 
-init().catch(function(e) {
-  document.body.innerHTML = '<div style="padding:32px;font-family:sans-serif;color:var(--danger)"><h2>Fehler beim Laden</h2><p style="margin-top:8px;font-size:.9rem">' + String(e.message) + '</p></div>';
+init().catch(e => {
+  document.body.innerHTML = `<div style="padding:32px;font-family:sans-serif;color:var(--danger)"><h2>Fehler beim Laden</h2><p style="margin-top:8px;font-size:.9rem">${String(e.message)}</p></div>`;
 });
 
 // ─── Touch gestures ────────────────────────────────────────────────────────────
 (function() {
-  var MAIN_TABS = ['start', 'health', 'feed', 'animals'];
-  var SUB_TABS = ['weights', 'stocks'];
-  var tx = 0, ty = 0;
+  const MAIN_TABS = ['start', 'health', 'feed', 'animals'];
+  const SUB_TABS  = ['weights', 'stocks'];
+  let tx = 0, ty = 0;
+  const el = document.querySelector('.main-content');
 
-  var el = document.querySelector('.main-content');
-
-  el.addEventListener('touchstart', function(e) {
+  el.addEventListener('touchstart', e => {
     tx = e.touches[0].clientX;
     ty = e.touches[0].clientY;
   }, { passive: true });
 
-  el.addEventListener('touchend', function(e) {
-    var dx = e.changedTouches[0].clientX - tx;
-    var dy = e.changedTouches[0].clientY - ty;
+  el.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    const dy = e.changedTouches[0].clientY - ty;
     if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
     if (S.tab === 'feed') {
-      var idx = SUB_TABS.indexOf(S.subTab);
-      var next = dx < 0 ? Math.min(idx + 1, SUB_TABS.length - 1) : Math.max(idx - 1, 0);
+      const idx  = SUB_TABS.indexOf(S.subTab);
+      const next = dx < 0 ? Math.min(idx + 1, SUB_TABS.length - 1) : Math.max(idx - 1, 0);
       if (next !== idx) {
-        var btn = document.querySelector('.sub-tab[data-sub="' + SUB_TABS[next] + '"]');
+        const btn = document.querySelector(`.sub-tab[data-sub="${SUB_TABS[next]}"]`);
         if (btn) btn.click();
       }
     } else {
-      var midx = MAIN_TABS.indexOf(S.tab);
-      var mnext = dx < 0 ? Math.min(midx + 1, MAIN_TABS.length - 1) : Math.max(midx - 1, 0);
+      const midx  = MAIN_TABS.indexOf(S.tab);
+      const mnext = dx < 0 ? Math.min(midx + 1, MAIN_TABS.length - 1) : Math.max(midx - 1, 0);
       if (mnext !== midx) {
-        var mbtn = document.querySelector('.tab-btn[data-tab="' + MAIN_TABS[mnext] + '"]');
-        if (mbtn) mbtn.click();
+        const btn = document.querySelector(`.nav-btn[data-tab="${MAIN_TABS[mnext]}"]`);
+        if (btn) btn.click();
       }
     }
   }, { passive: true });
