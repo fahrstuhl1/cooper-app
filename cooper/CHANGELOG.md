@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.1.0 – 2026-06-22
+
+### Neu
+- **Futter-Vorräte**: Beliebig viele Futtermittel pro Tier anlegen (Name, Packungsgröße, Tagesration, aktueller Vorrat)
+- **Kauf-Erinnerung**: Automatische Berechnung des Leerstand-Datums; Warnung wenn Vorrat für weniger als X Tage reicht (Standard: 10 Tage)
+- **Vorräte-Tab**: Sub-Tab im Futter-Bereich mit Vorrats-Karten, Fortschrittsbalken und Auffüll-Dialog
+- **Dashboard-Erinnerungen**: Futter-Produkte mit geringem Vorrat werden direkt im Start-Dashboard angezeigt
+
+### Entfernt
+- **Fütterungs-Protokoll**: Einzel-Fütterungen werden nicht mehr geloggt
+- **Benutzer-Auswahl**: Kein Personen-Tracking mehr (Max, Franzi entfernt); `persons`- und `daily_food_target_g`-Optionen entfernt
+
+---
+
 ## 2.0.1 – 2026-06-22
 
 ### Bugfix

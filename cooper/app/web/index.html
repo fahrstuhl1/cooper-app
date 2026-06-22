@@ -28,10 +28,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 
 /* ── Header ── */
 .app-header{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.header-main{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;gap:10px}
-.brand{font-size:1.05rem;font-weight:800;color:var(--primary);letter-spacing:-.02em;flex-shrink:0}
-.person-chips{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;flex-shrink:1;min-width:0}
-.person-chips::-webkit-scrollbar{display:none}
+.header-main{display:flex;align-items:center;padding:10px 16px}
+.brand{font-size:1.05rem;font-weight:800;color:var(--primary);letter-spacing:-.02em}
 .animal-bar{display:flex;gap:7px;overflow-x:auto;padding:7px 16px 9px;scrollbar-width:none;border-bottom:1px solid var(--border)}
 .animal-bar::-webkit-scrollbar{display:none}
 
@@ -108,13 +106,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .filter-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:3px;margin-bottom:var(--gap);scrollbar-width:none}
 .filter-row::-webkit-scrollbar{display:none}
 
-/* ── Feeding items ── */
-.feeding-item{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
-.feeding-item:last-child{border-bottom:none}
-.feeding-food{font-size:.88rem;font-weight:700}
-.feeding-meta{font-size:.72rem;color:var(--muted);margin-top:2px}
-.feeding-amount{font-size:.92rem;font-weight:800;color:var(--primary);margin:0 8px;white-space:nowrap}
-
 /* ── Weight chart ── */
 .weight-chart-wrap{width:100%;background:var(--bg);border-radius:10px;overflow:hidden;margin-bottom:14px}
 .weight-chart-wrap svg{display:block;width:100%;height:88px}
@@ -139,11 +130,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary)}
 textarea{resize:vertical;min-height:58px}
 .form-row{display:flex;gap:10px}
 .form-row>.form-group{flex:1}
-
-/* ── Suggestions ── */
-.suggestions{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
-.suggestion{font-size:.73rem;padding:3px 9px;border-radius:999px;background:var(--primary-bg);color:var(--primary);cursor:pointer;border:none;font-family:inherit;transition:background .12s;font-weight:600}
-.suggestion:hover{background:var(--primary);color:#fff}
 
 /* ── Buttons ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:9px;border:none;font-size:.85rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;letter-spacing:.01em}
@@ -181,6 +167,24 @@ textarea{resize:vertical;min-height:58px}
 .empty-icon{font-size:2.2rem;margin-bottom:8px}
 .empty-text{font-size:.88rem}
 .no-animal{text-align:center;padding:48px 24px;color:var(--muted)}
+
+/* ── Stock cards ── */
+.stock-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:9px;border-left:4px solid var(--border);display:flex;align-items:flex-start;gap:12px}
+.stock-card.ok{border-left-color:var(--success)}
+.stock-card.low{border-left-color:var(--warning)}
+.stock-card.critical{border-left-color:var(--danger)}
+.stock-card-body{flex:1;min-width:0}
+.stock-name{font-size:.88rem;font-weight:800;margin-bottom:2px}
+.stock-meta{font-size:.72rem;color:var(--muted);margin-bottom:5px}
+.stock-days{font-size:1.1rem;font-weight:800}
+.stock-days.ok{color:var(--success)}
+.stock-days.low{color:var(--warning)}
+.stock-days.critical{color:var(--danger)}
+.stock-bar{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:6px}
+.stock-bar-fill{height:100%;border-radius:999px}
+.stock-bar-fill.ok{background:var(--success)}
+.stock-bar-fill.low{background:var(--warning)}
+.stock-bar-fill.critical{background:var(--danger)}
 </style>
 </head>
 <body>
@@ -190,7 +194,6 @@ textarea{resize:vertical;min-height:58px}
 <header class="app-header">
   <div class="header-main">
     <div class="brand">🐾 Cooper</div>
-    <div id="person-chips" class="person-chips"></div>
   </div>
   <div id="animal-bar" class="animal-bar"></div>
 </header>
@@ -210,11 +213,11 @@ textarea{resize:vertical;min-height:58px}
   </div>
   <div id="tab-feed" class="tab-pane">
     <div class="sub-tabs">
-      <button class="sub-tab active" data-sub="feedings">🍖 Fütterung</button>
-      <button class="sub-tab" data-sub="weights">⚖️ Gewicht</button>
+      <button class="sub-tab active" data-sub="weights">⚖️ Gewicht</button>
+      <button class="sub-tab" data-sub="stocks">📦 Vorräte</button>
     </div>
-    <div id="feed-feedings"><div id="feedings-inner"></div></div>
-    <div id="feed-weights" style="display:none"><div id="weights-inner"></div></div>
+    <div id="feed-weights"><div id="weights-inner"></div></div>
+    <div id="feed-stocks" style="display:none"><div id="stocks-inner"></div></div>
   </div>
   <div id="tab-animals" class="tab-pane"><div id="animals-inner"></div></div>
 </main>
@@ -236,27 +239,23 @@ textarea{resize:vertical;min-height:58px}
 const S = {
   meta: null,
   animalId: null,
-  person: null,
   tab: 'start',
-  subTab: 'feedings',
+  subTab: 'weights',
   healthFilter: null,
   health: [],
-  feedings: [],
-  feedSuggestions: [],
   weights: [],
+  products: [],
   dashboard: null,
 };
 
 function persist() {
   if (S.animalId != null) localStorage.setItem('coop_animal', S.animalId);
-  if (S.person) localStorage.setItem('coop_person', S.person);
   localStorage.setItem('coop_tab', S.tab);
 }
 
 function restorePersistedState() {
   const aid = parseInt(localStorage.getItem('coop_animal'));
   if (!isNaN(aid)) S.animalId = aid;
-  S.person = localStorage.getItem('coop_person') || null;
   S.tab = localStorage.getItem('coop_tab') || 'start';
 }
 
@@ -287,7 +286,6 @@ function aq(extra) {
 function withAnimal(body) {
   const b = { ...body };
   if (S.animalId) b.animal_id = S.animalId;
-  if (S.person) b.person = S.person;
   return b;
 }
 
@@ -328,20 +326,6 @@ function todayISO() {
 }
 
 // ─── Header ──────────────────────────────────────────────────────────────────
-function renderPersonChips() {
-  const el = document.getElementById('person-chips');
-  if (!S.meta || !S.meta.persons.length) { el.innerHTML = ''; return; }
-  el.innerHTML = S.meta.persons.map(p =>
-    '<button class="chip' + (S.person === p ? ' active' : '') + '" onclick="selectPerson(\'' + esc(p) + '\')">' + esc(p) + '</button>'
-  ).join('');
-}
-
-function selectPerson(p) {
-  S.person = p;
-  persist();
-  renderPersonChips();
-}
-
 function renderAnimalBar() {
   const bar = document.getElementById('animal-bar');
   if (!S.meta || !S.meta.animals.length) { bar.innerHTML = ''; return; }
@@ -373,8 +357,9 @@ document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', (
 document.querySelectorAll('.sub-tab').forEach(b => b.addEventListener('click', () => {
   S.subTab = b.dataset.sub;
   document.querySelectorAll('.sub-tab').forEach(x => x.classList.toggle('active', x === b));
-  document.getElementById('feed-feedings').style.display = S.subTab === 'feedings' ? '' : 'none';
   document.getElementById('feed-weights').style.display = S.subTab === 'weights' ? '' : 'none';
+  document.getElementById('feed-stocks').style.display = S.subTab === 'stocks' ? '' : 'none';
+  if (S.subTab === 'stocks') renderStocksInner();
 }));
 
 function noAnimalHint() {
@@ -386,8 +371,8 @@ async function refreshTab() {
     document.getElementById('start-inner').innerHTML = noAnimalHint();
     document.getElementById('health-list').innerHTML = noAnimalHint();
     document.getElementById('health-filter').innerHTML = '';
-    document.getElementById('feedings-inner').innerHTML = noAnimalHint();
     document.getElementById('weights-inner').innerHTML = noAnimalHint();
+    document.getElementById('stocks-inner').innerHTML = noAnimalHint();
     return;
   }
   if (S.tab === 'start') await renderStartTab();
@@ -404,9 +389,6 @@ async function renderStartTab() {
     const dash = await api('GET', '/api/dashboard' + aq());
     S.dashboard = dash;
     const a = dash.animal;
-    const feed = dash.feeding;
-    const pct = Math.min((feed.today_g / feed.target_g) * 100, 100);
-    const fillCls = pct >= 100 ? 'done' : feed.today_g > feed.target_g ? 'over' : '';
     const latest = dash.weight.latest;
 
     let upHtml = '';
@@ -425,6 +407,23 @@ async function renderStartTab() {
       upHtml = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-text">Keine fälligen Termine</div></div>';
     }
 
+    let stockRemindersHtml = '';
+    if (dash.food_reminders && dash.food_reminders.length) {
+      stockRemindersHtml = '<div class="card"><div class="card-title">Vorräte – Bald kaufen!</div>' +
+        dash.food_reminders.map(function(p) {
+          const pct2 = Math.min(100, p.days_remaining > 0 ? (p.days_remaining / (p.buy_ahead_days * 2)) * 100 : 0);
+          return '<div class="stock-card ' + p.status + '">' +
+            '<div class="stock-card-body">' +
+            '<div class="stock-name">' + esc(p.name) + '</div>' +
+            '<div class="stock-meta">' + p.daily_portion_g + ' g/Tag · Leer am ' + fmtDate(p.run_out_date) + '</div>' +
+            '<div class="stock-days ' + p.status + '">' + (p.days_remaining <= 0 ? '0' : p.days_remaining) + ' Tage</div>' +
+            '<div class="stock-bar"><div class="stock-bar-fill ' + p.status + '" style="width:' + pct2.toFixed(1) + '%"></div></div>' +
+            '</div></div>';
+        }).join('') +
+        '<div style="margin-top:10px;text-align:center"><button class="btn btn-ghost btn-sm" onclick="goToStocks()">Vorräte verwalten →</button></div>' +
+        '</div>';
+    }
+
     el.innerHTML =
       (a ? '<div class="card"><div class="animal-hero">' +
         '<div class="animal-avatar">' + (a.icon || '🐾') + '</div>' +
@@ -434,16 +433,12 @@ async function renderStartTab() {
         '</div></div>' +
         '<div class="animal-stats">' +
         '<div class="stat"><div class="val">' + (latest ? latest.weight_kg + ' kg' : '—') + '</div><div class="lbl">Gewicht</div></div>' +
-        '<div class="stat"><div class="val">' + feed.today_g + ' g</div><div class="lbl">Heute gefressen</div></div>' +
         '<div class="stat"><div class="val">' + dash.upcoming_health.length + '</div><div class="lbl">Fällige Termine</div></div>' +
         '</div></div>' : '') +
 
-      '<div class="card"><div class="card-title">Fütterung heute</div>' +
-      '<div class="progress-row"><span class="p-val">' + feed.today_g + ' g</span><span class="p-target">Ziel: ' + feed.target_g + ' g</span></div>' +
-      '<div class="progress-bar"><div class="progress-fill ' + fillCls + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
-      '<div class="progress-note">' + (pct >= 100 ? '✅ Tagesziel erreicht' : 'Noch ' + Math.max(0, feed.target_g - feed.today_g) + ' g bis zum Tagesziel') + '</div></div>' +
+      '<div class="card"><div class="card-title">Gesundheits-Termine</div>' + upHtml + '</div>' +
 
-      '<div class="card"><div class="card-title">Gesundheits-Termine</div>' + upHtml + '</div>';
+      stockRemindersHtml;
   } catch(e) {
     el.innerHTML = '<div class="card" style="color:var(--danger);font-size:.85rem">' + esc(e.message) + '</div>';
   }
@@ -487,7 +482,7 @@ function renderHealthList() {
       '<div><span class="event-badge badge-' + esc(e.type.replace(/ /g,'-')) + '">' + esc(e.type) + '</span></div>' +
       '<div class="event-body">' +
       '<div class="event-title">' + esc(e.title) + '</div>' +
-      '<div class="event-date">' + fmtDate(e.date) + (e.note ? ' · ' + esc(e.note) : '') + (e.person ? ' · ' + esc(e.person) : '') + '</div>' +
+      '<div class="event-date">' + fmtDate(e.date) + (e.note ? ' · ' + esc(e.note) : '') + '</div>' +
       (e.due_date ? '<div class="event-due ' + (e.overdue ? 'overdue' : 'upcoming') + '">' + (e.overdue ? '⚠️ Überfällig' : '📅') + ' Fällig: ' + fmtDate(e.due_date) + (e.repeat_weeks ? ' (alle ' + e.repeat_weeks + ' Wo.)' : '') + '</div>' : '') +
       '</div>' +
       '<div class="event-actions">' +
@@ -551,82 +546,14 @@ async function saveHealth(id) {
 async function renderFeedTab() {
   try {
     const results = await Promise.all([
-      api('GET', '/api/feedings' + aq({ limit: 30 })),
       api('GET', '/api/weights' + aq()),
-      api('GET', '/api/dashboard' + aq()),
     ]);
-    S.feedings = results[0].items;
-    S.feedSuggestions = results[0].suggestions;
-    S.weights = results[1];
-    S.dashboard = results[2];
-    renderFeedingsInner();
+    S.weights = results[0];
     renderWeightsInner();
+    if (S.subTab === 'stocks') await renderStocksInner();
   } catch(e) {
-    document.getElementById('feedings-inner').innerHTML = '<div style="color:var(--danger);font-size:.85rem;padding:12px">' + esc(e.message) + '</div>';
+    document.getElementById('weights-inner').innerHTML = '<div style="color:var(--danger);font-size:.85rem;padding:12px">' + esc(e.message) + '</div>';
   }
-}
-
-function renderFeedingsInner() {
-  const todayTotal = (S.dashboard && S.dashboard.feeding && S.dashboard.feeding.today_g) || 0;
-  const target = (S.meta && S.meta.daily_food_target_g) || 300;
-  const pct = Math.min((todayTotal / target) * 100, 100);
-  const fillCls = pct >= 100 ? 'done' : '';
-
-  const suggHtml = S.feedSuggestions.map(function(s) {
-    return '<button class="suggestion" onclick="document.getElementById(\'f-type\').value=\'' + esc(s) + '\'">' + esc(s) + '</button>';
-  }).join('');
-
-  const listHtml = S.feedings.length ? S.feedings.map(function(f) {
-    return '<div class="feeding-item">' +
-      '<div style="flex:1;min-width:0"><div class="feeding-food">' + esc(f.food_type) + '</div>' +
-      '<div class="feeding-meta">' + fmtDateTime(f.ts_utc) + (f.person ? ' · ' + esc(f.person) : '') + '</div></div>' +
-      '<div class="feeding-amount">' + f.amount_g + ' g</div>' +
-      '<button class="icon-btn danger" onclick="deleteFeeding(' + f.id + ')">🗑️</button>' +
-      '</div>';
-  }).join('') : '<div class="empty"><div class="empty-icon">🍖</div><div class="empty-text">Noch keine Fütterungen</div></div>';
-
-  document.getElementById('feedings-inner').innerHTML =
-    '<div class="card"><div class="card-title">Heute</div>' +
-    '<div class="progress-row"><span class="p-val">' + todayTotal + ' g</span><span class="p-target">/ ' + target + ' g</span></div>' +
-    '<div class="progress-bar"><div class="progress-fill ' + fillCls + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
-    '<div class="progress-note">' + (pct >= 100 ? '✅ Tagesziel erreicht' : 'Noch ' + Math.max(0, target - todayTotal) + ' g bis zum Tagesziel') + '</div></div>' +
-
-    '<div class="card"><div class="card-title">Fütterung eintragen</div>' +
-    '<div class="form-group"><label>Futterart</label>' +
-    '<input id="f-type" type="text" placeholder="Trockenfutter, Nassfutter…">' +
-    '<div class="suggestions">' + suggHtml + '</div></div>' +
-    '<div class="form-row">' +
-    '<div class="form-group"><label>Menge (g)</label><input id="f-amount" type="number" min="1" max="5000" placeholder="150"></div>' +
-    '<div class="form-group"><label>Uhrzeit</label><input id="f-time" type="datetime-local"></div>' +
-    '</div>' +
-    '<button class="btn btn-primary btn-full" onclick="addFeeding()">Eintragen</button></div>' +
-
-    '<div class="card"><div class="card-title">Letzte Fütterungen</div>' + listHtml + '</div>';
-}
-
-async function addFeeding() {
-  const food_type = document.getElementById('f-type').value.trim();
-  const amount_g = parseInt(document.getElementById('f-amount').value);
-  if (!food_type || !amount_g) { toast('Futterart und Menge erforderlich', true); return; }
-  const timeVal = document.getElementById('f-time').value;
-  const ts_utc = timeVal ? new Date(timeVal).toISOString().replace('.000Z','Z') : null;
-  try {
-    await api('POST', '/api/feedings', withAnimal({ food_type, amount_g, ts_utc }));
-    toast('Fütterung gespeichert ✓');
-    document.getElementById('f-type').value = '';
-    document.getElementById('f-amount').value = '';
-    await renderFeedTab();
-    if (S.tab === 'start') await renderStartTab();
-  } catch(e) { toast(e.message, true); }
-}
-
-async function deleteFeeding(id) {
-  if (!confirm('Fütterung löschen?')) return;
-  try {
-    await api('DELETE', '/api/feedings/' + id);
-    toast('Gelöscht');
-    await renderFeedTab();
-  } catch(e) { toast(e.message, true); }
 }
 
 function renderWeightsInner() {
@@ -636,7 +563,7 @@ function renderWeightsInner() {
   const listHtml = S.weights.length ? S.weights.slice().reverse().map(function(w) {
     return '<div class="weight-item">' +
       '<div><div class="weight-val">' + w.weight_kg + ' kg</div>' +
-      '<div class="weight-sub">' + fmtDate(w.date) + (w.person ? ' · ' + esc(w.person) : '') + '</div></div>' +
+      '<div class="weight-sub">' + fmtDate(w.date) + '</div></div>' +
       '<button class="icon-btn danger" onclick="deleteWeight(' + w.id + ')">🗑️</button>' +
       '</div>';
   }).join('') : '<div class="empty"><div class="empty-icon">⚖️</div><div class="empty-text">Noch keine Messungen</div></div>';
@@ -699,6 +626,135 @@ async function deleteWeight(id) {
     toast('Gelöscht');
     await renderFeedTab();
   } catch(e) { toast(e.message, true); }
+}
+
+// ─── Stocks tab ───────────────────────────────────────────────────────────────
+async function renderStocksInner() {
+  const el = document.getElementById('stocks-inner');
+  el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted)">Lädt…</div>';
+  try {
+    S.products = await api('GET', '/api/food-products' + aq());
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--danger);padding:12px">' + esc(e.message) + '</div>';
+    return;
+  }
+  const products = S.products;
+  if (!products.length) {
+    el.innerHTML =
+      '<div class="empty"><div class="empty-icon">📦</div><div class="empty-text">Noch keine Produkte eingetragen</div></div>' +
+      '<button class="btn btn-primary btn-full" style="margin-top:16px" onclick="openProductModal(null)">+ Produkt hinzufügen</button>';
+    return;
+  }
+  const listHtml = products.map(function(p) {
+    const pct = Math.min(100, p.days_remaining > 0 ? (p.days_remaining / (p.buy_ahead_days * 2)) * 100 : 0);
+    const statusLabel = p.status === 'critical' ? '⛔ Leer' : p.status === 'low' ? '⚠️ Bald kaufen' : '✅ Gut';
+    return '<div class="stock-card ' + p.status + '">' +
+      '<div class="stock-card-body">' +
+      '<div class="stock-name">' + esc(p.name) + '</div>' +
+      '<div class="stock-meta">' + p.package_weight_g + ' g/Pak · ' + p.daily_portion_g + ' g/Tag' + (p.note ? ' · ' + esc(p.note) : '') + '</div>' +
+      '<div class="stock-days ' + p.status + '">' + (p.days_remaining <= 0 ? '0' : p.days_remaining) + ' Tage</div>' +
+      '<div style="font-size:.72rem;color:var(--muted);margin-top:2px">' + statusLabel + ' · Leer am ' + fmtDate(p.run_out_date) + '</div>' +
+      '<div class="stock-bar"><div class="stock-bar-fill ' + p.status + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0">' +
+      '<button class="icon-btn" title="Auffüllen" onclick="openRestockModal(' + p.id + ')">+📦</button>' +
+      '<button class="icon-btn" title="Bearbeiten" onclick="openProductModal(' + p.id + ')">✏️</button>' +
+      '<button class="icon-btn danger" title="Löschen" onclick="deleteProduct(' + p.id + ')">🗑️</button>' +
+      '</div></div>';
+  }).join('');
+  el.innerHTML = listHtml +
+    '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="openProductModal(null)">+ Produkt hinzufügen</button>';
+}
+
+function openProductModal(id) {
+  const p = id ? (S.products || []).find(function(x) { return x.id === id; }) : null;
+  document.getElementById('modal-title').textContent = p ? 'Produkt bearbeiten' : 'Neues Produkt';
+  document.getElementById('modal-body').innerHTML =
+    '<div class="form-group"><label>Produktname</label><input id="pm-name" type="text" placeholder="z.B. Cooper Trockenfutter" value="' + esc(p ? p.name : '') + '"></div>' +
+    '<div class="form-row">' +
+    '<div class="form-group"><label>Packungsgröße (g)</label><input id="pm-pkg" type="number" min="1" max="50000" placeholder="3000" value="' + (p ? p.package_weight_g : '') + '"></div>' +
+    '<div class="form-group"><label>Tagesration (g)</label><input id="pm-daily" type="number" min="1" max="5000" placeholder="150" value="' + (p ? p.daily_portion_g : '') + '"></div>' +
+    '</div>' +
+    (p ? '' : '<div class="form-group"><label>Pakete im Lager (aktuell)</label><input id="pm-initial" type="number" min="0" step="0.5" placeholder="2" value="0"></div>') +
+    '<div class="form-group"><label>Kauferinnerung (Tage vor Leerstand)</label><input id="pm-ahead" type="number" min="1" max="90" placeholder="10" value="' + (p ? p.buy_ahead_days : '10') + '"></div>' +
+    '<div class="form-group"><label>Notiz (optional)</label><input id="pm-note" type="text" placeholder="z.B. Katze Nassfutter" value="' + esc(p ? (p.note || '') : '') + '"></div>' +
+    '<div class="form-row" style="gap:8px;margin-top:6px">' +
+    '<button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>' +
+    '<button class="btn btn-primary btn-full" onclick="saveProduct(' + (id || 'null') + ')">Speichern</button>' +
+    '</div>';
+  openModal();
+}
+
+async function saveProduct(id) {
+  const body = withAnimal({
+    name: (document.getElementById('pm-name').value || '').trim(),
+    package_weight_g: parseInt(document.getElementById('pm-pkg').value),
+    daily_portion_g: parseInt(document.getElementById('pm-daily').value),
+    buy_ahead_days: parseInt(document.getElementById('pm-ahead').value) || 10,
+    note: (document.getElementById('pm-note').value || '').trim() || null,
+  });
+  if (!id) {
+    const initEl = document.getElementById('pm-initial');
+    body.initial_packages = parseFloat(initEl ? initEl.value : 0) || 0;
+  }
+  try {
+    if (id) await api('PATCH', '/api/food-products/' + id, body);
+    else await api('POST', '/api/food-products', body);
+    toast('Gespeichert ✓');
+    closeModal();
+    await renderStocksInner();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Produkt löschen?')) return;
+  try {
+    await api('DELETE', '/api/food-products/' + id);
+    toast('Gelöscht');
+    await renderStocksInner();
+  } catch(e) { toast(e.message, true); }
+}
+
+function openRestockModal(id) {
+  const p = (S.products || []).find(function(x) { return x.id === id; });
+  if (!p) return;
+  document.getElementById('modal-title').textContent = p.name + ' auffüllen';
+  document.getElementById('modal-body').innerHTML =
+    '<div style="font-size:.85rem;color:var(--muted);margin-bottom:14px">Vorrat jetzt: <strong>' + p.stock_g.toFixed(0) + ' g</strong> (' + p.days_remaining + ' Tage)</div>' +
+    '<div class="form-group"><label>Pakete hinzufügen</label>' +
+    '<input id="rs-packages" type="number" min="0.5" step="0.5" placeholder="z.B. 2">' +
+    '<div style="font-size:.75rem;color:var(--muted);margin-top:4px" id="rs-calc"></div></div>' +
+    '<div class="form-row" style="gap:8px;margin-top:6px">' +
+    '<button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>' +
+    '<button class="btn btn-primary btn-full" onclick="saveRestock(' + id + ')">Auffüllen</button>' +
+    '</div>';
+  openModal();
+  document.getElementById('rs-packages').addEventListener('input', function() {
+    const pkgs = parseFloat(this.value) || 0;
+    const added = pkgs * p.package_weight_g;
+    document.getElementById('rs-calc').textContent = pkgs > 0
+      ? '+ ' + added + ' g → Neuer Vorrat: ' + (p.stock_g + added).toFixed(0) + ' g (' + Math.round((p.stock_g + added) / p.daily_portion_g) + ' Tage)'
+      : '';
+  });
+}
+
+async function saveRestock(id) {
+  const packages = parseFloat(document.getElementById('rs-packages').value);
+  if (!packages || packages <= 0) { toast('Anzahl Pakete erforderlich', true); return; }
+  try {
+    await api('POST', '/api/food-products/' + id + '/restock', { packages });
+    toast('Aufgefüllt ✓');
+    closeModal();
+    await renderStocksInner();
+  } catch(e) { toast(e.message, true); }
+}
+
+function goToStocks() {
+  S.subTab = 'stocks';
+  document.querySelectorAll('.sub-tab').forEach(x => x.classList.toggle('active', x.dataset.sub === 'stocks'));
+  document.getElementById('feed-weights').style.display = 'none';
+  document.getElementById('feed-stocks').style.display = '';
+  switchTab('feed');
 }
 
 // ─── Animals tab ──────────────────────────────────────────────────────────────
@@ -787,14 +843,12 @@ async function reloadMeta() {
   S.meta = await api('GET', '/api/meta');
   if (S.animalId && !S.meta.animals.find(function(a) { return a.id === S.animalId; })) S.animalId = null;
   if (!S.animalId && S.meta.animals.length) S.animalId = S.meta.animals[0].id;
-  if (!S.person && S.meta.persons.length) S.person = S.meta.persons[0];
   persist();
 }
 
 async function init() {
   restorePersistedState();
   await reloadMeta();
-  renderPersonChips();
   renderAnimalBar();
   document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.tab === S.tab); });
   document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.toggle('active', p.id === 'tab-' + S.tab); });

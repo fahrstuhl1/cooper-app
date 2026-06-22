@@ -1,5 +1,5 @@
 name: "Cooper"
-version: "2.0.1"
+version: "2.1.0"
 slug: "cooper"
 description: "Tier-Gesundheitstracker: Gewicht, Impfungen, Wurmkur, Tierarzt & mehr für alle Haustiere"
 url: "https://github.com/fahrstuhl1/cooper-app"
@@ -28,10 +28,6 @@ options:
     - name: "Katze 2"
       species: "cat"
       birthdate: ""
-  persons:
-    - "Max"
-    - "Franzi"
-  daily_food_target_g: 300
   health_reminder_days: 30
   log_level: info
 schema:
@@ -39,8 +35,5 @@ schema:
     - name: str
       species: list(dog|cat|rabbit|bird|reptile|other)
       birthdate: str
-  persons:
-    - str
-  daily_food_target_g: int(50,2000)
   health_reminder_days: int(1,180)
   log_level: list(debug|info|warning|error)
