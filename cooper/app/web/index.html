@@ -1505,6 +1505,12 @@ init().catch(e => {
     ptrArmed = false;
 
     if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
+    // Rechts-Wischen auf Start-Tab in Einzeltier-Ansicht → zurück zur Übersicht
+    if (dx > 0 && S.tab === 'start' && S.animalId !== 'all') {
+      haptic('light');
+      selectAnimal('all');
+      return;
+    }
     const midx  = MAIN_TABS.indexOf(S.tab);
     const mnext = dx < 0 ? Math.min(midx + 1, MAIN_TABS.length - 1) : Math.max(midx - 1, 0);
     if (mnext !== midx) {
