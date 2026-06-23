@@ -7,8 +7,8 @@ from zoneinfo import ZoneInfo
 from flask import Flask, jsonify, request, send_from_directory
 
 import db
+import notifier
 
-LOCAL_TZ = ZoneInfo("Europe/Berlin")
 UTC = datetime.timezone.utc
 
 log = logging.getLogger("cooper")
@@ -18,49 +18,11 @@ SPECIES_ICONS = {"dog": "🐕", "cat": "🐱", "rabbit": "🐇", "bird": "🐦",
 
 def create_app(config):
     app = Flask(__name__, static_folder=None)
-    persons = config["persons"]
+    LOCAL_TZ = ZoneInfo(config.get("timezone", "Europe/Berlin"))
 
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
-
-    def resolve_person():
-        header_name = (
-            request.headers.get("X-Remote-User-Display-Name")
-            or request.headers.get("X-Remote-User-Name")
-        )
-        if header_name:
-            for p in persons:
-                if p.lower() == header_name.strip().lower():
-                    return p
-        body = request.get_json(silent=True) or {}
-        candidate = body.get("person") or request.args.get("person")
-        if candidate in persons:
-            return candidate
-        return None
-
-    def parse_ts(value):
-        if not value:
-            return db.utcnow_iso()
-        text = value.strip()
-        if text.endswith("Z"):
-            text = text[:-1] + "+00:00"
-        try:
-            dt = datetime.datetime.fromisoformat(text)
-        except ValueError:
-            return db.utcnow_iso()
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=LOCAL_TZ)
-        return dt.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-    def local_day_bounds_utc(now_utc=None):
-        now_utc = now_utc or datetime.datetime.now(UTC)
-        now_local = now_utc.astimezone(LOCAL_TZ)
-        start_local = now_local.replace(hour=0, minute=0, second=0, microsecond=0)
-        end_local = start_local + datetime.timedelta(days=1)
-        start_utc = start_local.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-        end_utc = end_local.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-        return start_utc, end_utc
 
     def add_months(d, months):
         month_index = d.month - 1 + months
@@ -106,6 +68,26 @@ def create_app(config):
         animal["age"] = age_string(animal.get("birthdate") or "", today)
         return animal
 
+    def enrich_product(p):
+        today = datetime.datetime.now(LOCAL_TZ).date()
+        daily = p.get("daily_portion_g") or 1
+        stock_g = p.get("stock_g") or 0
+        pkg_w = p.get("package_weight_g") or 1
+        unit = p.get("unit") or "g"
+        days_remaining = round(stock_g / daily, 1) if daily > 0 else 0
+        buy_ahead = p.get("buy_ahead_days") or 10
+        p["days_remaining"] = days_remaining
+        p["run_out_date"] = (today + datetime.timedelta(days=int(days_remaining))).isoformat()
+        p["needs_buying"] = days_remaining <= buy_ahead
+        p["status"] = "critical" if days_remaining <= 0 else "low" if p["needs_buying"] else "ok"
+        p["packages_remaining"] = round(stock_g / pkg_w, 2) if pkg_w else 0
+        is_piece_based = unit in ("Dose", "Stück")
+        p["is_piece_based"] = is_piece_based
+        if is_piece_based and pkg_w:
+            p["display_daily_count"] = round(daily / pkg_w, 2)
+            p["display_stock_count"] = round(stock_g / pkg_w, 2)
+        return p
+
     # ------------------------------------------------------------------
     # Static frontend
     # ------------------------------------------------------------------
@@ -123,8 +105,6 @@ def create_app(config):
         animals = [enrich_animal(a) for a in db.list_animals()]
         return jsonify({
             "animals": animals,
-            "persons": persons,
-            "daily_food_target_g": config["daily_food_target_g"],
             "health_reminder_days": config["health_reminder_days"],
             "species_options": db.SPECIES_OPTIONS,
         })
@@ -183,10 +163,7 @@ def create_app(config):
     def dashboard():
         now_utc = datetime.datetime.now(UTC)
         today = now_utc.astimezone(LOCAL_TZ).date()
-        day_start, day_end = local_day_bounds_utc(now_utc)
         animal_id = request.args.get("animal_id", type=int)
-
-        food_today = db.food_total_today(day_start, day_end, animal_id)
 
         horizon = (today + datetime.timedelta(days=config["health_reminder_days"])).isoformat()
         upcoming = db.upcoming_health(today.isoformat(), horizon, animal_id)
@@ -202,30 +179,22 @@ def create_app(config):
         if animal:
             enrich_animal(animal)
 
+        food_reminders = [enrich_product(p) for p in db.low_stock_products(animal_id)]
+
         return jsonify({
             "animal": animal,
-            "persons": persons,
-            "feeding": {
-                "today_g": food_today,
-                "target_g": config["daily_food_target_g"],
-            },
             "upcoming_health": upcoming,
             "weight": {
                 "latest": latest,
                 "history": weight_history,
             },
+            "food_reminders": food_reminders,
         })
 
     @app.get("/api/ha-sensors")
     def ha_sensors():
         now_utc = datetime.datetime.now(UTC)
         today = now_utc.astimezone(LOCAL_TZ).date()
-        day_start, day_end = local_day_bounds_utc(now_utc)
-
-        animals = db.list_animals()
-        primary_id = animals[0]["id"] if animals else None
-
-        food_today = db.food_total_today(day_start, day_end, primary_id)
 
         horizon = (today + datetime.timedelta(days=config["health_reminder_days"])).isoformat()
         upcoming = db.upcoming_health(today.isoformat(), horizon)
@@ -242,49 +211,8 @@ def create_app(config):
             }
 
         return jsonify({
-            "fed_today_g": food_today,
             "next_due_health": next_due,
         })
-
-    # ------------------------------------------------------------------
-    # Feedings
-    # ------------------------------------------------------------------
-
-    @app.get("/api/feedings")
-    def get_feedings():
-        limit = request.args.get("limit", type=int)
-        animal_id = request.args.get("animal_id", type=int)
-        return jsonify({
-            "items": db.list_feedings(animal_id=animal_id, limit=limit),
-            "suggestions": db.recent_food_types(animal_id=animal_id),
-        })
-
-    @app.post("/api/feedings")
-    def post_feeding():
-        body = request.get_json(silent=True) or {}
-        person = resolve_person()
-        if not person:
-            return jsonify({"error": "Unbekannte oder fehlende Person"}), 400
-
-        food_type = (body.get("food_type") or "").strip()
-        amount_g = body.get("amount_g")
-        if not food_type or amount_g is None:
-            return jsonify({"error": "Futterart und Menge sind erforderlich"}), 400
-        try:
-            amount_g = int(amount_g)
-        except (TypeError, ValueError):
-            return jsonify({"error": "Menge muss eine Zahl sein"}), 400
-
-        ts_utc = parse_ts(body.get("ts_utc"))
-        feeding = db.create_feeding(ts_utc, person, food_type, amount_g, body.get("animal_id"))
-        return jsonify(feeding), 201
-
-    @app.delete("/api/feedings/<int:feeding_id>")
-    def delete_feeding(feeding_id):
-        if not db.get_feeding(feeding_id):
-            return jsonify({"error": "Eintrag nicht gefunden"}), 404
-        db.delete_feeding(feeding_id)
-        return "", 204
 
     # ------------------------------------------------------------------
     # Weights
@@ -308,8 +236,6 @@ def create_app(config):
     @app.post("/api/weights")
     def post_weight():
         body = request.get_json(silent=True) or {}
-        person = resolve_person()
-
         date = body.get("date") or datetime.datetime.now(LOCAL_TZ).date().isoformat()
         weight_kg = body.get("weight_kg")
         if weight_kg is None:
@@ -319,7 +245,7 @@ def create_app(config):
         except (TypeError, ValueError):
             return jsonify({"error": "Gewicht muss eine Zahl sein"}), 400
 
-        weight = db.create_weight(date, weight_kg, person, body.get("animal_id"))
+        weight = db.create_weight(date, weight_kg, None, body.get("animal_id"))
         return jsonify(weight), 201
 
     @app.delete("/api/weights/<int:weight_id>")
@@ -349,8 +275,6 @@ def create_app(config):
     @app.post("/api/health")
     def post_health():
         body = request.get_json(silent=True) or {}
-        person = resolve_person()
-
         event_type = body.get("type")
         title = (body.get("title") or "").strip()
         date = body.get("date") or datetime.datetime.now(LOCAL_TZ).date().isoformat()
@@ -370,7 +294,7 @@ def create_app(config):
             except (ValueError, TypeError):
                 due_date = None
 
-        event = db.create_health(event_type, title, date, note, due_date, repeat_weeks, person, body.get("animal_id"))
+        event = db.create_health(event_type, title, date, note, due_date, repeat_weeks, None, body.get("animal_id"))
         return jsonify(event), 201
 
     @app.patch("/api/health/<int:event_id>")
@@ -383,7 +307,7 @@ def create_app(config):
             if body["type"] not in VALID_HEALTH_TYPES:
                 return jsonify({"error": "Ungültiger Ereignistyp"}), 400
             fields["type"] = body["type"]
-        for key in ("title", "date", "note", "due_date", "repeat_weeks"):
+        for key in ("title", "date", "note", "due_date", "repeat_weeks", "animal_id"):
             if key in body:
                 fields[key] = body[key]
         return jsonify(db.update_health(event_id, **fields))
@@ -394,5 +318,94 @@ def create_app(config):
             return jsonify({"error": "Eintrag nicht gefunden"}), 404
         db.delete_health(event_id)
         return "", 204
+
+    # ------------------------------------------------------------------
+    # Food products
+    # ------------------------------------------------------------------
+
+    @app.get("/api/food-products")
+    def get_food_products():
+        animal_id = request.args.get("animal_id", type=int)
+        return jsonify([enrich_product(p) for p in db.list_food_products(animal_id=animal_id)])
+
+    @app.post("/api/food-products")
+    def post_food_product():
+        body = request.get_json(silent=True) or {}
+        name = (body.get("name") or "").strip()
+        if not name:
+            return jsonify({"error": "Name ist erforderlich"}), 400
+        try:
+            package_weight_g = int(body.get("package_weight_g") or 0)
+            daily_portion_g = int(body.get("daily_portion_g") or 0)
+            initial_packages = float(body.get("initial_packages") or 0)
+            buy_ahead_days = int(body.get("buy_ahead_days") or 10)
+        except (TypeError, ValueError):
+            return jsonify({"error": "Ungültige Zahlenwerte"}), 400
+        if package_weight_g <= 0 or daily_portion_g <= 0:
+            return jsonify({"error": "Packungsgröße und Tagesration müssen > 0 sein"}), 400
+        note = body.get("note") or None
+        unit = body.get("unit") or "g"
+        animal_id = None if body.get("shared") else body.get("animal_id")
+        product = db.create_food_product(animal_id, name, package_weight_g, daily_portion_g, initial_packages, buy_ahead_days, note, unit)
+        return jsonify(enrich_product(product)), 201
+
+    @app.patch("/api/food-products/<int:product_id>")
+    def patch_food_product(product_id):
+        if not db.get_food_product(product_id):
+            return jsonify({"error": "Produkt nicht gefunden"}), 404
+        body = request.get_json(silent=True) or {}
+        fields = {}
+        if "name" in body:
+            name = (body["name"] or "").strip()
+            if not name:
+                return jsonify({"error": "Name ist erforderlich"}), 400
+            fields["name"] = name
+        for key in ("package_weight_g", "daily_portion_g", "buy_ahead_days"):
+            if key in body:
+                try:
+                    fields[key] = int(body[key])
+                except (TypeError, ValueError):
+                    return jsonify({"error": f"Ungültiger Wert für {key}"}), 400
+        if "note" in body:
+            fields["note"] = body["note"] or None
+        if "unit" in body:
+            fields["unit"] = body["unit"] or "g"
+        if "shared" in body:
+            fields["animal_id"] = None
+        elif "animal_id" in body:
+            fields["animal_id"] = body["animal_id"]
+        return jsonify(enrich_product(db.update_food_product(product_id, **fields)))
+
+    @app.delete("/api/food-products/<int:product_id>")
+    def delete_food_product_route(product_id):
+        if not db.get_food_product(product_id):
+            return jsonify({"error": "Produkt nicht gefunden"}), 404
+        db.delete_food_product(product_id)
+        return "", 204
+
+    # ------------------------------------------------------------------
+    # Notifications
+    # ------------------------------------------------------------------
+
+    @app.post("/api/notify-test")
+    def notify_test():
+        ok = notifier.check_and_notify(config)
+        if ok:
+            return jsonify({"status": "sent"})
+        return jsonify({"status": "skipped", "reason": "Nichts zu senden oder kein SUPERVISOR_TOKEN"})
+
+    @app.post("/api/food-products/<int:product_id>/restock")
+    def restock_food_product_route(product_id):
+        if not db.get_food_product(product_id):
+            return jsonify({"error": "Produkt nicht gefunden"}), 404
+        body = request.get_json(silent=True) or {}
+        try:
+            packages = float(body.get("packages") or 0)
+        except (TypeError, ValueError):
+            return jsonify({"error": "Ungültige Anzahl Pakete"}), 400
+        if packages <= 0:
+            return jsonify({"error": "Anzahl muss > 0 sein"}), 400
+        product = db.restock_food_product(product_id, packages)
+        return jsonify(enrich_product(product))
 
     return app

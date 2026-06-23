@@ -4,6 +4,7 @@ import logging
 from waitress import serve
 
 import db
+import notifier
 from config import load_config
 from server import create_app
 
@@ -27,6 +28,8 @@ def main():
 
     db.init_db()
     db.seed_animals(config["animals"])
+
+    notifier.start_scheduler(config)
 
     app = create_app(config)
     serve(app, host="0.0.0.0", port=8099)

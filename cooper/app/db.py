@@ -67,6 +67,18 @@ def init_db():
             person TEXT,
             created_at TEXT NOT NULL
         );
+
+        CREATE TABLE IF NOT EXISTS food_products (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            animal_id INTEGER REFERENCES animals(id),
+            name TEXT NOT NULL,
+            package_weight_g INTEGER NOT NULL,
+            daily_portion_g INTEGER NOT NULL,
+            stock_g REAL NOT NULL DEFAULT 0,
+            buy_ahead_days INTEGER NOT NULL DEFAULT 10,
+            note TEXT,
+            created_at TEXT NOT NULL
+        );
         """
     )
     conn.commit()
@@ -76,6 +88,10 @@ def init_db():
         cols = [row[1] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()]
         if "animal_id" not in cols:
             conn.execute(f"ALTER TABLE {table} ADD COLUMN animal_id INTEGER REFERENCES animals(id)")
+    # Migration: add unit column to food_products
+    fp_cols = [row[1] for row in conn.execute("PRAGMA table_info(food_products)").fetchall()]
+    if "unit" not in fp_cols:
+        conn.execute("ALTER TABLE food_products ADD COLUMN unit TEXT NOT NULL DEFAULT 'g'")
     conn.commit()
 
 
@@ -147,82 +163,6 @@ def delete_animal(animal_id):
     conn = get_conn()
     conn.execute("DELETE FROM animals WHERE id = ?", (animal_id,))
     conn.commit()
-
-
-# ---------------------------------------------------------------------------
-# Feedings
-# ---------------------------------------------------------------------------
-
-def list_feedings(animal_id=None, limit=None):
-    conn = get_conn()
-    if animal_id:
-        q = "SELECT * FROM feedings WHERE animal_id = ? ORDER BY ts_utc DESC, id DESC"
-        args = [animal_id]
-    else:
-        q = "SELECT * FROM feedings ORDER BY ts_utc DESC, id DESC"
-        args = []
-    if limit:
-        q += f" LIMIT {int(limit)}"
-    return [dict(r) for r in conn.execute(q, args).fetchall()]
-
-
-def get_feeding(feeding_id):
-    conn = get_conn()
-    row = conn.execute("SELECT * FROM feedings WHERE id = ?", (feeding_id,)).fetchone()
-    return dict(row) if row else None
-
-
-def create_feeding(ts_utc, person, food_type, amount_g, animal_id=None):
-    conn = get_conn()
-    cur = conn.execute(
-        """INSERT INTO feedings (ts_utc, person, food_type, amount_g, animal_id, created_at)
-           VALUES (?, ?, ?, ?, ?, ?)""",
-        (ts_utc, person, food_type, int(amount_g), animal_id, utcnow_iso()),
-    )
-    conn.commit()
-    return get_feeding(cur.lastrowid)
-
-
-def delete_feeding(feeding_id):
-    conn = get_conn()
-    conn.execute("DELETE FROM feedings WHERE id = ?", (feeding_id,))
-    conn.commit()
-
-
-def food_total_today(day_start_utc, day_end_utc, animal_id=None):
-    conn = get_conn()
-    if animal_id:
-        row = conn.execute(
-            """SELECT COALESCE(SUM(amount_g), 0) AS total FROM feedings
-               WHERE ts_utc >= ? AND ts_utc < ? AND animal_id = ?""",
-            (day_start_utc, day_end_utc, animal_id),
-        ).fetchone()
-    else:
-        row = conn.execute(
-            "SELECT COALESCE(SUM(amount_g), 0) AS total FROM feedings WHERE ts_utc >= ? AND ts_utc < ?",
-            (day_start_utc, day_end_utc),
-        ).fetchone()
-    return row["total"]
-
-
-def recent_food_types(animal_id=None, limit=8):
-    conn = get_conn()
-    if animal_id:
-        rows = conn.execute(
-            "SELECT DISTINCT food_type FROM feedings WHERE animal_id = ? ORDER BY id DESC LIMIT 50",
-            (animal_id,),
-        ).fetchall()
-    else:
-        rows = conn.execute(
-            "SELECT DISTINCT food_type FROM feedings ORDER BY id DESC LIMIT 50"
-        ).fetchall()
-    seen = []
-    for r in rows:
-        if r["food_type"] not in seen:
-            seen.append(r["food_type"])
-        if len(seen) >= limit:
-            break
-    return seen
 
 
 # ---------------------------------------------------------------------------
@@ -315,7 +255,7 @@ def create_health(event_type, title, date, note, due_date, repeat_weeks, person,
 
 def update_health(event_id, **fields):
     conn = get_conn()
-    allowed = {"type", "title", "date", "note", "due_date", "repeat_weeks", "person"}
+    allowed = {"type", "title", "date", "note", "due_date", "repeat_weeks", "person", "animal_id"}
     sets, values = [], []
     for key, value in fields.items():
         if key in allowed:
@@ -353,3 +293,88 @@ def upcoming_health(today_iso, horizon_date_iso, animal_id=None):
         item["overdue"] = item["due_date"] < today_iso
         result.append(item)
     return result
+
+
+# ---------------------------------------------------------------------------
+# Food products
+# ---------------------------------------------------------------------------
+
+def list_food_products(animal_id=None):
+    conn = get_conn()
+    if animal_id:
+        return [dict(r) for r in conn.execute(
+            "SELECT * FROM food_products WHERE (animal_id = ? OR animal_id IS NULL) ORDER BY name ASC", (animal_id,)
+        ).fetchall()]
+    return [dict(r) for r in conn.execute(
+        "SELECT * FROM food_products ORDER BY name ASC"
+    ).fetchall()]
+
+
+def get_food_product(product_id):
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM food_products WHERE id = ?", (product_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def create_food_product(animal_id, name, package_weight_g, daily_portion_g, initial_packages, buy_ahead_days, note, unit="g"):
+    conn = get_conn()
+    stock_g = float(initial_packages) * float(package_weight_g)
+    cur = conn.execute(
+        """INSERT INTO food_products (animal_id, name, package_weight_g, daily_portion_g, stock_g, buy_ahead_days, note, unit, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (animal_id, name, int(package_weight_g), int(daily_portion_g), stock_g, int(buy_ahead_days), note, unit or "g", utcnow_iso()),
+    )
+    conn.commit()
+    return get_food_product(cur.lastrowid)
+
+
+def update_food_product(product_id, **fields):
+    conn = get_conn()
+    allowed = {"name", "package_weight_g", "daily_portion_g", "buy_ahead_days", "note", "unit", "animal_id"}
+    sets, values = [], []
+    for key, value in fields.items():
+        if key in allowed:
+            sets.append(f"{key} = ?")
+            values.append(value)
+    if not sets:
+        return get_food_product(product_id)
+    values.append(product_id)
+    conn.execute(f"UPDATE food_products SET {', '.join(sets)} WHERE id = ?", values)
+    conn.commit()
+    return get_food_product(product_id)
+
+
+def delete_food_product(product_id):
+    conn = get_conn()
+    conn.execute("DELETE FROM food_products WHERE id = ?", (product_id,))
+    conn.commit()
+
+
+def restock_food_product(product_id, packages):
+    conn = get_conn()
+    product = get_food_product(product_id)
+    if not product:
+        return None
+    added_g = float(packages) * float(product["package_weight_g"])
+    conn.execute(
+        "UPDATE food_products SET stock_g = stock_g + ? WHERE id = ?",
+        (added_g, product_id),
+    )
+    conn.commit()
+    return get_food_product(product_id)
+
+
+def low_stock_products(animal_id=None):
+    """Liefert Produkte, bei denen days_remaining <= buy_ahead_days."""
+    conn = get_conn()
+    if animal_id:
+        where = "WHERE (animal_id = ? OR animal_id IS NULL) AND daily_portion_g > 0 AND CAST(stock_g AS REAL) / CAST(daily_portion_g AS REAL) <= buy_ahead_days"
+        args = [animal_id]
+    else:
+        where = "WHERE daily_portion_g > 0 AND CAST(stock_g AS REAL) / CAST(daily_portion_g AS REAL) <= buy_ahead_days"
+        args = []
+    rows = conn.execute(
+        f"SELECT * FROM food_products {where} ORDER BY CAST(stock_g AS REAL) / CAST(daily_portion_g AS REAL) ASC",
+        args,
+    ).fetchall()
+    return [dict(r) for r in rows]
