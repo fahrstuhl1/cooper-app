@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.5.1 – 2026-06-23
+
+### Geändert
+- Versionsbump zur Behebung der HA Update-Erkennung (2.5.0 wurde von einigen Instanzen nicht erkannt)
+
+---
+
 ## 2.5.0 – 2026-06-22
 
 ### Neu
