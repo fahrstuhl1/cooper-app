@@ -1,5 +1,28 @@
 # Changelog
 
+## 2.6.0 – 2026-06-23
+
+### Neu
+- **Wischen zum Löschen**: Gesundheitseinträge und Futter-Produkte können per Linkswisch gelöscht werden – kurzes Wischen öffnet den roten Löschen-Button, langes Wischen löscht sofort
+- **Drag-to-dismiss Modal**: Modal-Sheet lässt sich durch Herunterziehen am Griff schließen; federt bei kurzem Zug zurück
+- **Haptisches Feedback**: Gerätevibration (wo vom Browser unterstützt) bei Wisch-Bestätigung und Modal-Dismiss
+- **Modernes UI-Redesign**: Glassmorphism auf Header und unterer Navigation (`backdrop-filter: blur`); Hintergrund als fixierter Farbverlauf; FAB mit Verlauf und Glow-Animation; Toast unterhalb der Navigation
+
+### Geändert
+- **Skeleton Loading**: Alle vier Ladezustände (Start, Gesundheit, Futter, Vorräte) zeigen jetzt shimmierende Platzhalter statt „Lädt…"-Text
+- **Event-Items mit Farb-Streifen**: Gesundheitseinträge haben einen 4 px breiten linken Akzentstreifen (rot/gelb/grün je Status)
+- **Tierübersicht-Kacheln**: Accent-Balken oben auf jeder Tier-Kachel im Alle-Modus
+- **Pluralisierung korrigiert**: „Stücken" → „Stücke" in allen Vorrats-Anzeigen
+- **Bestätigungs-Dialog**: Löschen-Dialoge nutzen jetzt ein natives In-App-Overlay statt `window.confirm()`
+- **Sortierung korrigiert**: Gesundheitseinträge ohne Fälligkeitsdatum werden korrekt ans Ende sortiert
+
+### Technisch
+- `overscroll-behavior: none` auf `body` verhindert unbeabsichtigtes Bounce-Scrolling im HA-Frame
+- `-webkit-overflow-scrolling: touch` auf dem Modal für natives iOS-Momentum-Scrolling
+- Toten JavaScript-Code (alter Einzeltier-Gewichtseingabe-Flow) und ungenutztes CSS entfernt
+
+---
+
 ## 2.5.1 – 2026-06-23
 
 ### Geändert
