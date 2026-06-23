@@ -30,7 +30,7 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-text-size-adjust:100%}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:linear-gradient(160deg,#EEEdFF 0%,#F5F4FF 55%,#EAF2FF 100%);background-attachment:fixed;color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:linear-gradient(160deg,#EEEdFF 0%,#F5F4FF 55%,#EAF2FF 100%);background-attachment:fixed;color:var(--text);min-height:100dvh;display:flex;flex-direction:column;overscroll-behavior:none}
 
 /* ── Header ── */
 .app-header{background:rgba(255,255,255,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(228,227,240,.55);position:sticky;top:0;z-index:100;box-shadow:0 1px 20px rgba(15,14,42,.05)}
@@ -177,7 +177,7 @@ textarea{resize:vertical;min-height:58px}
 /* ── Modal ── */
 .modal-backdrop{position:fixed;inset:0;background:rgba(15,14,42,.5);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
 .modal-backdrop.open{display:flex}
-.modal-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:640px;max-height:92dvh;overflow-y:auto;padding:12px 16px calc(36px + env(safe-area-inset-bottom,0));animation:slideUp .22s ease}
+.modal-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:640px;max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px calc(36px + env(safe-area-inset-bottom,0));animation:slideUp .22s ease}
 @keyframes slideUp{from{transform:translateY(32px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes slideDown{from{transform:translateY(0);opacity:1}to{transform:translateY(32px);opacity:0}}
 .modal-sheet.closing{animation:slideDown .18s ease forwards}
@@ -203,7 +203,7 @@ textarea{resize:vertical;min-height:58px}
 .no-animal{text-align:center;padding:52px 24px;color:var(--muted)}
 
 /* ── Stock cards ── */
-.stock-card{background:var(--surface);border-radius:var(--radius);box-shadow:0 2px 8px rgba(15,14,42,.06),0 1px 2px rgba(15,14,42,.04);padding:14px;margin-bottom:9px;display:flex;align-items:flex-start;gap:12px;border:1.5px solid var(--border);transition:border-color .2s}
+.stock-card{background:var(--surface);border-radius:var(--radius);box-shadow:0 2px 8px rgba(15,14,42,.06),0 1px 2px rgba(15,14,42,.04);padding:14px;display:flex;align-items:flex-start;gap:12px;border:1.5px solid var(--border);transition:border-color .2s}
 .stock-card.low{border-color:rgba(245,158,11,.3);box-shadow:0 2px 8px rgba(245,158,11,.08)}
 .stock-card.critical{border-color:rgba(239,68,68,.3);box-shadow:0 2px 8px rgba(239,68,68,.08)}
 .stock-card-body{flex:1;min-width:0}
@@ -244,6 +244,13 @@ textarea{resize:vertical;min-height:58px}
 
 /* ── Disabled buttons ── */
 .btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ── Swipe to delete ── */
+.swipe-wrap{position:relative;overflow:hidden;border-radius:14px;touch-action:pan-y}
+.swipe-bg{position:absolute;right:0;top:0;bottom:0;width:88px;background:var(--danger);display:flex;align-items:center;justify-content:center}
+.swipe-del-btn{border:none;background:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:inherit;padding:8px;-webkit-tap-highlight-color:transparent}
+.swipe-del-btn span{font-size:.68rem;font-weight:700;letter-spacing:.01em}
+.swipeable{position:relative;z-index:1}
 </style>
 </head>
 <body>
@@ -446,6 +453,89 @@ function confirmAction(msg, onConfirm, okLabel) {
   }
   document.getElementById('confirm-ok').onclick = () => { cleanup(); onConfirm(); };
   document.getElementById('confirm-cancel').onclick = cleanup;
+}
+
+// ─── Haptic feedback ─────────────────────────────────────────────────────────
+function haptic(pattern) {
+  try { navigator.vibrate(pattern === 'light' ? 8 : pattern === 'medium' ? 15 : [10,10,20]); } catch(e) {}
+}
+
+// ─── Swipe to delete ─────────────────────────────────────────────────────────
+let _openSwipeWrap = null;
+
+function closeOpenSwipe() {
+  if (!_openSwipeWrap) return;
+  const item = _openSwipeWrap.querySelector('.swipeable');
+  if (item) {
+    item.style.transition = 'transform .22s cubic-bezier(.23,1,.32,1)';
+    item.style.transform = '';
+    setTimeout(() => { item.style.transition = ''; }, 240);
+  }
+  _openSwipeWrap = null;
+}
+
+function setupSwipeToDelete(container) {
+  container.querySelectorAll('.swipe-wrap').forEach(wrap => {
+    const item = wrap.querySelector('.swipeable');
+    if (!item) return;
+    const BG_W = 88;
+    let startX = 0, startY = 0, baseX = 0, dragging = false, revealed = false;
+
+    function settle(open) {
+      revealed = open;
+      if (open) _openSwipeWrap = wrap;
+      else if (_openSwipeWrap === wrap) _openSwipeWrap = null;
+      item.style.transition = 'transform .22s cubic-bezier(.23,1,.32,1)';
+      item.style.transform = open ? `translateX(-${BG_W}px)` : '';
+      setTimeout(() => { item.style.transition = ''; }, 240);
+    }
+
+    wrap.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      baseX = revealed ? -BG_W : 0;
+      dragging = false;
+      item.style.transition = 'none';
+    }, { passive: true });
+
+    wrap.addEventListener('touchmove', e => {
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      if (!dragging) {
+        if (Math.abs(dy) > Math.abs(dx) + 6) { item.style.transition = ''; return; }
+        if (Math.abs(dx) < 6) return;
+        dragging = true;
+        if (wrap !== _openSwipeWrap) closeOpenSwipe();
+      }
+      const nx = Math.max(-BG_W * 1.12, Math.min(0, baseX + dx));
+      item.style.transform = `translateX(${nx}px)`;
+    }, { passive: true });
+
+    wrap.addEventListener('touchend', e => {
+      if (!dragging) {
+        if (revealed) {
+          const btn = wrap.querySelector('.swipe-del-btn');
+          if (!btn || !btn.contains(e.target)) settle(false);
+        }
+        return;
+      }
+      dragging = false;
+      const dx = e.changedTouches[0].clientX - startX;
+      const finalX = baseX + dx;
+      if (finalX < -BG_W - 20) {
+        haptic('medium');
+        item.style.transition = 'transform .18s ease, opacity .18s ease';
+        item.style.transform = 'translateX(-110%)';
+        item.style.opacity = '0';
+        setTimeout(() => { wrap.querySelector('.swipe-del-btn').click(); }, 165);
+      } else if (finalX < -BG_W * 0.4) {
+        haptic('light');
+        settle(true);
+      } else {
+        settle(false);
+      }
+    }, { passive: true });
+  });
 }
 
 // ─── Header ──────────────────────────────────────────────────────────────────
@@ -693,23 +783,27 @@ function renderHealthList() {
     const days = e.due_date ? daysFromNow(e.due_date) : null;
     const cls  = e.overdue ? 'overdue' : (e.due_date ? 'upcoming' : 'ok');
     const animalInfo = animals.find(a => a.id === e.animal_id);
-    return `<div class="event-item ${cls}">
-      <div>
-        <span class="event-badge badge-${esc(e.type.replace(/ /g,'-'))}">${esc(e.type)}</span>
-        ${animalInfo ? `<span class="animal-mini-badge">${animalInfo.icon} ${esc(animalInfo.name)}</span>` : ''}
-      </div>
-      <div class="event-body">
-        <div class="event-title">${esc(e.title)}</div>
-        <div class="event-date">${fmtDate(e.date)}${e.note ? ' · ' + esc(e.note) : ''}</div>
-        ${e.due_date ? `<div class="event-due ${cls}">${dueLabel(days)}${e.repeat_weeks ? ' (alle ' + e.repeat_weeks + ' Wo.)' : ''}</div>` : ''}
-        ${e.due_date ? `<button class="done-btn" onclick="markHealthDone(${e.id})">✓ Erledigt</button>` : ''}
-      </div>
-      <div class="event-actions">
-        <button class="icon-btn" onclick="openHealthModal(${e.id})" title="Bearbeiten">✏️</button>
-        <button class="icon-btn danger" onclick="deleteHealth(${e.id})" title="Löschen">🗑️</button>
+    return `<div class="swipe-wrap">
+      <div class="swipe-bg"><button class="swipe-del-btn" onclick="deleteHealthDirect(${e.id})">🗑️<span>Löschen</span></button></div>
+      <div class="event-item swipeable ${cls}">
+        <div>
+          <span class="event-badge badge-${esc(e.type.replace(/ /g,'-'))}">${esc(e.type)}</span>
+          ${animalInfo ? `<span class="animal-mini-badge">${animalInfo.icon} ${esc(animalInfo.name)}</span>` : ''}
+        </div>
+        <div class="event-body">
+          <div class="event-title">${esc(e.title)}</div>
+          <div class="event-date">${fmtDate(e.date)}${e.note ? ' · ' + esc(e.note) : ''}</div>
+          ${e.due_date ? `<div class="event-due ${cls}">${dueLabel(days)}${e.repeat_weeks ? ' (alle ' + e.repeat_weeks + ' Wo.)' : ''}</div>` : ''}
+          ${e.due_date ? `<button class="done-btn" onclick="markHealthDone(${e.id})">✓ Erledigt</button>` : ''}
+        </div>
+        <div class="event-actions">
+          <button class="icon-btn" onclick="openHealthModal(${e.id})" title="Bearbeiten">✏️</button>
+          <button class="icon-btn danger" onclick="deleteHealth(${e.id})" title="Löschen">🗑️</button>
+        </div>
       </div>
     </div>`;
   }).join('') + '</div>';
+  setupSwipeToDelete(el);
 }
 
 async function markHealthDone(id) {
@@ -734,21 +828,21 @@ async function markHealthDone(id) {
   } catch(e) { toast(e.message, true); }
 }
 
-function deleteHealth(id) {
-  confirmAction('Gesundheitseintrag löschen?', async () => {
-    const backup = [...S.health];
-    S.health = S.health.filter(e => e.id !== id);
+async function _doDeleteHealth(id) {
+  const backup = [...S.health];
+  S.health = S.health.filter(e => e.id !== id);
+  renderHealthList();
+  try {
+    await api('DELETE', '/api/health/' + id);
+    toast('Gelöscht');
+  } catch(e) {
+    S.health = backup;
     renderHealthList();
-    try {
-      await api('DELETE', '/api/health/' + id);
-      toast('Gelöscht');
-    } catch(e) {
-      S.health = backup;
-      renderHealthList();
-      toast(e.message, true);
-    }
-  });
+    toast(e.message, true);
+  }
 }
+function deleteHealth(id) { confirmAction('Gesundheitseintrag löschen?', () => _doDeleteHealth(id)); }
+function deleteHealthDirect(id) { _doDeleteHealth(id); }
 
 function openHealthModal(id) {
   const ev = id ? S.health.find(e => e.id === id) : null;
@@ -931,18 +1025,21 @@ function stockCardHtml(p) {
   const stockDisp = isPiece
     ? `${(p.display_stock_count || 0).toFixed(1)} ${unitPl}`
     : `${(p.stock_g || 0).toFixed(0)} g`;
-  return `<div class="stock-card ${p.status}">
-    <div class="stock-card-body">
-      <div class="stock-name">${esc(p.name)}${sharedBadge}</div>
-      <div class="stock-meta">${pkgDisp} · ${dailyDisp}${p.note ? ' · ' + esc(p.note) : ''}</div>
-      <div class="stock-days ${p.status}">${days} Tage · ${stockDisp}</div>
-      <div class="stock-until">${label} · Leer am ${fmtDate(p.run_out_date)}</div>
-      <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${pct.toFixed(1)}%"></div></div>
-    </div>
-    <div class="stock-actions">
-      <button class="icon-btn" title="Auffüllen" onclick="openRestockModal(${p.id})">+📦</button>
-      <button class="icon-btn" title="Bearbeiten" onclick="openProductModal(${p.id})">✏️</button>
-      <button class="icon-btn danger" title="Löschen" onclick="deleteProduct(${p.id})">🗑️</button>
+  return `<div class="swipe-wrap" style="margin-bottom:9px">
+    <div class="swipe-bg"><button class="swipe-del-btn" onclick="deleteProductDirect(${p.id})">🗑️<span>Löschen</span></button></div>
+    <div class="stock-card swipeable ${p.status}">
+      <div class="stock-card-body">
+        <div class="stock-name">${esc(p.name)}${sharedBadge}</div>
+        <div class="stock-meta">${pkgDisp} · ${dailyDisp}${p.note ? ' · ' + esc(p.note) : ''}</div>
+        <div class="stock-days ${p.status}">${days} Tage · ${stockDisp}</div>
+        <div class="stock-until">${label} · Leer am ${fmtDate(p.run_out_date)}</div>
+        <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${pct.toFixed(1)}%"></div></div>
+      </div>
+      <div class="stock-actions">
+        <button class="icon-btn" title="Auffüllen" onclick="openRestockModal(${p.id})">+📦</button>
+        <button class="icon-btn" title="Bearbeiten" onclick="openProductModal(${p.id})">✏️</button>
+        <button class="icon-btn danger" title="Löschen" onclick="deleteProduct(${p.id})">🗑️</button>
+      </div>
     </div>
   </div>`;
 }
@@ -992,6 +1089,7 @@ async function renderStocksInner() {
   }
   html += '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="openProductModal(null)">+ Produkt hinzufügen</button></div>';
   el.innerHTML = html;
+  setupSwipeToDelete(el);
 }
 
 function openProductModal(id) {
@@ -1093,15 +1191,15 @@ async function saveProduct(id) {
   }
 }
 
-function deleteProduct(id) {
-  confirmAction('Produkt löschen?', async () => {
-    try {
-      await api('DELETE', '/api/food-products/' + id);
-      toast('Gelöscht');
-      await renderStocksInner();
-    } catch(e) { toast(e.message, true); }
-  });
+async function _doDeleteProduct(id) {
+  try {
+    await api('DELETE', '/api/food-products/' + id);
+    toast('Gelöscht');
+    await renderStocksInner();
+  } catch(e) { toast(e.message, true); }
 }
+function deleteProduct(id) { confirmAction('Produkt löschen?', () => _doDeleteProduct(id)); }
+function deleteProductDirect(id) { _doDeleteProduct(id); }
 
 function openRestockModal(id) {
   const p = (S.products || []).find(x => x.id === id);
@@ -1252,7 +1350,12 @@ function openModal()  { document.getElementById('modal-backdrop').classList.add(
 function closeModal() {
   S.currentDraftKey = null;
   const sheet = document.querySelector('.modal-sheet');
-  if (sheet) sheet.classList.add('closing');
+  if (sheet) {
+    sheet.style.transform = '';
+    sheet.style.transition = '';
+    sheet.style.willChange = '';
+    sheet.classList.add('closing');
+  }
   setTimeout(() => {
     document.getElementById('modal-backdrop').classList.remove('open');
     if (sheet) sheet.classList.remove('closing');
@@ -1322,6 +1425,52 @@ async function init() {
 init().catch(e => {
   document.body.innerHTML = `<div style="padding:32px;font-family:sans-serif;color:var(--danger)"><h2>Fehler beim Laden</h2><p style="margin-top:8px;font-size:.9rem">${String(e.message)}</p></div>`;
 });
+
+// ─── Drag-to-dismiss modal ───────────────────────────────────────────────────
+(function() {
+  let startY = 0, dy = 0, active = false;
+  const backdrop = document.getElementById('modal-backdrop');
+  function getSheet() { return backdrop.querySelector('.modal-sheet'); }
+
+  backdrop.addEventListener('touchstart', e => {
+    const sheet = getSheet();
+    if (!sheet) return;
+    const rect = sheet.getBoundingClientRect();
+    const relY = e.touches[0].clientY - rect.top;
+    // Only drag from handle zone (top 56px) or when sheet is at scroll top
+    if (relY > 56 && sheet.scrollTop > 0) return;
+    startY = e.touches[0].clientY;
+    dy = 0;
+    active = true;
+    sheet.style.transition = 'none';
+    sheet.style.willChange = 'transform';
+  }, { passive: true });
+
+  backdrop.addEventListener('touchmove', e => {
+    if (!active) return;
+    dy = Math.max(0, e.touches[0].clientY - startY);
+    const sheet = getSheet();
+    if (sheet) sheet.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+
+  backdrop.addEventListener('touchend', () => {
+    if (!active) return;
+    active = false;
+    const sheet = getSheet();
+    if (!sheet) return;
+    sheet.style.willChange = '';
+    if (dy > 120) {
+      haptic('light');
+      sheet.style.transition = 'transform .2s ease';
+      sheet.style.transform = 'translateY(100%)';
+      setTimeout(closeModal, 180);
+    } else {
+      sheet.style.transition = 'transform .25s cubic-bezier(.23,1,.32,1)';
+      sheet.style.transform = '';
+      setTimeout(() => { if (sheet) sheet.style.transition = ''; }, 260);
+    }
+  }, { passive: true });
+})();
 
 // ─── Touch gestures + pull-to-refresh ────────────────────────────────────────
 (function() {
