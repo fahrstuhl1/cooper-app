@@ -47,6 +47,13 @@ def create_app(config):
             anniversary = add_months(birthdate, total_months)
         weeks = (today - anniversary).days // 7
         parts = []
+        if total_months >= 12:
+            years = total_months // 12
+            rem_months = total_months % 12
+            parts = [f"{years} Jahr" + ("e" if years != 1 else "")]
+            if rem_months > 0:
+                parts.append(f"{rem_months} Monat" + ("e" if rem_months != 1 else ""))
+            return ", ".join(parts)
         if total_months > 0:
             parts.append(f"{total_months} Monat" + ("e" if total_months != 1 else ""))
         if weeks > 0 or total_months == 0:
@@ -190,6 +197,30 @@ def create_app(config):
             },
             "food_reminders": food_reminders,
         })
+
+    @app.get("/api/dashboard/all")
+    def dashboard_all():
+        now_utc = datetime.datetime.now(UTC)
+        today = now_utc.astimezone(LOCAL_TZ).date()
+        horizon = (today + datetime.timedelta(days=config["health_reminder_days"])).isoformat()
+        animals = [enrich_animal(a) for a in db.list_animals()]
+        result = []
+        for animal in animals:
+            aid = animal["id"]
+            upcoming = db.upcoming_health(today.isoformat(), horizon, aid)
+            for item in upcoming:
+                item["due_date"] = next_due_date(item["due_date"], item["repeat_weeks"])
+                item["overdue"] = item["due_date"] < today.isoformat()
+            weights = db.list_weights(aid)
+            weight_history = [{"date": w["date"], "weight_kg": w["weight_kg"]} for w in weights[-20:]]
+            food_reminders = [enrich_product(p) for p in db.low_stock_products(aid)]
+            result.append({
+                "animal": animal,
+                "upcoming_health": upcoming,
+                "weight": {"history": weight_history},
+                "food_reminders": food_reminders,
+            })
+        return jsonify(result)
 
     @app.get("/api/ha-sensors")
     def ha_sensors():
@@ -370,6 +401,11 @@ def create_app(config):
             fields["note"] = body["note"] or None
         if "unit" in body:
             fields["unit"] = body["unit"] or "g"
+        if "stock_g" in body:
+            try:
+                fields["stock_g"] = float(body["stock_g"])
+            except (TypeError, ValueError):
+                return jsonify({"error": "Ungültiger Vorratswert"}), 400
         if "shared" in body:
             fields["animal_id"] = None
         elif "animal_id" in body:
@@ -389,10 +425,12 @@ def create_app(config):
 
     @app.post("/api/notify-test")
     def notify_test():
-        ok = notifier.check_and_notify(config)
+        if not notifier.SUPERVISOR_TOKEN:
+            return jsonify({"status": "error", "reason": "no_token"})
+        ok = notifier.send_test_notification(config)
         if ok:
             return jsonify({"status": "sent"})
-        return jsonify({"status": "skipped", "reason": "Nichts zu senden oder kein SUPERVISOR_TOKEN"})
+        return jsonify({"status": "error", "reason": "send_failed"})
 
     @app.post("/api/food-products/<int:product_id>/restock")
     def restock_food_product_route(product_id):

@@ -6,7 +6,7 @@
 <title>Cooper</title>
 <style>
 :root {
-  --bg: #F4F3FF;
+  --bg: #F2F1FF;
   --surface: #FFFFFF;
   --primary: #5B5BD6;
   --primary-bg: #EEEEFF;
@@ -20,20 +20,20 @@
   --success-bg: #F0FDF9;
   --warning: #F59E0B;
   --warning-bg: #FFFBEB;
-  --shadow: 0 1px 3px rgba(15,14,42,.07),0 1px 2px rgba(15,14,42,.04);
-  --shadow-md: 0 4px 16px rgba(15,14,42,.09);
-  --shadow-hero: 0 8px 32px rgba(91,91,214,.25);
-  --radius: 16px;
-  --radius-sm: 10px;
+  --shadow: 0 2px 8px rgba(15,14,42,.08),0 1px 2px rgba(15,14,42,.04);
+  --shadow-md: 0 8px 24px rgba(15,14,42,.10);
+  --shadow-hero: 0 12px 40px rgba(91,91,214,.30);
+  --radius: 18px;
+  --radius-sm: 12px;
   --gap: 12px;
-  --nav-h: 68px;
+  --nav-h: 72px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-text-size-adjust:100%}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:linear-gradient(160deg,#EEEdFF 0%,#F5F4FF 55%,#EAF2FF 100%);background-attachment:fixed;color:var(--text);min-height:100dvh;display:flex;flex-direction:column;overscroll-behavior:none}
 
 /* ── Header ── */
-.app-header{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 1px 0 var(--border)}
+.app-header{background:rgba(255,255,255,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(228,227,240,.55);position:sticky;top:0;z-index:100;box-shadow:0 1px 20px rgba(15,14,42,.05)}
 .header-main{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
 .brand{font-size:1.1rem;font-weight:800;color:var(--primary);letter-spacing:-.02em}
 .header-actions{display:flex;gap:4px}
@@ -41,68 +41,74 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .animal-bar::-webkit-scrollbar{display:none}
 
 /* ── Hamburger button ── */
-.hamburger-btn{width:34px;height:34px;border:none;background:none;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--text);transition:background .12s;font-family:inherit}
-.hamburger-btn:hover{background:var(--border)}
+.hamburger-btn{width:34px;height:34px;border:none;background:none;cursor:pointer;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--text);transition:background .12s;font-family:inherit}
+.hamburger-btn:hover{background:var(--primary-bg)}
 
 /* ── Chips ── */
 .chip{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;user-select:none;font-family:inherit}
-.chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.chip.active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(91,91,214,.3)}
 .chip:not(.active):hover{border-color:var(--primary);color:var(--primary)}
 .animal-chip{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;user-select:none;font-family:inherit}
 .animal-chip.active{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(91,91,214,.3)}
 .animal-chip:not(.active):hover{border-color:var(--primary);color:var(--primary)}
 
 /* ── Bottom Navigation ── */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--surface);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);box-shadow:0 -2px 14px rgba(15,14,42,.07)}
-.nav-btn{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 8px;border:none;background:none;cursor:pointer;font-family:inherit;transition:transform .1s;-webkit-tap-highlight-color:transparent}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.90);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid rgba(228,227,240,.6);display:flex;padding:6px 10px calc(6px + env(safe-area-inset-bottom,0));gap:4px;box-shadow:0 -1px 20px rgba(15,14,42,.06)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px 6px;border:none;background:none;cursor:pointer;font-family:inherit;border-radius:14px;transition:background .18s,transform .1s;-webkit-tap-highlight-color:transparent}
 .nav-btn:active{transform:scale(.9)}
-.nav-pip{position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:2.5px;background:var(--primary);border-radius:0 0 3px 3px;opacity:0;transition:opacity .15s}
-.nav-btn.active .nav-pip{opacity:1}
-.nav-icon{font-size:1.3rem;line-height:1;transition:transform .15s}
-.nav-btn.active .nav-icon{transform:scale(1.1)}
-.nav-label{font-size:.62rem;font-weight:600;color:var(--muted);letter-spacing:.02em;transition:color .15s}
-.nav-btn.active .nav-label{color:var(--primary)}
+.nav-btn.active{background:var(--primary-bg)}
+.nav-pip{display:none}
+.nav-icon{font-size:1.35rem;line-height:1;transition:transform .2s}
+.nav-btn.active .nav-icon{transform:scale(1.12) translateY(-1px)}
+.nav-label{font-size:.62rem;font-weight:600;color:var(--muted);letter-spacing:.02em;transition:color .18s}
+.nav-btn.active .nav-label{color:var(--primary);font-weight:800}
 
 /* ── Layout ── */
 .main-content{flex:1;padding:var(--gap);max-width:640px;margin:0 auto;width:100%;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 20px)}
 .tab-pane{display:none}
-.tab-pane.active{display:block;animation:tabIn .18s ease}
-@keyframes tabIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.tab-pane.active{display:block;animation:tabIn .2s ease}
+@keyframes tabIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── Cards ── */
-.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:var(--gap)}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:0 2px 12px rgba(15,14,42,.07),0 1px 3px rgba(15,14,42,.04);padding:16px;margin-bottom:var(--gap)}
 .card-title{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
 
 /* ── Hero card ── */
-.hero-card{background:linear-gradient(135deg,#5B5BD6 0%,#8B5CF6 100%);border-radius:var(--radius);padding:18px;margin-bottom:var(--gap);box-shadow:var(--shadow-hero)}
+.hero-card{background:linear-gradient(135deg,#5B5BD6 0%,#7C5CFC 60%,#9B5CF6 100%);border-radius:var(--radius);padding:20px;margin-bottom:var(--gap);box-shadow:var(--shadow-hero)}
 .hero-animal{display:flex;align-items:center;gap:14px}
-.hero-avatar{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;backdrop-filter:blur(4px)}
-.hero-name{font-size:1.2rem;font-weight:800;color:#fff}
+.hero-avatar{width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;backdrop-filter:blur(8px);box-shadow:0 0 0 3px rgba(255,255,255,.25)}
+.hero-name{font-size:1.25rem;font-weight:800;color:#fff}
 .hero-species{font-size:.78rem;color:rgba(255,255,255,.72);margin-top:1px}
 .hero-age{font-size:.82rem;color:rgba(255,255,255,.85);font-weight:600;margin-top:3px}
-.hero-stats{display:flex;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.2)}
-.hero-stat{flex:1;text-align:center;padding:0 8px;border:none;background:none;cursor:pointer;font-family:inherit;border-radius:8px;transition:background .15s;-webkit-tap-highlight-color:transparent}
-.hero-stat:hover{background:rgba(255,255,255,.1)}
+.hero-stats{display:flex;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.2)}
+.hero-stat{flex:1;text-align:center;padding:0 8px;border:none;background:none;cursor:pointer;font-family:inherit;border-radius:10px;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.hero-stat:hover{background:rgba(255,255,255,.12)}
 .hero-stat+.hero-stat{border-left:1px solid rgba(255,255,255,.2)}
-.hero-stat .val{font-size:1.1rem;font-weight:800;color:#fff;line-height:1.2}
+.hero-stat .val{font-size:1.15rem;font-weight:800;color:#fff;line-height:1.2}
 .hero-stat .trend{font-size:.7rem;color:rgba(255,255,255,.75);margin-top:2px;font-weight:600}
 .hero-stat .lbl{font-size:.64rem;color:rgba(255,255,255,.65);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
 
 /* ── Animal overview cards (Alle-Modus) ── */
 .aoc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:var(--gap)}
-.animal-overview-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;cursor:pointer;transition:box-shadow .15s,transform .1s;border:1.5px solid var(--border);-webkit-tap-highlight-color:transparent}
-.animal-overview-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.animal-overview-card{background:var(--surface);border-radius:var(--radius);box-shadow:0 2px 12px rgba(15,14,42,.07);overflow:hidden;cursor:pointer;transition:box-shadow .2s,transform .15s;border:1.5px solid rgba(228,227,240,.6);-webkit-tap-highlight-color:transparent}
+.animal-overview-card:hover{box-shadow:0 8px 28px rgba(91,91,214,.16);transform:translateY(-2px)}
 .animal-overview-card:active{transform:scale(.97)}
+.aoc-accent{height:4px;background:linear-gradient(90deg,var(--primary) 0%,#8B5CF6 100%)}
+.aoc-inner{padding:12px 14px 14px}
 .aoc-header{font-size:.95rem;font-weight:800;margin-bottom:8px}
 .aoc-stat{font-size:1.05rem;font-weight:800;color:var(--primary);margin-bottom:4px}
 .aoc-info{font-size:.73rem;color:var(--muted);margin-bottom:3px}
 
 /* ── Health events ── */
 .event-list{display:flex;flex-direction:column;gap:8px}
-.event-item{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;border-radius:12px;border-left:3px solid var(--border);background:var(--bg)}
-.event-item.overdue{border-left-color:var(--danger);background:var(--danger-bg)}
-.event-item.upcoming{border-left-color:var(--warning);background:var(--warning-bg)}
-.event-item.ok{border-left-color:var(--success);background:var(--success-bg)}
+.event-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);box-shadow:0 1px 4px rgba(15,14,42,.05);position:relative;overflow:hidden}
+.event-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+.event-item.overdue{border-color:rgba(239,68,68,.22)}
+.event-item.overdue::before{background:var(--danger)}
+.event-item.upcoming{border-color:rgba(245,158,11,.22)}
+.event-item.upcoming::before{background:var(--warning)}
+.event-item.ok{border-color:rgba(16,185,129,.18)}
+.event-item.ok::before{background:var(--success)}
 .event-badge{font-size:.64rem;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap;display:inline-block;margin-bottom:4px}
 .badge-Impfung{background:#DBEAFE;color:#1D4ED8}
 .badge-Wurmkur{background:#FEF3C7;color:#92400E}
@@ -110,7 +116,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .badge-Tierarzt-Termin{background:#E0E7FF;color:#3730A3}
 .badge-Sonstiges{background:var(--border);color:var(--muted)}
 .animal-mini-badge{font-size:.64rem;font-weight:700;padding:2px 6px;border-radius:999px;background:var(--primary-bg);color:var(--primary);display:inline-block;margin-left:4px;white-space:nowrap}
-.event-body{flex:1;min-width:0}
+.event-body{flex:1;min-width:0;padding-left:4px}
 .event-title{font-size:.88rem;font-weight:700}
 .event-date{font-size:.73rem;color:var(--muted);margin-top:2px}
 .event-due{font-size:.75rem;font-weight:700;margin-top:4px}
@@ -123,36 +129,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .done-btn:hover{background:var(--success);color:#fff}
 
 /* ── Icon buttons ── */
-.icon-btn{width:30px;height:30px;border:none;background:none;cursor:pointer;border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.82rem;transition:background .12s;flex-shrink:0}
+.icon-btn{width:30px;height:30px;border:none;background:none;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.82rem;transition:background .12s;flex-shrink:0}
 .icon-btn:hover{background:var(--border);color:var(--text)}
 .icon-btn.danger:hover{background:#FEE2E2;color:var(--danger)}
 
-/* ── Filter row – wraps instead of scrolling ── */
+/* ── Filter row ── */
 .filter-row{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:3px;margin-bottom:var(--gap)}
-
-/* ── Weight chart ── */
-.weight-chart-wrap{width:100%;background:var(--bg);border-radius:10px;overflow:hidden;margin-bottom:14px}
-.weight-chart-wrap svg{display:block;width:100%;height:100px}
-
-/* ── Weight display ── */
-.current-weight-row{display:flex;align-items:baseline;gap:10px;margin-bottom:3px}
-.current-weight-big{font-size:2rem;font-weight:800;color:var(--primary);line-height:1}
-.trend-up{color:var(--danger);font-size:.85rem;font-weight:700}
-.trend-down{color:var(--success);font-size:.85rem;font-weight:700}
-.trend-flat{color:var(--muted);font-size:.82rem}
 
 /* ── Weight summary grid (Alle-Modus) ── */
 .weight-summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:4px}
-.weight-summary-card{background:var(--bg);border-radius:10px;padding:10px 12px;border:1.5px solid var(--border)}
+.weight-summary-card{background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;border:1.5px solid var(--border)}
 .wsc-name{font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:4px}
 .wsc-val{font-size:1.1rem;font-weight:800;color:var(--primary)}
 .wsc-sub{font-size:.7rem;color:var(--muted);margin-top:2px}
-
-/* ── Weight items ── */
-.weight-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
-.weight-item:last-child{border-bottom:none}
-.weight-val{font-size:.95rem;font-weight:800}
-.weight-sub{font-size:.73rem;color:var(--muted);margin-top:2px}
 
 /* ── Animal list ── */
 .animal-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--bg);margin-bottom:8px}
@@ -163,34 +152,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 /* ── Forms ── */
 .form-group{margin-bottom:12px}
 label{display:block;font-size:.76rem;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.02em}
-input:not([type="checkbox"]),select,textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:9px;font-size:.88rem;font-family:inherit;color:var(--text);background:var(--surface);transition:border-color .15s;outline:none;-webkit-appearance:none}
-input:not([type="checkbox"]):focus,select:focus,textarea:focus{border-color:var(--primary)}
+input:not([type="checkbox"]),select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:.88rem;font-family:inherit;color:var(--text);background:var(--surface);transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none}
+input:not([type="checkbox"]):focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(91,91,214,.1)}
 input[type="checkbox"]{width:18px;height:18px;accent-color:var(--primary);cursor:pointer;flex-shrink:0}
 textarea{resize:vertical;min-height:58px}
 .form-row{display:flex;gap:10px}
 .form-row>.form-group{flex:1}
 
 /* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:9px;border:none;font-size:.85rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;letter-spacing:.01em}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-primary:hover{background:var(--primary-dark)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;border-radius:10px;border:none;font-size:.85rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;letter-spacing:.01em}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(91,91,214,.3)}
+.btn-primary:hover{background:var(--primary-dark);box-shadow:0 4px 14px rgba(91,91,214,.4)}
 .btn-ghost{background:none;border:1.5px solid var(--border);color:var(--text)}
-.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-bg)}
 .btn-sm{padding:7px 13px;font-size:.78rem}
 .btn-full{width:100%}
 
 /* ── FAB ── */
-.fab{position:fixed;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px);right:20px;width:52px;height:52px;border-radius:50%;background:var(--primary);color:#fff;border:none;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 16px rgba(91,91,214,.45);display:none;align-items:center;justify-content:center;z-index:80;transition:transform .12s,box-shadow .12s;line-height:1}
-.fab:hover{transform:scale(1.06);box-shadow:0 6px 20px rgba(91,91,214,.55)}
+@keyframes fab-glow{0%,100%{box-shadow:0 4px 16px rgba(91,91,214,.45)}50%{box-shadow:0 6px 24px rgba(91,91,214,.65)}}
+.fab{position:fixed;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 16px);right:20px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#7C5CFC);color:#fff;border:none;font-size:1.5rem;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:80;transition:transform .12s;line-height:1;animation:fab-glow 2.5s ease-in-out infinite}
+.fab:hover{transform:scale(1.08)}
+.fab:active{transform:scale(.94)}
 
 /* ── Modal ── */
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,14,42,.5);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px)}
 .modal-backdrop.open{display:flex}
-.modal-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:640px;max-height:92dvh;overflow-y:auto;padding:20px 16px calc(36px + env(safe-area-inset-bottom,0));animation:slideUp .2s ease}
-@keyframes slideUp{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:640px;max-height:92dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px calc(36px + env(safe-area-inset-bottom,0));animation:slideUp .22s ease}
+@keyframes slideUp{from{transform:translateY(32px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes slideDown{from{transform:translateY(0);opacity:1}to{transform:translateY(32px);opacity:0}}
+.modal-sheet.closing{animation:slideDown .18s ease forwards}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:999px;margin:0 auto 16px}
 .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .modal-title{font-size:1rem;font-weight:800}
-.modal-close{width:32px;height:32px;border:none;background:var(--bg);border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:inherit}
+.modal-close{width:32px;height:32px;border:none;background:var(--bg);border-radius:999px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:inherit;transition:background .12s}
+.modal-close:hover{background:var(--border)}
 
 /* ── Hamburger menu sections ── */
 .menu-section-title{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
@@ -198,7 +193,7 @@ textarea{resize:vertical;min-height:58px}
 .menu-section:last-child{border-bottom:none;margin-bottom:0}
 
 /* ── Toast ── */
-.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:9px 20px;border-radius:999px;font-size:.82rem;font-weight:600;z-index:500;opacity:0;transition:opacity .18s;pointer-events:none;white-space:nowrap;box-shadow:var(--shadow-md)}
+.toast{position:fixed;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 12px);left:50%;transform:translateX(-50%);background:rgba(15,14,42,.92);backdrop-filter:blur(8px);color:#fff;padding:9px 20px;border-radius:999px;font-size:.82rem;font-weight:600;z-index:500;opacity:0;transition:opacity .18s,transform .18s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(15,14,42,.25)}
 .toast.show{opacity:1}
 
 /* ── Empty / hint ── */
@@ -208,10 +203,9 @@ textarea{resize:vertical;min-height:58px}
 .no-animal{text-align:center;padding:52px 24px;color:var(--muted)}
 
 /* ── Stock cards ── */
-.stock-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:9px;border-left:4px solid var(--border);display:flex;align-items:flex-start;gap:12px}
-.stock-card.ok{border-left-color:var(--success)}
-.stock-card.low{border-left-color:var(--warning)}
-.stock-card.critical{border-left-color:var(--danger)}
+.stock-card{background:var(--surface);border-radius:var(--radius);box-shadow:0 2px 8px rgba(15,14,42,.06),0 1px 2px rgba(15,14,42,.04);padding:14px;display:flex;align-items:flex-start;gap:12px;border:1.5px solid var(--border);transition:border-color .2s}
+.stock-card.low{border-color:rgba(245,158,11,.3);box-shadow:0 2px 8px rgba(245,158,11,.08)}
+.stock-card.critical{border-color:rgba(239,68,68,.3);box-shadow:0 2px 8px rgba(239,68,68,.08)}
 .stock-card-body{flex:1;min-width:0}
 .stock-name{font-size:.88rem;font-weight:800;margin-bottom:2px}
 .stock-meta{font-size:.72rem;color:var(--muted);margin-bottom:6px}
@@ -220,20 +214,60 @@ textarea{resize:vertical;min-height:58px}
 .stock-days.low{color:var(--warning)}
 .stock-days.critical{color:var(--danger)}
 .stock-until{font-size:.72rem;color:var(--muted);margin-top:1px}
-.stock-bar{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:7px}
-.stock-bar-fill{height:100%;border-radius:999px;transition:width .5s ease}
-.stock-bar-fill.ok{background:var(--success)}
-.stock-bar-fill.low{background:var(--warning)}
-.stock-bar-fill.critical{background:var(--danger)}
+.stock-bar{height:5px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:8px}
+.stock-bar-fill{height:100%;border-radius:999px;transition:width .6s ease}
+.stock-bar-fill.ok{background:linear-gradient(90deg,var(--success),#34D399)}
+.stock-bar-fill.low{background:linear-gradient(90deg,var(--warning),#FCD34D)}
+.stock-bar-fill.critical{background:linear-gradient(90deg,var(--danger),#F87171)}
 .stock-actions{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
 
 /* ── Stocks section divider ── */
 .stocks-section-header{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+/* ── Skeleton loading ── */
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel{display:block;background:linear-gradient(90deg,var(--border) 25%,rgba(255,255,255,.8) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px}
+
+/* ── Offline banner ── */
+#offline-banner{display:none;background:var(--danger);color:#fff;text-align:center;padding:7px 16px;font-size:.8rem;font-weight:600;gap:10px;align-items:center;justify-content:center;position:sticky;top:0;z-index:150}
+#offline-banner.show{display:flex}
+
+/* ── Pull-to-refresh indicator ── */
+#ptr-indicator{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--surface);border-radius:999px;padding:6px 16px;font-size:.78rem;font-weight:600;color:var(--muted);box-shadow:var(--shadow-md);z-index:130;display:none;align-items:center}
+#ptr-indicator.show{display:flex}
+
+/* ── Weight history expand ── */
+.wsc-history{display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:6px}
+.wsc-history.open{display:block}
+.wsc-hist-item{display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:.78rem;border-bottom:1px solid var(--border)}
+.wsc-hist-item:last-child{border-bottom:none}
+
+/* ── Disabled buttons ── */
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ── Swipe to delete ── */
+.swipe-wrap{position:relative;overflow:hidden;border-radius:14px;touch-action:pan-y}
+.swipe-bg{position:absolute;right:0;top:0;bottom:0;width:88px;background:var(--danger);display:flex;align-items:center;justify-content:center}
+.swipe-del-btn{border:none;background:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:inherit;padding:8px;-webkit-tap-highlight-color:transparent}
+.swipe-del-btn span{font-size:.68rem;font-weight:700;letter-spacing:.01em}
+.swipeable{position:relative;z-index:1}
 </style>
 </head>
 <body>
 
 <div id="toast" class="toast"></div>
+<div id="offline-banner">⚡ Verbindung verloren <button onclick="location.reload()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:2px 10px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;margin-left:8px">Neu laden</button></div>
+<div id="ptr-indicator">↻ Wird aktualisiert…</div>
+
+<div id="confirm-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border-radius:var(--radius);padding:20px;max-width:320px;width:100%;box-shadow:var(--shadow-md)">
+    <div id="confirm-msg" style="font-size:.9rem;font-weight:600;margin-bottom:16px;line-height:1.4"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-full" id="confirm-cancel">Abbrechen</button>
+      <button class="btn btn-full" id="confirm-ok" style="background:var(--danger);color:#fff">Löschen</button>
+    </div>
+  </div>
+</div>
 
 <header class="app-header">
   <div class="header-main">
@@ -242,7 +276,6 @@ textarea{resize:vertical;min-height:58px}
       <button class="hamburger-btn" title="Menü" onclick="openHamburgerMenu()">☰</button>
     </div>
   </div>
-  <div id="animal-bar" class="animal-bar"></div>
 </header>
 
 <main class="main-content">
@@ -279,6 +312,7 @@ textarea{resize:vertical;min-height:58px}
 
 <div id="modal-backdrop" class="modal-backdrop">
   <div class="modal-sheet">
+    <div class="modal-handle"></div>
     <div class="modal-header">
       <div id="modal-title" class="modal-title"></div>
       <button class="modal-close" onclick="closeModal()">&#x2715;</button>
@@ -295,9 +329,10 @@ const S = {
   tab: 'start',
   healthFilter: null,
   health: [],
-  weights: [],
   products: [],
   dashboard: null,
+  renderToken: 0,
+  currentDraftKey: null,
 };
 
 function persist() {
@@ -306,13 +341,6 @@ function persist() {
 }
 
 function restorePersistedState() {
-  const stored = localStorage.getItem('coop_animal');
-  if (stored === 'all') {
-    S.animalId = 'all';
-  } else {
-    const aid = parseInt(stored);
-    if (!isNaN(aid)) S.animalId = aid;
-  }
   S.tab = localStorage.getItem('coop_tab') || 'start';
 }
 
@@ -332,11 +360,17 @@ async function api(method, path, body) {
     opts.body = JSON.stringify(body);
   }
   const url = path.replace(/^\//, '');
-  const res = await fetch(url, opts);
-  if (res.status === 204) return null;
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Fehler ' + res.status);
-  return data;
+  try {
+    const res = await fetch(url, opts);
+    document.getElementById('offline-banner').classList.remove('show');
+    if (res.status === 204) return null;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Fehler ' + res.status);
+    return data;
+  } catch(e) {
+    if (e instanceof TypeError) document.getElementById('offline-banner').classList.add('show');
+    throw e;
+  }
 }
 
 function aq(extra) {
@@ -400,20 +434,112 @@ function dueLabel(days) {
 async function testNotify() {
   try {
     const result = await api('POST', '/api/notify-test');
-    toast(result.status === 'sent' ? '🔔 Benachrichtigung gesendet ✓' : 'Nichts zu senden oder kein SUPERVISOR_TOKEN');
+    if (result.status === 'sent') toast('🔔 Benachrichtigung gesendet ✓');
+    else if (result.reason === 'no_token') toast('Kein SUPERVISOR_TOKEN – prüfe HA Add-on Berechtigungen', true);
+    else toast('Sendefehler – prüfe notification_service in der Konfiguration', true);
   } catch(e) { toast(e.message, true); }
 }
 
-// ─── Header ──────────────────────────────────────────────────────────────────
-function renderAnimalBar() {
-  const bar = document.getElementById('animal-bar');
-  if (!S.meta || !S.meta.animals.length) { bar.innerHTML = ''; return; }
-  const allChip = `<button class="animal-chip${S.animalId === 'all' ? ' active' : ''}" onclick="selectAnimal('all')">🐾 Alle</button>`;
-  bar.innerHTML = allChip + S.meta.animals.map(a =>
-    `<button class="animal-chip${S.animalId === a.id ? ' active' : ''}" onclick="selectAnimal(${a.id})">` +
-    `<span>${a.icon}</span>${esc(a.name)}</button>`
-  ).join('');
+// ─── In-app confirm dialog ───────────────────────────────────────────────────
+function confirmAction(msg, onConfirm, okLabel) {
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-ok').textContent = okLabel || 'Löschen';
+  const overlay = document.getElementById('confirm-overlay');
+  overlay.style.display = 'flex';
+  function cleanup() {
+    overlay.style.display = 'none';
+    document.getElementById('confirm-ok').onclick = null;
+    document.getElementById('confirm-cancel').onclick = null;
+  }
+  document.getElementById('confirm-ok').onclick = () => { cleanup(); onConfirm(); };
+  document.getElementById('confirm-cancel').onclick = cleanup;
 }
+
+// ─── Haptic feedback ─────────────────────────────────────────────────────────
+function haptic(pattern) {
+  try { navigator.vibrate(pattern === 'light' ? 8 : pattern === 'medium' ? 15 : [10,10,20]); } catch(e) {}
+}
+
+// ─── Swipe to delete ─────────────────────────────────────────────────────────
+let _openSwipeWrap = null;
+
+function closeOpenSwipe() {
+  if (!_openSwipeWrap) return;
+  const item = _openSwipeWrap.querySelector('.swipeable');
+  if (item) {
+    item.style.transition = 'transform .22s cubic-bezier(.23,1,.32,1)';
+    item.style.transform = '';
+    setTimeout(() => { item.style.transition = ''; }, 240);
+  }
+  _openSwipeWrap = null;
+}
+
+function setupSwipeToDelete(container) {
+  container.querySelectorAll('.swipe-wrap').forEach(wrap => {
+    const item = wrap.querySelector('.swipeable');
+    if (!item) return;
+    const BG_W = 88;
+    let startX = 0, startY = 0, baseX = 0, dragging = false, revealed = false;
+
+    function settle(open) {
+      revealed = open;
+      if (open) _openSwipeWrap = wrap;
+      else if (_openSwipeWrap === wrap) _openSwipeWrap = null;
+      item.style.transition = 'transform .22s cubic-bezier(.23,1,.32,1)';
+      item.style.transform = open ? `translateX(-${BG_W}px)` : '';
+      setTimeout(() => { item.style.transition = ''; }, 240);
+    }
+
+    wrap.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      baseX = revealed ? -BG_W : 0;
+      dragging = false;
+      item.style.transition = 'none';
+    }, { passive: true });
+
+    wrap.addEventListener('touchmove', e => {
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      if (!dragging) {
+        if (Math.abs(dy) > Math.abs(dx) + 6) { item.style.transition = ''; return; }
+        if (Math.abs(dx) < 6) return;
+        dragging = true;
+        if (wrap !== _openSwipeWrap) closeOpenSwipe();
+      }
+      const nx = Math.max(-BG_W * 1.12, Math.min(0, baseX + dx));
+      item.style.transform = `translateX(${nx}px)`;
+    }, { passive: true });
+
+    wrap.addEventListener('touchend', e => {
+      if (!dragging) {
+        if (revealed) {
+          const btn = wrap.querySelector('.swipe-del-btn');
+          if (!btn || !btn.contains(e.target)) settle(false);
+        }
+        return;
+      }
+      dragging = false;
+      const dx = e.changedTouches[0].clientX - startX;
+      const finalX = baseX + dx;
+      if (finalX < -BG_W - 20) {
+        haptic('medium');
+        item.style.transition = 'transform .18s ease, opacity .18s ease';
+        item.style.transform = 'translateX(-110%)';
+        item.style.opacity = '0';
+        setTimeout(() => { wrap.querySelector('.swipe-del-btn').click(); }, 165);
+      } else if (finalX < -BG_W * 0.4) {
+        haptic('light');
+        settle(true);
+      } else {
+        settle(false);
+      }
+    }, { passive: true });
+  });
+}
+
+// ─── Header ──────────────────────────────────────────────────────────────────
+function renderAnimalBar() { /* animal bar removed */ }
 
 function selectAnimal(id) {
   S.animalId = id === 'all' ? 'all' : id;
@@ -434,44 +560,38 @@ function switchTab(tab) {
 
 document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
 
-function noAnimalHint() {
-  return '<div class="no-animal"><div style="font-size:2.8rem;margin-bottom:12px">🐾</div>' +
-    '<div style="font-size:.92rem;font-weight:700;margin-bottom:6px">Kein Tier ausgewählt</div>' +
-    '<div style="font-size:.82rem">Wähle oben ein Tier aus</div></div>';
-}
+
 
 async function refreshTab() {
-  if (!S.animalId) {
-    document.getElementById('start-inner').innerHTML = noAnimalHint();
-    document.getElementById('health-list').innerHTML = noAnimalHint();
-    document.getElementById('health-filter').innerHTML = '';
-    document.getElementById('weights-inner').innerHTML = noAnimalHint();
-    document.getElementById('stocks-inner').innerHTML  = noAnimalHint();
-    return;
-  }
-  if      (S.tab === 'start')  await renderStartTab();
+  const myToken = ++S.renderToken;
+  if      (S.tab === 'start')  await renderStartTab(myToken);
   else if (S.tab === 'health') await renderHealthTab();
   else if (S.tab === 'feed')   await renderFeedTab();
 }
 
 // ─── Start tab ────────────────────────────────────────────────────────────────
-async function renderStartTab() {
+async function renderStartTab(myToken) {
   const el = document.getElementById('start-inner');
 
   // ── Alle-Modus: Grid mit einer Karte pro Tier ──
   if (S.animalId === 'all') {
-    el.innerHTML = '<div style="padding:36px;text-align:center;color:var(--muted)">Lädt…</div>';
+    el.innerHTML = '<div class="aoc-grid">' + [1,2,3,4].map(() =>
+      `<div class="animal-overview-card"><div class="aoc-accent"></div><div class="aoc-inner">
+        <span class="skel" style="height:14px;width:70%;margin-bottom:10px"></span>
+        <span class="skel" style="height:20px;width:50%;margin-bottom:6px"></span>
+        <span class="skel" style="height:11px;width:80%;margin-bottom:4px"></span>
+        <span class="skel" style="height:11px;width:65%"></span>
+      </div></div>`).join('') + '</div>';
     try {
       const animals = (S.meta && S.meta.animals) || [];
       if (!animals.length) {
         el.innerHTML = '<div class="card"><div class="empty"><div class="empty-icon">🐾</div><div class="empty-text">Noch keine Tiere – füge eines über ☰ hinzu</div></div></div>';
         return;
       }
-      const dashboards = await Promise.all(animals.map(a =>
-        api('GET', '/api/dashboard?animal_id=' + a.id)
-      ));
-      const gridHtml = '<div class="aoc-grid">' + dashboards.map((dash, i) => {
-        const a = dash.animal || animals[i];
+      const dashboards = await api('GET', 'api/dashboard/all');
+      if (myToken != null && S.renderToken !== myToken) return;
+      const gridHtml = '<div class="aoc-grid">' + dashboards.map(dash => {
+        const a = dash.animal;
         const hist = (dash.weight && dash.weight.history) || [];
         const latestW = hist.length > 0 ? hist[hist.length - 1].weight_kg : null;
         const prevW   = hist.length >= 2 ? hist[hist.length - 2].weight_kg : null;
@@ -492,12 +612,16 @@ async function renderStartTab() {
           : reminders.some(p => p.status === 'low') ? '📦 ⚠️ Bald kaufen'
           : '📦 Vorrat ok';
         return `<div class="animal-overview-card" onclick="selectAnimal(${a.id})">
-          <div class="aoc-header">${a.icon || '🐾'} ${esc(a.name)}</div>
-          ${latestW !== null ? `<div class="aoc-stat">${latestW} kg${trendStr}</div>` : ''}
-          <div class="aoc-info">${nextLabel}</div>
-          <div class="aoc-info">${stockLabel}</div>
+          <div class="aoc-accent"></div>
+          <div class="aoc-inner">
+            <div class="aoc-header">${a.icon || '🐾'} ${esc(a.name)}</div>
+            ${latestW !== null ? `<div class="aoc-stat">${latestW} kg${trendStr}</div>` : ''}
+            <div class="aoc-info">${nextLabel}</div>
+            <div class="aoc-info">${stockLabel}</div>
+          </div>
         </div>`;
       }).join('') + '</div>';
+      if (myToken != null && S.renderToken !== myToken) return;
       el.innerHTML = gridHtml;
     } catch(e) {
       el.innerHTML = `<div class="card" style="color:var(--danger);font-size:.85rem">${esc(e.message)}</div>`;
@@ -506,7 +630,11 @@ async function renderStartTab() {
   }
 
   // ── Einzeltier-Modus ──
-  el.innerHTML = '<div style="padding:36px;text-align:center;color:var(--muted)">Lädt…</div>';
+  el.innerHTML = `<div class="hero-card" style="opacity:.5">
+    <div class="hero-animal"><div class="hero-avatar" style="background:rgba(255,255,255,.15)"></div>
+    <div style="flex:1"><span class="skel" style="height:18px;width:55%;margin-bottom:8px"></span><span class="skel" style="height:11px;width:35%"></span></div></div>
+    <div class="hero-stats"><div class="hero-stat"><span class="skel" style="height:20px;width:60px"></span></div><div class="hero-stat"><span class="skel" style="height:20px;width:60px"></span></div></div>
+  </div>`;
   try {
     const dash = await api('GET', '/api/dashboard' + aq());
     S.dashboard = dash;
@@ -583,7 +711,7 @@ async function renderStartTab() {
           const days = Math.max(0, Math.round(p.days_remaining));
           const pct  = Math.min(100, p.days_remaining > 0 ? (p.days_remaining / (p.buy_ahead_days * 2)) * 100 : 0);
           const dailyDisp = p.is_piece_based
-            ? `${(p.display_daily_count || 0).toFixed(1)} ${(p.unit || 'g') + 'n'}/Tag`
+            ? `${(p.display_daily_count || 0).toFixed(1)} ${(p.unit === 'Stück' ? 'Stücke' : (p.unit || 'g') + 'n')}/Tag`
             : `${p.daily_portion_g} g/Tag`;
           return `<div class="stock-card ${p.status}" style="margin-bottom:8px">
             <div class="stock-card-body">
@@ -597,7 +725,9 @@ async function renderStartTab() {
         '<div style="margin-top:8px;text-align:center"><button class="btn btn-ghost btn-sm" onclick="goToStocks()">Vorräte verwalten →</button></div></div>';
     }
 
-    el.innerHTML = heroHtml +
+    if (myToken != null && S.renderToken !== myToken) return;
+    el.innerHTML = `<button class="btn btn-ghost btn-sm" style="margin-bottom:10px" onclick="selectAnimal('all')">← Alle Tiere</button>` +
+      heroHtml +
       '<div class="card"><div class="card-title">Gesundheits-Termine</div>' + upHtml + '</div>' +
       stockHtml;
   } catch(e) {
@@ -620,6 +750,9 @@ function setHealthFilter(t) {
 
 async function renderHealthTab() {
   renderHealthFilter();
+  document.getElementById('health-list').innerHTML = '<div class="event-list">' +
+    [1,2,3].map(() => `<div class="event-item ok" style="border-color:var(--border)"><div class="event-body" style="padding-left:4px"><span class="skel" style="height:11px;width:40%;margin-bottom:6px"></span><span class="skel" style="height:15px;width:75%;margin-bottom:5px"></span><span class="skel" style="height:10px;width:55%"></span></div></div>`).join('') +
+    '</div>';
   try {
     const params = new URLSearchParams();
     if (S.healthFilter) params.set('type', S.healthFilter);
@@ -633,7 +766,14 @@ async function renderHealthTab() {
 
 function renderHealthList() {
   const el = document.getElementById('health-list');
-  const items = S.healthFilter ? S.health.filter(e => e.type === S.healthFilter) : S.health;
+  const raw = S.healthFilter ? S.health.filter(e => e.type === S.healthFilter) : S.health;
+  const items = [...raw].sort((a, b) => {
+    const ap = a.overdue ? 0 : (a.due_date ? 1 : 2);
+    const bp = b.overdue ? 0 : (b.due_date ? 1 : 2);
+    if (ap !== bp) return ap - bp;
+    if (a.due_date && b.due_date) return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0;
+    return a.date > b.date ? -1 : a.date < b.date ? 1 : 0;
+  });
   if (!items.length) {
     el.innerHTML = '<div class="empty"><div class="empty-icon">💊</div><div class="empty-text">Keine Einträge – füge einen mit + hinzu</div></div>';
     return;
@@ -643,23 +783,27 @@ function renderHealthList() {
     const days = e.due_date ? daysFromNow(e.due_date) : null;
     const cls  = e.overdue ? 'overdue' : (e.due_date ? 'upcoming' : 'ok');
     const animalInfo = animals.find(a => a.id === e.animal_id);
-    return `<div class="event-item ${cls}">
-      <div>
-        <span class="event-badge badge-${esc(e.type.replace(/ /g,'-'))}">${esc(e.type)}</span>
-        ${animalInfo ? `<span class="animal-mini-badge">${animalInfo.icon} ${esc(animalInfo.name)}</span>` : ''}
-      </div>
-      <div class="event-body">
-        <div class="event-title">${esc(e.title)}</div>
-        <div class="event-date">${fmtDate(e.date)}${e.note ? ' · ' + esc(e.note) : ''}</div>
-        ${e.due_date ? `<div class="event-due ${cls}">${dueLabel(days)}${e.repeat_weeks ? ' (alle ' + e.repeat_weeks + ' Wo.)' : ''}</div>` : ''}
-        ${e.due_date ? `<button class="done-btn" onclick="markHealthDone(${e.id})">✓ Erledigt</button>` : ''}
-      </div>
-      <div class="event-actions">
-        <button class="icon-btn" onclick="openHealthModal(${e.id})" title="Bearbeiten">✏️</button>
-        <button class="icon-btn danger" onclick="deleteHealth(${e.id})" title="Löschen">🗑️</button>
+    return `<div class="swipe-wrap">
+      <div class="swipe-bg"><button class="swipe-del-btn" onclick="deleteHealthDirect(${e.id})">🗑️<span>Löschen</span></button></div>
+      <div class="event-item swipeable ${cls}">
+        <div>
+          <span class="event-badge badge-${esc(e.type.replace(/ /g,'-'))}">${esc(e.type)}</span>
+          ${animalInfo ? `<span class="animal-mini-badge">${animalInfo.icon} ${esc(animalInfo.name)}</span>` : ''}
+        </div>
+        <div class="event-body">
+          <div class="event-title">${esc(e.title)}</div>
+          <div class="event-date">${fmtDate(e.date)}${e.note ? ' · ' + esc(e.note) : ''}</div>
+          ${e.due_date ? `<div class="event-due ${cls}">${dueLabel(days)}${e.repeat_weeks ? ' (alle ' + e.repeat_weeks + ' Wo.)' : ''}</div>` : ''}
+          ${e.due_date ? `<button class="done-btn" onclick="markHealthDone(${e.id})">✓ Erledigt</button>` : ''}
+        </div>
+        <div class="event-actions">
+          <button class="icon-btn" onclick="openHealthModal(${e.id})" title="Bearbeiten">✏️</button>
+          <button class="icon-btn danger" onclick="deleteHealth(${e.id})" title="Löschen">🗑️</button>
+        </div>
       </div>
     </div>`;
   }).join('') + '</div>';
+  setupSwipeToDelete(el);
 }
 
 async function markHealthDone(id) {
@@ -684,15 +828,21 @@ async function markHealthDone(id) {
   } catch(e) { toast(e.message, true); }
 }
 
-async function deleteHealth(id) {
-  if (!confirm('Eintrag löschen?')) return;
+async function _doDeleteHealth(id) {
+  const backup = [...S.health];
+  S.health = S.health.filter(e => e.id !== id);
+  renderHealthList();
   try {
     await api('DELETE', '/api/health/' + id);
     toast('Gelöscht');
-    S.health = S.health.filter(e => e.id !== id);
+  } catch(e) {
+    S.health = backup;
     renderHealthList();
-  } catch(e) { toast(e.message, true); }
+    toast(e.message, true);
+  }
 }
+function deleteHealth(id) { confirmAction('Gesundheitseintrag löschen?', () => _doDeleteHealth(id)); }
+function deleteHealthDirect(id) { _doDeleteHealth(id); }
 
 function openHealthModal(id) {
   const ev = id ? S.health.find(e => e.id === id) : null;
@@ -718,10 +868,13 @@ function openHealthModal(id) {
       <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-primary btn-full" onclick="saveHealth(${id || 'null'})">Speichern</button>
     </div>`;
+  if (!ev) { S.currentDraftKey = 'health'; restoreModalDraft('health'); }
   openModal();
 }
 
 async function saveHealth(id) {
+  const btn = document.querySelector('#modal-body .btn-primary');
+  if (btn) btn.disabled = true;
   const animalSel = document.getElementById('hm-animal');
   const animalId = animalSel && animalSel.value ? parseInt(animalSel.value) : null;
   const repeatVal = document.getElementById('hm-repeat').value;
@@ -736,32 +889,27 @@ async function saveHealth(id) {
   };
   try {
     if (id) await api('PATCH', '/api/health/' + id, body);
-    else    await api('POST',  '/api/health', body);
+    else  { await api('POST',  '/api/health', body); clearModalDraft('health'); }
     toast('Gespeichert ✓');
     closeModal();
     await renderHealthTab();
-  } catch(e) { toast(e.message, true); }
+  } catch(e) {
+    toast(e.message, true);
+    if (btn) btn.disabled = false;
+  }
 }
 
 // ─── Feed tab ─────────────────────────────────────────────────────────────────
 async function renderFeedTab() {
-  if (S.animalId === 'all') {
-    await renderWeightSummaryAll();
-    await renderStocksInner();
-    return;
-  }
-  try {
-    S.weights = await api('GET', '/api/weights' + aq());
-    renderWeightsInner();
-    await renderStocksInner();
-  } catch(e) {
-    document.getElementById('weights-inner').innerHTML = `<div style="color:var(--danger);font-size:.85rem;padding:12px">${esc(e.message)}</div>`;
-  }
+  await renderWeightSummaryAll();
+  await renderStocksInner();
 }
 
 async function renderWeightSummaryAll() {
   const el = document.getElementById('weights-inner');
-  el.innerHTML = '<div class="card" id="weight-block"><div class="card-title">Gewicht – Übersicht</div><div style="padding:12px;text-align:center;color:var(--muted)">Lädt…</div></div>';
+  el.innerHTML = '<div class="card" id="weight-block"><div class="card-title">Gewicht – Übersicht</div><div class="weight-summary-grid">' +
+    [1,2].map(() => `<div class="weight-summary-card"><span class="skel" style="height:11px;width:55%;margin-bottom:8px"></span><span class="skel" style="height:22px;width:70%;margin-bottom:6px"></span><span class="skel" style="height:10px;width:45%"></span></div>`).join('') +
+    '</div></div>';
   try {
     const animals = (S.meta && S.meta.animals) || [];
     if (!animals.length) {
@@ -781,12 +929,21 @@ async function renderWeightSummaryAll() {
         else if (diff > 0) trendStr = `↑ +${diff.toFixed(2)} kg`;
         else trendStr = `↓ ${diff.toFixed(2)} kg`;
       }
+      const histId = `wh-${a.id}`;
+      const histRows = ws.slice().reverse().map(w =>
+        `<div class="wsc-hist-item" data-weight-id="${w.id}">
+          <span>${fmtDate(w.date)} · <strong>${w.weight_kg} kg</strong></span>
+          <button class="icon-btn danger" style="width:24px;height:24px;font-size:.72rem" onclick="deleteWeight(${w.id},${a.id})" title="Löschen">🗑️</button>
+        </div>`
+      ).join('');
       gridHtml += `<div class="weight-summary-card">
         <div class="wsc-name">${a.icon} ${esc(a.name)}</div>
         <div class="wsc-val">${latest ? latest.weight_kg + ' kg' : '—'}</div>
         ${trendStr ? `<div class="wsc-sub">${trendStr}</div>` : ''}
         ${latest ? `<div class="wsc-sub">${fmtDate(latest.date)}</div>` : ''}
         <button class="btn btn-ghost btn-sm" style="margin-top:8px;width:100%" onclick="openAddWeightModal(${a.id})">+ Gewicht</button>
+        ${ws.length > 0 ? `<button class="btn btn-ghost btn-sm" style="margin-top:4px;width:100%;font-size:.72rem" data-label="${ws.length} Messungen" onclick="toggleWscHistory('${histId}',this)">${ws.length} Messungen ↓</button>
+        <div id="${histId}" class="wsc-history">${histRows}</div>` : ''}
       </div>`;
     });
     gridHtml += '</div>';
@@ -794,6 +951,13 @@ async function renderWeightSummaryAll() {
   } catch(e) {
     el.innerHTML = `<div class="card" id="weight-block" style="color:var(--danger);font-size:.85rem">${esc(e.message)}</div>`;
   }
+}
+
+function toggleWscHistory(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const open = el.classList.toggle('open');
+  btn.textContent = open ? 'Ausblenden ↑' : (btn.dataset.label + ' ↓');
 }
 
 function openAddWeightModal(animalId) {
@@ -815,107 +979,32 @@ async function saveAddWeight(animalId) {
   const weight_kg = parseFloat(document.getElementById('aw-kg').value);
   const date = document.getElementById('aw-date').value;
   if (!weight_kg || !date) { toast('Gewicht und Datum erforderlich', true); return; }
+  const btn = document.querySelector('#modal-body .btn-primary');
+  if (btn) btn.disabled = true;
   try {
     await api('POST', '/api/weights', { weight_kg, date, animal_id: animalId });
     toast('Gewicht gespeichert ✓');
     closeModal();
     await renderFeedTab();
-  } catch(e) { toast(e.message, true); }
-}
-
-function renderWeightsInner() {
-  const latest = S.weights.length ? S.weights[S.weights.length - 1] : null;
-  const prev   = S.weights.length >= 2 ? S.weights[S.weights.length - 2] : null;
-  const diff   = (latest && prev) ? (latest.weight_kg - prev.weight_kg) : null;
-  const chart  = S.weights.length > 1 ? buildWeightChart(S.weights) : '';
-
-  let trendHtml = '';
-  if (diff !== null) {
-    if (Math.abs(diff) < 0.01) trendHtml = '<span class="trend-flat">→ stabil</span>';
-    else if (diff > 0)          trendHtml = `<span class="trend-up">↑ +${diff.toFixed(2)} kg</span>`;
-    else                        trendHtml = `<span class="trend-down">↓ ${diff.toFixed(2)} kg</span>`;
+  } catch(e) {
+    toast(e.message, true);
+    if (btn) btn.disabled = false;
   }
-
-  const listHtml = S.weights.length
-    ? S.weights.slice().reverse().slice(0, 10).map(w =>
-        `<div class="weight-item">
-          <div>
-            <div class="weight-val">${w.weight_kg} kg</div>
-            <div class="weight-sub">${fmtDate(w.date)}${w.age_weeks != null ? ' · Woche ' + w.age_weeks : ''}</div>
-          </div>
-          <button class="icon-btn danger" onclick="deleteWeight(${w.id})">🗑️</button>
-        </div>`
-      ).join('')
-    : '<div class="empty"><div class="empty-icon">⚖️</div><div class="empty-text">Noch keine Messungen eingetragen</div></div>';
-
-  document.getElementById('weights-inner').innerHTML =
-    '<div class="card" id="weight-block">' +
-    (chart ? '<div class="card-title">Gewichtsverlauf</div><div class="weight-chart-wrap">' + chart + '</div>' : '') +
-    '<div style="margin-bottom:14px">' +
-    '<div style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Aktuelles Gewicht</div>' +
-    `<div class="current-weight-row"><span class="current-weight-big">${latest ? latest.weight_kg + ' kg' : '—'}</span>${trendHtml}</div>` +
-    (latest ? `<div style="font-size:.75rem;color:var(--muted);margin-top:2px">${fmtDate(latest.date)}</div>` : '') +
-    '</div>' +
-    '<div class="form-row">' +
-    '<div class="form-group"><label>Gewicht (kg)</label><input id="w-kg" type="number" min="0.1" max="200" step="0.01" placeholder="7.25"></div>' +
-    `<div class="form-group"><label>Datum</label><input id="w-date" type="date" value="${todayISO()}"></div>` +
-    '</div>' +
-    '<button class="btn btn-primary btn-full" onclick="addWeight()">Gewicht eintragen</button></div>' +
-    '<div class="card"><div class="card-title">Letzte Messungen</div>' + listHtml + '</div>';
 }
 
-function buildWeightChart(weights) {
-  const W = 320, H = 100, PX = 16, PY = 14;
-  const vals = weights.map(w => w.weight_kg);
-  const minV = Math.min(...vals), maxV = Math.max(...vals);
-  const range = maxV - minV || 0.5;
-  const n = weights.length;
-
-  function toX(i) { return PX + (i / (n - 1)) * (W - PX * 2); }
-  function toY(v) { return H - PY - ((v - minV) / range) * (H - PY * 2); }
-
-  const pts     = weights.map((w, i) => `${toX(i).toFixed(1)},${toY(w.weight_kg).toFixed(1)}`).join(' ');
-  const areaPts = pts + ` ${toX(n-1).toFixed(1)},${H-PY+4} ${toX(0).toFixed(1)},${H-PY+4}`;
-  const lx = toX(n - 1), ly = toY(vals[n - 1]);
-
-  const d0 = weights[0].date.substring(5).replace('-', '.');
-  const dN = weights[n-1].date.substring(5).replace('-', '.');
-
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="wfill" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="var(--primary)" stop-opacity=".22"/>
-        <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    <polygon points="${areaPts}" fill="url(#wfill)"/>
-    <polyline fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="${pts}"/>
-    <circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="4" fill="var(--primary)"/>
-    <text x="${lx.toFixed(1)}" y="${(ly - 8).toFixed(1)}" text-anchor="middle" font-size="9.5" fill="var(--primary)" font-family="sans-serif" font-weight="700">${vals[n-1]}</text>
-    <text x="${PX}" y="${H - 2}" font-size="8" fill="var(--muted)" font-family="sans-serif">${d0}</text>
-    <text x="${(W - PX)}" y="${H - 2}" text-anchor="end" font-size="8" fill="var(--muted)" font-family="sans-serif">${dN}</text>
-  </svg>`;
-}
-
-async function addWeight() {
-  const weight_kg = parseFloat(document.getElementById('w-kg').value);
-  const date = document.getElementById('w-date').value;
-  if (!weight_kg || !date) { toast('Gewicht und Datum erforderlich', true); return; }
-  try {
-    await api('POST', '/api/weights', withAnimal({ weight_kg, date }));
-    toast('Gewicht gespeichert ✓');
-    document.getElementById('w-kg').value = '';
-    await renderFeedTab();
-  } catch(e) { toast(e.message, true); }
-}
-
-async function deleteWeight(id) {
-  if (!confirm('Eintrag löschen?')) return;
-  try {
-    await api('DELETE', '/api/weights/' + id);
-    toast('Gelöscht');
-    await renderFeedTab();
-  } catch(e) { toast(e.message, true); }
+function deleteWeight(weightId, animalId) {
+  confirmAction('Gewichtseintrag löschen?', async () => {
+    const row = document.querySelector(`[data-weight-id="${weightId}"]`);
+    if (row) row.remove();
+    try {
+      await api('DELETE', '/api/weights/' + weightId);
+      toast('Gelöscht');
+      await renderWeightSummaryAll();
+    } catch(e) {
+      toast(e.message, true);
+      await renderWeightSummaryAll();
+    }
+  });
 }
 
 // ─── Stocks ───────────────────────────────────────────────────────────────────
@@ -928,7 +1017,7 @@ function stockCardHtml(p) {
     : '';
   const unit = p.unit || 'g';
   const isPiece = p.is_piece_based;
-  const unitPl = unit + 'n';
+  const unitPl = unit === 'Stück' ? 'Stücke' : unit + 'n';
   const dailyDisp = isPiece
     ? `${(p.display_daily_count || 0).toFixed(1)} ${unitPl}/Tag`
     : `${p.daily_portion_g} g/Tag`;
@@ -936,25 +1025,30 @@ function stockCardHtml(p) {
   const stockDisp = isPiece
     ? `${(p.display_stock_count || 0).toFixed(1)} ${unitPl}`
     : `${(p.stock_g || 0).toFixed(0)} g`;
-  return `<div class="stock-card ${p.status}">
-    <div class="stock-card-body">
-      <div class="stock-name">${esc(p.name)}${sharedBadge}</div>
-      <div class="stock-meta">${pkgDisp} · ${dailyDisp}${p.note ? ' · ' + esc(p.note) : ''}</div>
-      <div class="stock-days ${p.status}">${days} Tage · ${stockDisp}</div>
-      <div class="stock-until">${label} · Leer am ${fmtDate(p.run_out_date)}</div>
-      <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${pct.toFixed(1)}%"></div></div>
-    </div>
-    <div class="stock-actions">
-      <button class="icon-btn" title="Auffüllen" onclick="openRestockModal(${p.id})">+📦</button>
-      <button class="icon-btn" title="Bearbeiten" onclick="openProductModal(${p.id})">✏️</button>
-      <button class="icon-btn danger" title="Löschen" onclick="deleteProduct(${p.id})">🗑️</button>
+  return `<div class="swipe-wrap" style="margin-bottom:9px">
+    <div class="swipe-bg"><button class="swipe-del-btn" onclick="deleteProductDirect(${p.id})">🗑️<span>Löschen</span></button></div>
+    <div class="stock-card swipeable ${p.status}">
+      <div class="stock-card-body">
+        <div class="stock-name">${esc(p.name)}${sharedBadge}</div>
+        <div class="stock-meta">${pkgDisp} · ${dailyDisp}${p.note ? ' · ' + esc(p.note) : ''}</div>
+        <div class="stock-days ${p.status}">${days} Tage · ${stockDisp}</div>
+        <div class="stock-until">${label} · Leer am ${fmtDate(p.run_out_date)}</div>
+        <div class="stock-bar"><div class="stock-bar-fill ${p.status}" style="width:${pct.toFixed(1)}%"></div></div>
+      </div>
+      <div class="stock-actions">
+        <button class="icon-btn" title="Auffüllen" onclick="openRestockModal(${p.id})">+📦</button>
+        <button class="icon-btn" title="Bearbeiten" onclick="openProductModal(${p.id})">✏️</button>
+        <button class="icon-btn danger" title="Löschen" onclick="deleteProduct(${p.id})">🗑️</button>
+      </div>
     </div>
   </div>`;
 }
 
 async function renderStocksInner() {
   const el = document.getElementById('stocks-inner');
-  el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted)">Lädt…</div>';
+  el.innerHTML = '<div class="card" id="stocks-section"><div class="card-title">Futtervorräte</div>' +
+    [1,2,3].map(() => `<div class="stock-card" style="margin-bottom:9px"><div class="stock-card-body"><span class="skel" style="height:14px;width:60%;margin-bottom:6px"></span><span class="skel" style="height:10px;width:80%;margin-bottom:8px"></span><span class="skel" style="height:22px;width:40%;margin-bottom:4px"></span><span class="skel" style="height:5px;width:100%"></span></div></div>`).join('') +
+    '</div>';
   try {
     S.products = await api('GET', 'api/food-products');
   } catch(e) {
@@ -995,6 +1089,7 @@ async function renderStocksInner() {
   }
   html += '<button class="btn btn-primary btn-full" style="margin-top:8px" onclick="openProductModal(null)">+ Produkt hinzufügen</button></div>';
   el.innerHTML = html;
+  setupSwipeToDelete(el);
 }
 
 function openProductModal(id) {
@@ -1024,13 +1119,16 @@ function openProductModal(id) {
       <div class="form-group"><label id="pm-pkg-label">${pkgLabel}</label><input id="pm-pkg" type="number" min="1" max="50000" placeholder="200" value="${p ? p.package_weight_g : ''}"></div>
       <div class="form-group"><label id="pm-daily-label">${dailyLabel}</label><input id="pm-daily" type="number" min="0.1" max="5000" step="0.1" placeholder="2" value="${dailyVal}"></div>
     </div>` +
-    (p ? '' : `<div class="form-group"><label id="pm-initial-label">${isPiece ? unit + 'n im Lager' : 'Pakete im Lager'}</label><input id="pm-initial" type="number" min="0" step="0.5" placeholder="2" value="0"></div>`) +
+    (p
+      ? `<div class="form-group"><label id="pm-stock-label">${isPiece ? 'Vorrat jetzt (' + unit + 'n)' : 'Vorrat jetzt (g)'}</label><input id="pm-stock" type="number" min="0" step="0.5" value="${isPiece ? (p.display_stock_count || 0).toFixed(1) : (p.stock_g || 0).toFixed(0)}"></div>`
+      : `<div class="form-group"><label id="pm-initial-label">${isPiece ? unit + 'n im Lager' : 'Pakete im Lager'}</label><input id="pm-initial" type="number" min="0" step="0.5" placeholder="2" value="0"></div>`) +
     `<div class="form-group"><label>Kauferinnerung (Tage vor Leerstand)</label><input id="pm-ahead" type="number" min="1" max="90" placeholder="10" value="${p ? p.buy_ahead_days : '10'}"></div>
     <div class="form-group"><label>Notiz (optional)</label><input id="pm-note" type="text" placeholder="z.B. Katze Nassfutter" value="${esc(p ? (p.note || '') : '')}"></div>
     <div class="form-row" style="gap:8px;margin-top:6px">
       <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-primary btn-full" onclick="saveProduct(${id || 'null'})">Speichern</button>
     </div>`;
+  if (!p) { S.currentDraftKey = 'product'; if (restoreModalDraft('product')) updateProductModalUnit(); }
   openModal();
 }
 
@@ -1041,9 +1139,13 @@ function updateProductModalUnit() {
   document.getElementById('pm-daily-label').textContent = isPiece ? `Tagesration (${unit}n)` : 'Tagesration (g)';
   const initLabel = document.getElementById('pm-initial-label');
   if (initLabel) initLabel.textContent = isPiece ? `${unit}n im Lager` : 'Pakete im Lager';
+  const stockLabel = document.getElementById('pm-stock-label');
+  if (stockLabel) stockLabel.textContent = isPiece ? `Vorrat jetzt (${unit}n)` : 'Vorrat jetzt (g)';
 }
 
 async function saveProduct(id) {
+  const btn = document.querySelector('#modal-body .btn-primary');
+  if (btn) btn.disabled = true;
   const unit = document.getElementById('pm-unit').value;
   const isPiece = unit === 'Dose' || unit === 'Stück';
   const pkgW = parseInt(document.getElementById('pm-pkg').value);
@@ -1067,34 +1169,44 @@ async function saveProduct(id) {
     body.animal_id = parseInt(animalSelVal);
   }
 
-  if (!id) {
+  if (id) {
+    const stockEl = document.getElementById('pm-stock');
+    if (stockEl) {
+      const stockRaw = parseFloat(stockEl.value) || 0;
+      body.stock_g = isPiece ? Math.round(stockRaw * pkgW) : stockRaw;
+    }
+  } else {
     const initEl = document.getElementById('pm-initial');
     body.initial_packages = parseFloat(initEl ? initEl.value : 0) || 0;
   }
   try {
     if (id) await api('PATCH', '/api/food-products/' + id, body);
-    else    await api('POST',  '/api/food-products', body);
+    else  { await api('POST',  '/api/food-products', body); clearModalDraft('product'); }
     toast('Gespeichert ✓');
     closeModal();
     await renderStocksInner();
-  } catch(e) { toast(e.message, true); }
+  } catch(e) {
+    toast(e.message, true);
+    if (btn) btn.disabled = false;
+  }
 }
 
-async function deleteProduct(id) {
-  if (!confirm('Produkt löschen?')) return;
+async function _doDeleteProduct(id) {
   try {
     await api('DELETE', '/api/food-products/' + id);
     toast('Gelöscht');
     await renderStocksInner();
   } catch(e) { toast(e.message, true); }
 }
+function deleteProduct(id) { confirmAction('Produkt löschen?', () => _doDeleteProduct(id)); }
+function deleteProductDirect(id) { _doDeleteProduct(id); }
 
 function openRestockModal(id) {
   const p = (S.products || []).find(x => x.id === id);
   if (!p) return;
   const unit = p.unit || 'g';
   const isPiece = p.is_piece_based;
-  const unitPl = unit + 'n';
+  const unitPl = unit === 'Stück' ? 'Stücke' : unit + 'n';
   const stockDisp = isPiece
     ? `${(p.display_stock_count || 0).toFixed(1)} ${unitPl}`
     : `${(p.stock_g || 0).toFixed(0)} g`;
@@ -1178,7 +1290,7 @@ function _renderHamburgerBody() {
       <div style="font-size:.82rem;color:var(--muted);margin-bottom:12px">Tägliche Erinnerungen für Gesundheitstermine und Futtervorräte</div>
       <button class="btn btn-ghost btn-full" onclick="testNotify()">🔔 Test-Benachrichtigung senden</button>
     </div>
-    <div style="text-align:center;font-size:.72rem;color:var(--muted);padding-top:16px">Cooper v2.5.1</div>`;
+    <div style="text-align:center;font-size:.72rem;color:var(--muted);padding-top:16px">Cooper v2.6.0</div>`;
 }
 
 function openAnimalInMenu(id) {
@@ -1214,9 +1326,9 @@ async function saveAnimalInMenu(id) {
   } catch(e) { toast(e.message, true); }
 }
 
-async function deleteAnimalInMenu(id) {
+function deleteAnimalInMenu(id) {
   const a = S.meta && S.meta.animals.find(x => x.id === id);
-  if (!confirm((a ? a.name : 'Tier') + ' wirklich löschen? Alle Daten gehen verloren.')) return;
+  confirmAction((a ? a.name : 'Tier') + ' wirklich löschen? Alle Daten gehen verloren.', async () => {
   try {
     await api('DELETE', '/api/animals/' + id);
     toast('Gelöscht');
@@ -1230,14 +1342,65 @@ async function deleteAnimalInMenu(id) {
     openHamburgerMenu();
     await refreshTab();
   } catch(e) { toast(e.message, true); }
+  });
 }
 
 // ─── Modal ─────────────────────────────────────────────────────────────────────
 function openModal()  { document.getElementById('modal-backdrop').classList.add('open'); }
-function closeModal() { document.getElementById('modal-backdrop').classList.remove('open'); }
+function closeModal() {
+  S.currentDraftKey = null;
+  const sheet = document.querySelector('.modal-sheet');
+  if (sheet) {
+    sheet.style.transform = '';
+    sheet.style.transition = '';
+    sheet.style.willChange = '';
+    sheet.classList.add('closing');
+  }
+  setTimeout(() => {
+    document.getElementById('modal-backdrop').classList.remove('open');
+    if (sheet) sheet.classList.remove('closing');
+  }, 165);
+}
 document.getElementById('modal-backdrop').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-backdrop')) closeModal();
 });
+
+// ─── Modal draft (auto-save) ──────────────────────────────────────────────────
+function saveModalDraft() {
+  if (!S.currentDraftKey) return;
+  const draft = {};
+  document.querySelectorAll('#modal-body input, #modal-body select, #modal-body textarea')
+    .forEach(f => { if (f.id) draft[f.id] = f.value; });
+  sessionStorage.setItem('coop_draft_' + S.currentDraftKey, JSON.stringify(draft));
+}
+
+function restoreModalDraft(key) {
+  const raw = sessionStorage.getItem('coop_draft_' + key);
+  if (!raw) return false;
+  try {
+    const draft = JSON.parse(raw);
+    let any = false;
+    Object.entries(draft).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && val !== undefined) { el.value = val; any = true; }
+    });
+    if (any) {
+      const b = document.createElement('div');
+      b.style.cssText = 'font-size:.75rem;color:var(--primary);background:var(--primary-bg);padding:6px 10px;border-radius:8px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between';
+      b.innerHTML = '📝 Entwurf wiederhergestellt <button onclick="clearModalDraft();this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:var(--muted);font-size:.9rem">✕</button>';
+      document.getElementById('modal-body').prepend(b);
+    }
+    return any;
+  } catch(e) { return false; }
+}
+
+function clearModalDraft(key) {
+  sessionStorage.removeItem('coop_draft_' + (key || S.currentDraftKey || ''));
+  S.currentDraftKey = null;
+}
+
+document.getElementById('modal-body').addEventListener('input', saveModalDraft);
+document.getElementById('modal-body').addEventListener('change', saveModalDraft);
 
 // ─── Init ──────────────────────────────────────────────────────────────────────
 async function reloadMeta() {
@@ -1245,7 +1408,7 @@ async function reloadMeta() {
   if (S.animalId !== 'all' && S.animalId && !S.meta.animals.find(a => a.id === S.animalId)) {
     S.animalId = null;
   }
-  if (S.animalId == null && S.meta.animals.length) S.animalId = 'all';
+  if (S.animalId == null) S.animalId = 'all';
   persist();
 }
 
@@ -1263,20 +1426,84 @@ init().catch(e => {
   document.body.innerHTML = `<div style="padding:32px;font-family:sans-serif;color:var(--danger)"><h2>Fehler beim Laden</h2><p style="margin-top:8px;font-size:.9rem">${String(e.message)}</p></div>`;
 });
 
-// ─── Touch gestures ────────────────────────────────────────────────────────────
+// ─── Drag-to-dismiss modal ───────────────────────────────────────────────────
+(function() {
+  let startY = 0, dy = 0, active = false;
+  const backdrop = document.getElementById('modal-backdrop');
+  function getSheet() { return backdrop.querySelector('.modal-sheet'); }
+
+  backdrop.addEventListener('touchstart', e => {
+    const sheet = getSheet();
+    if (!sheet) return;
+    const rect = sheet.getBoundingClientRect();
+    const relY = e.touches[0].clientY - rect.top;
+    // Only drag from handle zone (top 56px) or when sheet is at scroll top
+    if (relY > 56 && sheet.scrollTop > 0) return;
+    startY = e.touches[0].clientY;
+    dy = 0;
+    active = true;
+    sheet.style.transition = 'none';
+    sheet.style.willChange = 'transform';
+  }, { passive: true });
+
+  backdrop.addEventListener('touchmove', e => {
+    if (!active) return;
+    dy = Math.max(0, e.touches[0].clientY - startY);
+    const sheet = getSheet();
+    if (sheet) sheet.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+
+  backdrop.addEventListener('touchend', () => {
+    if (!active) return;
+    active = false;
+    const sheet = getSheet();
+    if (!sheet) return;
+    sheet.style.willChange = '';
+    if (dy > 120) {
+      haptic('light');
+      sheet.style.transition = 'transform .2s ease';
+      sheet.style.transform = 'translateY(100%)';
+      setTimeout(closeModal, 180);
+    } else {
+      sheet.style.transition = 'transform .25s cubic-bezier(.23,1,.32,1)';
+      sheet.style.transform = '';
+      setTimeout(() => { if (sheet) sheet.style.transition = ''; }, 260);
+    }
+  }, { passive: true });
+})();
+
+// ─── Touch gestures + pull-to-refresh ────────────────────────────────────────
 (function() {
   const MAIN_TABS = ['start', 'health', 'feed'];
-  let tx = 0, ty = 0;
+  let tx = 0, ty = 0, ptrArmed = false;
   const el = document.querySelector('.main-content');
+  const ptrEl = document.getElementById('ptr-indicator');
 
   el.addEventListener('touchstart', e => {
     tx = e.touches[0].clientX;
     ty = e.touches[0].clientY;
+    ptrArmed = el.scrollTop === 0;
+  }, { passive: true });
+
+  el.addEventListener('touchmove', e => {
+    if (!ptrArmed) return;
+    const dy = e.touches[0].clientY - ty;
+    if (dy > 60) ptrEl.classList.add('show');
+    else ptrEl.classList.remove('show');
   }, { passive: true });
 
   el.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - tx;
     const dy = e.changedTouches[0].clientY - ty;
+    ptrEl.classList.remove('show');
+
+    if (ptrArmed && dy > 60 && Math.abs(dx) < 40) {
+      ptrArmed = false;
+      refreshTab();
+      return;
+    }
+    ptrArmed = false;
+
     if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
     const midx  = MAIN_TABS.indexOf(S.tab);
     const mnext = dx < 0 ? Math.min(midx + 1, MAIN_TABS.length - 1) : Math.max(midx - 1, 0);

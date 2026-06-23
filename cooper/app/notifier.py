@@ -84,6 +84,16 @@ def _build_message(health_reminder_days, local_tz=None):
     return "\n".join(lines)
 
 
+def send_test_notification(config):
+    """Sendet immer eine Test-Benachrichtigung, auch wenn keine Erinnerungen vorliegen."""
+    local_tz = ZoneInfo(config.get("timezone", "Europe/Berlin"))
+    msg = _build_message(config.get("health_reminder_days", 30), local_tz)
+    if not msg:
+        msg = "Keine offenen Erinnerungen – alles im Grünen ✅"
+    service = config.get("notification_service", "notify")
+    return send_notification(service, "🐾 Cooper – Test", msg)
+
+
 def check_and_notify(config):
     """Einmalige Prüfung und Benachrichtigung – kann auch von außen aufgerufen werden."""
     local_tz = ZoneInfo(config.get("timezone", "Europe/Berlin"))

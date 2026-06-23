@@ -330,7 +330,7 @@ def create_food_product(animal_id, name, package_weight_g, daily_portion_g, init
 
 def update_food_product(product_id, **fields):
     conn = get_conn()
-    allowed = {"name", "package_weight_g", "daily_portion_g", "buy_ahead_days", "note", "unit", "animal_id"}
+    allowed = {"name", "package_weight_g", "daily_portion_g", "stock_g", "buy_ahead_days", "note", "unit", "animal_id"}
     sets, values = [], []
     for key, value in fields.items():
         if key in allowed:
