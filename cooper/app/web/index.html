@@ -188,6 +188,8 @@ textarea{resize:vertical;min-height:58px}
 .modal-backdrop.open{display:flex}
 .modal-sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-width:640px;max-height:92dvh;overflow-y:auto;padding:20px 16px calc(36px + env(safe-area-inset-bottom,0));animation:slideUp .2s ease}
 @keyframes slideUp{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes slideDown{from{transform:translateY(0);opacity:1}to{transform:translateY(28px);opacity:0}}
+.modal-sheet.closing{animation:slideDown .17s ease forwards}
 .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
 .modal-title{font-size:1rem;font-weight:800}
 .modal-close{width:32px;height:32px;border:none;background:var(--bg);border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:inherit}
@@ -242,7 +244,6 @@ textarea{resize:vertical;min-height:58px}
       <button class="hamburger-btn" title="Menü" onclick="openHamburgerMenu()">☰</button>
     </div>
   </div>
-  <div id="animal-bar" class="animal-bar"></div>
 </header>
 
 <main class="main-content">
@@ -306,13 +307,6 @@ function persist() {
 }
 
 function restorePersistedState() {
-  const stored = localStorage.getItem('coop_animal');
-  if (stored === 'all') {
-    S.animalId = 'all';
-  } else {
-    const aid = parseInt(stored);
-    if (!isNaN(aid)) S.animalId = aid;
-  }
   S.tab = localStorage.getItem('coop_tab') || 'start';
 }
 
@@ -400,20 +394,14 @@ function dueLabel(days) {
 async function testNotify() {
   try {
     const result = await api('POST', '/api/notify-test');
-    toast(result.status === 'sent' ? '🔔 Benachrichtigung gesendet ✓' : 'Nichts zu senden oder kein SUPERVISOR_TOKEN');
+    if (result.status === 'sent') toast('🔔 Benachrichtigung gesendet ✓');
+    else if (result.reason === 'no_token') toast('Kein SUPERVISOR_TOKEN – prüfe HA Add-on Berechtigungen', true);
+    else toast('Sendefehler – prüfe notification_service in der Konfiguration', true);
   } catch(e) { toast(e.message, true); }
 }
 
 // ─── Header ──────────────────────────────────────────────────────────────────
-function renderAnimalBar() {
-  const bar = document.getElementById('animal-bar');
-  if (!S.meta || !S.meta.animals.length) { bar.innerHTML = ''; return; }
-  const allChip = `<button class="animal-chip${S.animalId === 'all' ? ' active' : ''}" onclick="selectAnimal('all')">🐾 Alle</button>`;
-  bar.innerHTML = allChip + S.meta.animals.map(a =>
-    `<button class="animal-chip${S.animalId === a.id ? ' active' : ''}" onclick="selectAnimal(${a.id})">` +
-    `<span>${a.icon}</span>${esc(a.name)}</button>`
-  ).join('');
-}
+function renderAnimalBar() { /* animal bar removed */ }
 
 function selectAnimal(id) {
   S.animalId = id === 'all' ? 'all' : id;
@@ -441,14 +429,6 @@ function noAnimalHint() {
 }
 
 async function refreshTab() {
-  if (!S.animalId) {
-    document.getElementById('start-inner').innerHTML = noAnimalHint();
-    document.getElementById('health-list').innerHTML = noAnimalHint();
-    document.getElementById('health-filter').innerHTML = '';
-    document.getElementById('weights-inner').innerHTML = noAnimalHint();
-    document.getElementById('stocks-inner').innerHTML  = noAnimalHint();
-    return;
-  }
   if      (S.tab === 'start')  await renderStartTab();
   else if (S.tab === 'health') await renderHealthTab();
   else if (S.tab === 'feed')   await renderFeedTab();
@@ -597,7 +577,8 @@ async function renderStartTab() {
         '<div style="margin-top:8px;text-align:center"><button class="btn btn-ghost btn-sm" onclick="goToStocks()">Vorräte verwalten →</button></div></div>';
     }
 
-    el.innerHTML = heroHtml +
+    el.innerHTML = `<button class="btn btn-ghost btn-sm" style="margin-bottom:10px" onclick="selectAnimal('all')">← Alle Tiere</button>` +
+      heroHtml +
       '<div class="card"><div class="card-title">Gesundheits-Termine</div>' + upHtml + '</div>' +
       stockHtml;
   } catch(e) {
@@ -745,18 +726,8 @@ async function saveHealth(id) {
 
 // ─── Feed tab ─────────────────────────────────────────────────────────────────
 async function renderFeedTab() {
-  if (S.animalId === 'all') {
-    await renderWeightSummaryAll();
-    await renderStocksInner();
-    return;
-  }
-  try {
-    S.weights = await api('GET', '/api/weights' + aq());
-    renderWeightsInner();
-    await renderStocksInner();
-  } catch(e) {
-    document.getElementById('weights-inner').innerHTML = `<div style="color:var(--danger);font-size:.85rem;padding:12px">${esc(e.message)}</div>`;
-  }
+  await renderWeightSummaryAll();
+  await renderStocksInner();
 }
 
 async function renderWeightSummaryAll() {
@@ -1024,7 +995,9 @@ function openProductModal(id) {
       <div class="form-group"><label id="pm-pkg-label">${pkgLabel}</label><input id="pm-pkg" type="number" min="1" max="50000" placeholder="200" value="${p ? p.package_weight_g : ''}"></div>
       <div class="form-group"><label id="pm-daily-label">${dailyLabel}</label><input id="pm-daily" type="number" min="0.1" max="5000" step="0.1" placeholder="2" value="${dailyVal}"></div>
     </div>` +
-    (p ? '' : `<div class="form-group"><label id="pm-initial-label">${isPiece ? unit + 'n im Lager' : 'Pakete im Lager'}</label><input id="pm-initial" type="number" min="0" step="0.5" placeholder="2" value="0"></div>`) +
+    (p
+      ? `<div class="form-group"><label id="pm-stock-label">${isPiece ? 'Vorrat jetzt (' + unit + 'n)' : 'Vorrat jetzt (g)'}</label><input id="pm-stock" type="number" min="0" step="0.5" value="${isPiece ? (p.display_stock_count || 0).toFixed(1) : (p.stock_g || 0).toFixed(0)}"></div>`
+      : `<div class="form-group"><label id="pm-initial-label">${isPiece ? unit + 'n im Lager' : 'Pakete im Lager'}</label><input id="pm-initial" type="number" min="0" step="0.5" placeholder="2" value="0"></div>`) +
     `<div class="form-group"><label>Kauferinnerung (Tage vor Leerstand)</label><input id="pm-ahead" type="number" min="1" max="90" placeholder="10" value="${p ? p.buy_ahead_days : '10'}"></div>
     <div class="form-group"><label>Notiz (optional)</label><input id="pm-note" type="text" placeholder="z.B. Katze Nassfutter" value="${esc(p ? (p.note || '') : '')}"></div>
     <div class="form-row" style="gap:8px;margin-top:6px">
@@ -1041,6 +1014,8 @@ function updateProductModalUnit() {
   document.getElementById('pm-daily-label').textContent = isPiece ? `Tagesration (${unit}n)` : 'Tagesration (g)';
   const initLabel = document.getElementById('pm-initial-label');
   if (initLabel) initLabel.textContent = isPiece ? `${unit}n im Lager` : 'Pakete im Lager';
+  const stockLabel = document.getElementById('pm-stock-label');
+  if (stockLabel) stockLabel.textContent = isPiece ? `Vorrat jetzt (${unit}n)` : 'Vorrat jetzt (g)';
 }
 
 async function saveProduct(id) {
@@ -1067,7 +1042,13 @@ async function saveProduct(id) {
     body.animal_id = parseInt(animalSelVal);
   }
 
-  if (!id) {
+  if (id) {
+    const stockEl = document.getElementById('pm-stock');
+    if (stockEl) {
+      const stockRaw = parseFloat(stockEl.value) || 0;
+      body.stock_g = isPiece ? Math.round(stockRaw * pkgW) : stockRaw;
+    }
+  } else {
     const initEl = document.getElementById('pm-initial');
     body.initial_packages = parseFloat(initEl ? initEl.value : 0) || 0;
   }
@@ -1234,7 +1215,14 @@ async function deleteAnimalInMenu(id) {
 
 // ─── Modal ─────────────────────────────────────────────────────────────────────
 function openModal()  { document.getElementById('modal-backdrop').classList.add('open'); }
-function closeModal() { document.getElementById('modal-backdrop').classList.remove('open'); }
+function closeModal() {
+  const sheet = document.querySelector('.modal-sheet');
+  if (sheet) sheet.classList.add('closing');
+  setTimeout(() => {
+    document.getElementById('modal-backdrop').classList.remove('open');
+    if (sheet) sheet.classList.remove('closing');
+  }, 165);
+}
 document.getElementById('modal-backdrop').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-backdrop')) closeModal();
 });
@@ -1245,7 +1233,7 @@ async function reloadMeta() {
   if (S.animalId !== 'all' && S.animalId && !S.meta.animals.find(a => a.id === S.animalId)) {
     S.animalId = null;
   }
-  if (S.animalId == null && S.meta.animals.length) S.animalId = 'all';
+  if (S.animalId == null) S.animalId = 'all';
   persist();
 }
 
