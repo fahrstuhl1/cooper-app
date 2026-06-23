@@ -649,7 +649,7 @@ function renderHealthList() {
     const bp = b.overdue ? 0 : (b.due_date ? 1 : 2);
     if (ap !== bp) return ap - bp;
     if (a.due_date && b.due_date) return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0;
-    return b.date > a.date ? -1 : b.date < a.date ? 1 : 0;
+    return a.date > b.date ? -1 : a.date < b.date ? 1 : 0;
   });
   if (!items.length) {
     el.innerHTML = '<div class="empty"><div class="empty-icon">💊</div><div class="empty-text">Keine Einträge – füge einen mit + hinzu</div></div>';
@@ -1077,7 +1077,7 @@ function openProductModal(id) {
       <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-primary btn-full" onclick="saveProduct(${id || 'null'})">Speichern</button>
     </div>`;
-  if (!p) { S.currentDraftKey = 'product'; restoreModalDraft('product'); }
+  if (!p) { S.currentDraftKey = 'product'; if (restoreModalDraft('product')) updateProductModalUnit(); }
   openModal();
 }
 
