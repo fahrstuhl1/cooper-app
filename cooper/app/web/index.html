@@ -319,6 +319,7 @@ const S = {
   products: [],
   dashboard: null,
   renderToken: 0,
+  currentDraftKey: null,
 };
 
 function persist() {
@@ -642,7 +643,14 @@ async function renderHealthTab() {
 
 function renderHealthList() {
   const el = document.getElementById('health-list');
-  const items = S.healthFilter ? S.health.filter(e => e.type === S.healthFilter) : S.health;
+  const raw = S.healthFilter ? S.health.filter(e => e.type === S.healthFilter) : S.health;
+  const items = [...raw].sort((a, b) => {
+    const ap = a.overdue ? 0 : (a.due_date ? 1 : 2);
+    const bp = b.overdue ? 0 : (b.due_date ? 1 : 2);
+    if (ap !== bp) return ap - bp;
+    if (a.due_date && b.due_date) return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0;
+    return b.date > a.date ? -1 : b.date < a.date ? 1 : 0;
+  });
   if (!items.length) {
     el.innerHTML = '<div class="empty"><div class="empty-icon">💊</div><div class="empty-text">Keine Einträge – füge einen mit + hinzu</div></div>';
     return;
@@ -732,6 +740,7 @@ function openHealthModal(id) {
       <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-primary btn-full" onclick="saveHealth(${id || 'null'})">Speichern</button>
     </div>`;
+  if (!ev) { S.currentDraftKey = 'health'; restoreModalDraft('health'); }
   openModal();
 }
 
@@ -752,7 +761,7 @@ async function saveHealth(id) {
   };
   try {
     if (id) await api('PATCH', '/api/health/' + id, body);
-    else    await api('POST',  '/api/health', body);
+    else  { await api('POST',  '/api/health', body); clearModalDraft('health'); }
     toast('Gespeichert ✓');
     closeModal();
     await renderHealthTab();
@@ -1068,6 +1077,7 @@ function openProductModal(id) {
       <button class="btn btn-ghost btn-full" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-primary btn-full" onclick="saveProduct(${id || 'null'})">Speichern</button>
     </div>`;
+  if (!p) { S.currentDraftKey = 'product'; restoreModalDraft('product'); }
   openModal();
 }
 
@@ -1120,7 +1130,7 @@ async function saveProduct(id) {
   }
   try {
     if (id) await api('PATCH', '/api/food-products/' + id, body);
-    else    await api('POST',  '/api/food-products', body);
+    else  { await api('POST',  '/api/food-products', body); clearModalDraft('product'); }
     toast('Gespeichert ✓');
     closeModal();
     await renderStocksInner();
@@ -1285,6 +1295,7 @@ async function deleteAnimalInMenu(id) {
 // ─── Modal ─────────────────────────────────────────────────────────────────────
 function openModal()  { document.getElementById('modal-backdrop').classList.add('open'); }
 function closeModal() {
+  S.currentDraftKey = null;
   const sheet = document.querySelector('.modal-sheet');
   if (sheet) sheet.classList.add('closing');
   setTimeout(() => {
@@ -1295,6 +1306,43 @@ function closeModal() {
 document.getElementById('modal-backdrop').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-backdrop')) closeModal();
 });
+
+// ─── Modal draft (auto-save) ──────────────────────────────────────────────────
+function saveModalDraft() {
+  if (!S.currentDraftKey) return;
+  const draft = {};
+  document.querySelectorAll('#modal-body input, #modal-body select, #modal-body textarea')
+    .forEach(f => { if (f.id) draft[f.id] = f.value; });
+  sessionStorage.setItem('coop_draft_' + S.currentDraftKey, JSON.stringify(draft));
+}
+
+function restoreModalDraft(key) {
+  const raw = sessionStorage.getItem('coop_draft_' + key);
+  if (!raw) return false;
+  try {
+    const draft = JSON.parse(raw);
+    let any = false;
+    Object.entries(draft).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && val !== undefined) { el.value = val; any = true; }
+    });
+    if (any) {
+      const b = document.createElement('div');
+      b.style.cssText = 'font-size:.75rem;color:var(--primary);background:var(--primary-bg);padding:6px 10px;border-radius:8px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between';
+      b.innerHTML = '📝 Entwurf wiederhergestellt <button onclick="clearModalDraft();this.parentNode.remove()" style="border:none;background:none;cursor:pointer;color:var(--muted);font-size:.9rem">✕</button>';
+      document.getElementById('modal-body').prepend(b);
+    }
+    return any;
+  } catch(e) { return false; }
+}
+
+function clearModalDraft(key) {
+  sessionStorage.removeItem('coop_draft_' + (key || S.currentDraftKey || ''));
+  S.currentDraftKey = null;
+}
+
+document.getElementById('modal-body').addEventListener('input', saveModalDraft);
+document.getElementById('modal-body').addEventListener('change', saveModalDraft);
 
 // ─── Init ──────────────────────────────────────────────────────────────────────
 async function reloadMeta() {
