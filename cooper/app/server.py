@@ -198,6 +198,30 @@ def create_app(config):
             "food_reminders": food_reminders,
         })
 
+    @app.get("/api/dashboard/all")
+    def dashboard_all():
+        now_utc = datetime.datetime.now(UTC)
+        today = now_utc.astimezone(LOCAL_TZ).date()
+        horizon = (today + datetime.timedelta(days=config["health_reminder_days"])).isoformat()
+        animals = [enrich_animal(a) for a in db.list_animals()]
+        result = []
+        for animal in animals:
+            aid = animal["id"]
+            upcoming = db.upcoming_health(today.isoformat(), horizon, aid)
+            for item in upcoming:
+                item["due_date"] = next_due_date(item["due_date"], item["repeat_weeks"])
+                item["overdue"] = item["due_date"] < today.isoformat()
+            weights = db.list_weights(aid)
+            weight_history = [{"date": w["date"], "weight_kg": w["weight_kg"]} for w in weights[-20:]]
+            food_reminders = [enrich_product(p) for p in db.low_stock_products(aid)]
+            result.append({
+                "animal": animal,
+                "upcoming_health": upcoming,
+                "weight": {"history": weight_history},
+                "food_reminders": food_reminders,
+            })
+        return jsonify(result)
+
     @app.get("/api/ha-sensors")
     def ha_sensors():
         now_utc = datetime.datetime.now(UTC)

@@ -231,11 +231,30 @@ textarea{resize:vertical;min-height:58px}
 
 /* ── Stocks section divider ── */
 .stocks-section-header{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+/* ── Offline banner ── */
+#offline-banner{display:none;background:var(--danger);color:#fff;text-align:center;padding:7px 16px;font-size:.8rem;font-weight:600;gap:10px;align-items:center;justify-content:center;position:sticky;top:0;z-index:150}
+#offline-banner.show{display:flex}
+
+/* ── Pull-to-refresh indicator ── */
+#ptr-indicator{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:var(--surface);border-radius:999px;padding:6px 16px;font-size:.78rem;font-weight:600;color:var(--muted);box-shadow:var(--shadow-md);z-index:130;display:none;align-items:center}
+#ptr-indicator.show{display:flex}
+
+/* ── Weight history expand ── */
+.wsc-history{display:none;margin-top:8px;border-top:1px solid var(--border);padding-top:6px}
+.wsc-history.open{display:block}
+.wsc-hist-item{display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:.78rem;border-bottom:1px solid var(--border)}
+.wsc-hist-item:last-child{border-bottom:none}
+
+/* ── Disabled buttons ── */
+.btn:disabled{opacity:.45;cursor:not-allowed}
 </style>
 </head>
 <body>
 
 <div id="toast" class="toast"></div>
+<div id="offline-banner">⚡ Verbindung verloren <button onclick="location.reload()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:2px 10px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;margin-left:8px">Neu laden</button></div>
+<div id="ptr-indicator">↻ Wird aktualisiert…</div>
 
 <header class="app-header">
   <div class="header-main">
@@ -299,6 +318,7 @@ const S = {
   weights: [],
   products: [],
   dashboard: null,
+  renderToken: 0,
 };
 
 function persist() {
@@ -326,11 +346,17 @@ async function api(method, path, body) {
     opts.body = JSON.stringify(body);
   }
   const url = path.replace(/^\//, '');
-  const res = await fetch(url, opts);
-  if (res.status === 204) return null;
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Fehler ' + res.status);
-  return data;
+  try {
+    const res = await fetch(url, opts);
+    document.getElementById('offline-banner').classList.remove('show');
+    if (res.status === 204) return null;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Fehler ' + res.status);
+    return data;
+  } catch(e) {
+    if (e instanceof TypeError) document.getElementById('offline-banner').classList.add('show');
+    throw e;
+  }
 }
 
 function aq(extra) {
@@ -429,13 +455,14 @@ function noAnimalHint() {
 }
 
 async function refreshTab() {
-  if      (S.tab === 'start')  await renderStartTab();
+  const myToken = ++S.renderToken;
+  if      (S.tab === 'start')  await renderStartTab(myToken);
   else if (S.tab === 'health') await renderHealthTab();
   else if (S.tab === 'feed')   await renderFeedTab();
 }
 
 // ─── Start tab ────────────────────────────────────────────────────────────────
-async function renderStartTab() {
+async function renderStartTab(myToken) {
   const el = document.getElementById('start-inner');
 
   // ── Alle-Modus: Grid mit einer Karte pro Tier ──
@@ -447,11 +474,10 @@ async function renderStartTab() {
         el.innerHTML = '<div class="card"><div class="empty"><div class="empty-icon">🐾</div><div class="empty-text">Noch keine Tiere – füge eines über ☰ hinzu</div></div></div>';
         return;
       }
-      const dashboards = await Promise.all(animals.map(a =>
-        api('GET', '/api/dashboard?animal_id=' + a.id)
-      ));
-      const gridHtml = '<div class="aoc-grid">' + dashboards.map((dash, i) => {
-        const a = dash.animal || animals[i];
+      const dashboards = await api('GET', 'api/dashboard/all');
+      if (myToken != null && S.renderToken !== myToken) return;
+      const gridHtml = '<div class="aoc-grid">' + dashboards.map(dash => {
+        const a = dash.animal;
         const hist = (dash.weight && dash.weight.history) || [];
         const latestW = hist.length > 0 ? hist[hist.length - 1].weight_kg : null;
         const prevW   = hist.length >= 2 ? hist[hist.length - 2].weight_kg : null;
@@ -478,6 +504,7 @@ async function renderStartTab() {
           <div class="aoc-info">${stockLabel}</div>
         </div>`;
       }).join('') + '</div>';
+      if (myToken != null && S.renderToken !== myToken) return;
       el.innerHTML = gridHtml;
     } catch(e) {
       el.innerHTML = `<div class="card" style="color:var(--danger);font-size:.85rem">${esc(e.message)}</div>`;
@@ -577,6 +604,7 @@ async function renderStartTab() {
         '<div style="margin-top:8px;text-align:center"><button class="btn btn-ghost btn-sm" onclick="goToStocks()">Vorräte verwalten →</button></div></div>';
     }
 
+    if (myToken != null && S.renderToken !== myToken) return;
     el.innerHTML = `<button class="btn btn-ghost btn-sm" style="margin-bottom:10px" onclick="selectAnimal('all')">← Alle Tiere</button>` +
       heroHtml +
       '<div class="card"><div class="card-title">Gesundheits-Termine</div>' + upHtml + '</div>' +
@@ -667,12 +695,17 @@ async function markHealthDone(id) {
 
 async function deleteHealth(id) {
   if (!confirm('Eintrag löschen?')) return;
+  const backup = [...S.health];
+  S.health = S.health.filter(e => e.id !== id);
+  renderHealthList();
   try {
     await api('DELETE', '/api/health/' + id);
     toast('Gelöscht');
-    S.health = S.health.filter(e => e.id !== id);
+  } catch(e) {
+    S.health = backup;
     renderHealthList();
-  } catch(e) { toast(e.message, true); }
+    toast(e.message, true);
+  }
 }
 
 function openHealthModal(id) {
@@ -703,6 +736,8 @@ function openHealthModal(id) {
 }
 
 async function saveHealth(id) {
+  const btn = document.querySelector('#modal-body .btn-primary');
+  if (btn) btn.disabled = true;
   const animalSel = document.getElementById('hm-animal');
   const animalId = animalSel && animalSel.value ? parseInt(animalSel.value) : null;
   const repeatVal = document.getElementById('hm-repeat').value;
@@ -721,7 +756,10 @@ async function saveHealth(id) {
     toast('Gespeichert ✓');
     closeModal();
     await renderHealthTab();
-  } catch(e) { toast(e.message, true); }
+  } catch(e) {
+    toast(e.message, true);
+    if (btn) btn.disabled = false;
+  }
 }
 
 // ─── Feed tab ─────────────────────────────────────────────────────────────────
@@ -752,12 +790,21 @@ async function renderWeightSummaryAll() {
         else if (diff > 0) trendStr = `↑ +${diff.toFixed(2)} kg`;
         else trendStr = `↓ ${diff.toFixed(2)} kg`;
       }
+      const histId = `wh-${a.id}`;
+      const histRows = ws.slice().reverse().map(w =>
+        `<div class="wsc-hist-item" data-weight-id="${w.id}">
+          <span>${fmtDate(w.date)} · <strong>${w.weight_kg} kg</strong></span>
+          <button class="icon-btn danger" style="width:24px;height:24px;font-size:.72rem" onclick="deleteWeight(${w.id},${a.id})" title="Löschen">🗑️</button>
+        </div>`
+      ).join('');
       gridHtml += `<div class="weight-summary-card">
         <div class="wsc-name">${a.icon} ${esc(a.name)}</div>
         <div class="wsc-val">${latest ? latest.weight_kg + ' kg' : '—'}</div>
         ${trendStr ? `<div class="wsc-sub">${trendStr}</div>` : ''}
         ${latest ? `<div class="wsc-sub">${fmtDate(latest.date)}</div>` : ''}
         <button class="btn btn-ghost btn-sm" style="margin-top:8px;width:100%" onclick="openAddWeightModal(${a.id})">+ Gewicht</button>
+        ${ws.length > 0 ? `<button class="btn btn-ghost btn-sm" style="margin-top:4px;width:100%;font-size:.72rem" data-label="${ws.length} Messungen" onclick="toggleWscHistory('${histId}',this)">${ws.length} Messungen ↓</button>
+        <div id="${histId}" class="wsc-history">${histRows}</div>` : ''}
       </div>`;
     });
     gridHtml += '</div>';
@@ -765,6 +812,13 @@ async function renderWeightSummaryAll() {
   } catch(e) {
     el.innerHTML = `<div class="card" id="weight-block" style="color:var(--danger);font-size:.85rem">${esc(e.message)}</div>`;
   }
+}
+
+function toggleWscHistory(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const open = el.classList.toggle('open');
+  btn.textContent = open ? 'Ausblenden ↑' : (btn.dataset.label + ' ↓');
 }
 
 function openAddWeightModal(animalId) {
@@ -786,12 +840,17 @@ async function saveAddWeight(animalId) {
   const weight_kg = parseFloat(document.getElementById('aw-kg').value);
   const date = document.getElementById('aw-date').value;
   if (!weight_kg || !date) { toast('Gewicht und Datum erforderlich', true); return; }
+  const btn = document.querySelector('#modal-body .btn-primary');
+  if (btn) btn.disabled = true;
   try {
     await api('POST', '/api/weights', { weight_kg, date, animal_id: animalId });
     toast('Gewicht gespeichert ✓');
     closeModal();
     await renderFeedTab();
-  } catch(e) { toast(e.message, true); }
+  } catch(e) {
+    toast(e.message, true);
+    if (btn) btn.disabled = false;
+  }
 }
 
 function renderWeightsInner() {
@@ -880,13 +939,18 @@ async function addWeight() {
   } catch(e) { toast(e.message, true); }
 }
 
-async function deleteWeight(id) {
+async function deleteWeight(weightId, animalId) {
   if (!confirm('Eintrag löschen?')) return;
+  const row = document.querySelector(`[data-weight-id="${weightId}"]`);
+  if (row) row.remove();
   try {
-    await api('DELETE', '/api/weights/' + id);
+    await api('DELETE', '/api/weights/' + weightId);
     toast('Gelöscht');
-    await renderFeedTab();
-  } catch(e) { toast(e.message, true); }
+    await renderWeightSummaryAll();
+  } catch(e) {
+    toast(e.message, true);
+    await renderWeightSummaryAll();
+  }
 }
 
 // ─── Stocks ───────────────────────────────────────────────────────────────────
@@ -1019,6 +1083,8 @@ function updateProductModalUnit() {
 }
 
 async function saveProduct(id) {
+  const btn = document.querySelector('#modal-body .btn-primary');
+  if (btn) btn.disabled = true;
   const unit = document.getElementById('pm-unit').value;
   const isPiece = unit === 'Dose' || unit === 'Stück';
   const pkgW = parseInt(document.getElementById('pm-pkg').value);
@@ -1058,7 +1124,10 @@ async function saveProduct(id) {
     toast('Gespeichert ✓');
     closeModal();
     await renderStocksInner();
-  } catch(e) { toast(e.message, true); }
+  } catch(e) {
+    toast(e.message, true);
+    if (btn) btn.disabled = false;
+  }
 }
 
 async function deleteProduct(id) {
@@ -1251,20 +1320,38 @@ init().catch(e => {
   document.body.innerHTML = `<div style="padding:32px;font-family:sans-serif;color:var(--danger)"><h2>Fehler beim Laden</h2><p style="margin-top:8px;font-size:.9rem">${String(e.message)}</p></div>`;
 });
 
-// ─── Touch gestures ────────────────────────────────────────────────────────────
+// ─── Touch gestures + pull-to-refresh ────────────────────────────────────────
 (function() {
   const MAIN_TABS = ['start', 'health', 'feed'];
-  let tx = 0, ty = 0;
+  let tx = 0, ty = 0, ptrArmed = false;
   const el = document.querySelector('.main-content');
+  const ptrEl = document.getElementById('ptr-indicator');
 
   el.addEventListener('touchstart', e => {
     tx = e.touches[0].clientX;
     ty = e.touches[0].clientY;
+    ptrArmed = el.scrollTop === 0;
+  }, { passive: true });
+
+  el.addEventListener('touchmove', e => {
+    if (!ptrArmed) return;
+    const dy = e.touches[0].clientY - ty;
+    if (dy > 60) ptrEl.classList.add('show');
+    else ptrEl.classList.remove('show');
   }, { passive: true });
 
   el.addEventListener('touchend', e => {
     const dx = e.changedTouches[0].clientX - tx;
     const dy = e.changedTouches[0].clientY - ty;
+    ptrEl.classList.remove('show');
+
+    if (ptrArmed && dy > 60 && Math.abs(dx) < 40) {
+      ptrArmed = false;
+      refreshTab();
+      return;
+    }
+    ptrArmed = false;
+
     if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
     const midx  = MAIN_TABS.indexOf(S.tab);
     const mnext = dx < 0 ? Math.min(midx + 1, MAIN_TABS.length - 1) : Math.max(midx - 1, 0);
